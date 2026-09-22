@@ -1,0 +1,73 @@
+# ===============
+# LDRES @Ri+, #u4
+# ===============
+:LDRES "@"^Rireg^"+, #"^u4 is op8=0xBC & u4 & Rireg
+{
+    local addr:4;
+    local data:4;
+
+    read_ri(addr);
+    readw(addr, data);
+
+    LDRES_OP(u4, data);
+
+    write_ri(addr + 4);
+}
+
+# ===============
+# STRES #u4, @Ri+
+# ===============
+:STRES "#"^u4^", @"^Rireg^"+" is op8=0xBD & u4 & Rireg
+{
+    local addr:4;
+    local data:4;
+
+    read_ri(addr);
+
+    data = STRES_OP(u4);
+
+    writew(addr, data);
+
+    write_ri(addr + 4);
+}
+
+# ==========================
+# COPOP #CPu4, #CC, CRj, CRi
+# ==========================
+:COPOP "#"^CPu4, "#"^CC, CRj, CRi is op12=0x9FC & CPu4 ; CC & CRj & CRi
+{
+	COPOP(CPu4, CC, CRj, CRi);
+}
+
+# =========================
+# COPLD #CPu4, #CC, Rj, CRi
+# =========================
+:COPLD "#"^CPu4, "#"^CC, Rjreg, CRi is op12=0x9FD & CPu4 ; CC & Rjreg & CRi
+{
+    local data:4;
+    read_rj(data);
+
+    COPLD(CPu4, CC, CRi, data);
+}
+	
+# =========================
+# COPST #CPu4, #CC, CRj, Ri
+# =========================
+:COPST "#"^CPu4, "#"^CC, CRj, Ri is op12=0x9FE & CPu4 ; CC & CRj & Rireg
+{
+	local data:4;
+
+    data = COPST(CPu4, CC, CRj);
+    write_ri(data);
+}
+	
+# =========================
+# COPSV #CPu4, #CC, CRj, Ri
+# =========================
+:COPSV "#"^CPu4, "#"^CC, CRj, Ri is op12=0x9FF & CPu4 ; CC & CRj & Rireg
+{
+	local data:4;
+
+    data = COPSV(CPu4, CC, CRj);
+    write_ri(data);
+}

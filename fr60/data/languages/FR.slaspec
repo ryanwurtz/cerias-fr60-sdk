@@ -1,0 +1,282 @@
+define endian=big;
+define alignment=2;
+
+define space ram type=ram_space size=4 default;
+define space register type=register_space size=1; 
+
+define register offset=0x00 size=4 [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 AC FP SP];
+define register offset=0x40 size=4 [ PC PS TBR RP SSP USP ];
+define register offset=0x5c size=4 [ MDH MDL ]; 
+
+#aliases for PS
+define bitrange ILM=PS[16,5]; 
+define bitrange SCR=PS[8,3];
+define bitrange CCR=PS[0,8];
+#aliases for SCR
+define bitrange T=PS[8,1];
+define bitrange D0=PS[9, 1];
+define bitrange D1=PS[10,1];
+#aliases for CCR
+define bitrange C=PS[0,1];
+define bitrange V=PS[1,1];
+define bitrange Z=PS[2,1];
+define bitrange N=PS[3,1];
+define bitrange I=PS[4,1];
+define bitrange S=PS[5,1];
+
+#instruction token bitfields
+define token instr(16)
+	op16 = (0,15)
+	op12 = (4,15)
+    op8 = (8,15)
+    op5 = (11,15)
+    op4 = (12,15)
+    cc = (8,11)
+  	u8 = (0,7)
+    u4 = (4,7)
+    i16 = (0,15)
+    i8 = (4,11)
+    s8 = (4,11) signed
+    rel11 = (0,10) signed
+    rel8 = (0,7) signed
+    Rj = (4,7)
+    Ri = (0,3)
+    Rsh = (4,7)
+    Rsl = (0,3)
+    CRj = (4,7)
+    CRi = (0,3)
+    CC = (8,15)
+    CRu4 = (0,3)
+    reglist = (0,7)
+;
+
+define token imm(32)
+	i32 = (0,31)
+;
+
+# pcode OPs for channel resource and coprocessor instructions
+define pcodeop LDRES_OP;
+define pcodeop STRES_OP;
+define pcodeop COPOP;
+define pcodeop COPLD;
+define pcodeop COPST;
+define pcodeop COPSV;
+
+# bitfield subtables
+n4: value is u4
+    [ value = u4 - 16; ]
+{
+    export value;
+}
+
+i20: value is u4 ; i16
+    [ value = (u4 << 16) | i16; ]
+{
+    export value;
+}
+
+disp10: value is s8 
+	[ value = s8 * 4; ]
+{
+	export value;
+}
+
+disp9: value is s8 
+	[ value = s8 * 2; ]
+{
+	export value;
+}
+
+udisp6: value is u4
+	[ value = u4 * 4; ]
+{
+	export value;
+}
+
+label12: target is rel11
+    [ target = inst_next + (rel11 * 2); ]
+{
+    export *[ram]:4 target;
+}
+
+label9: target is rel8
+	[ target = inst_next + (rel8 * 2); ]
+{
+	export *[ram]:4 target;
+}
+
+dir10: value is u8
+	[ value = u8 * 4; ]
+{
+	export value;
+}
+
+dir9: value is u8
+	[ value = u8 * 2; ]
+{
+	export value;
+}
+
+#register mapping
+Rireg: r0 is Ri=0x0 { export r0; }
+Rireg: r1 is Ri=0x1 { export r1; }
+Rireg: r2 is Ri=0x2 { export r2; }
+Rireg: r3 is Ri=0x3 { export r3; }
+Rireg: r4 is Ri=0x4 { export r4; }
+Rireg: r5 is Ri=0x5 { export r5; }
+Rireg: r6 is Ri=0x6 { export r6; }
+Rireg: r7 is Ri=0x7 { export r7; }
+Rireg: r8 is Ri=0x8 { export r8; }
+Rireg: r9 is Ri=0x9 { export r9; }
+Rireg: r10 is Ri=0xA { export r10; }
+Rireg: r11 is Ri=0xB { export r11; }
+Rireg: r12 is Ri=0xC { export r12; }
+Rireg: AC is Ri=0xD { export AC; }
+Rireg: FP is Ri=0xE { export FP; }
+Rireg: SP is Ri=0xF { export SP; }
+
+Rjreg: r0 is Rj=0x0 { export r0; }
+Rjreg: r1 is Rj=0x1 { export r1; }
+Rjreg: r2 is Rj=0x2 { export r2; }
+Rjreg: r3 is Rj=0x3 { export r3; }
+Rjreg: r4 is Rj=0x4 { export r4; }
+Rjreg: r5 is Rj=0x5 { export r5; }
+Rjreg: r6 is Rj=0x6 { export r6; }
+Rjreg: r7 is Rj=0x7 { export r7; }
+Rjreg: r8 is Rj=0x8 { export r8; }
+Rjreg: r9 is Rj=0x9 { export r9; }
+Rjreg: r10 is Rj=0xA { export r10; }
+Rjreg: r11 is Rj=0xB { export r11; }
+Rjreg: r12 is Rj=0xC { export r12; }
+Rjreg: AC is Rj=0xD { export AC; }
+Rjreg: FP is Rj=0xE { export FP; }
+Rjreg: SP is Rj=0xF { export SP; }
+
+Rshreg: TBR is Rsh=0x0 { export TBR; }
+Rshreg: RP  is Rsh=0x1 { export RP; }
+Rshreg: SSP is Rsh=0x2 { export SSP; }
+Rshreg: USP is Rsh=0x3 { export USP; }
+Rshreg: MDH is Rsh=0x4 { export MDH; }
+Rshreg: MDL is Rsh=0x5 { export MDL; }
+
+Rslreg: TBR is Rsl=0x0 { export TBR; }
+Rslreg: RP  is Rsl=0x1 { export RP; }
+Rslreg: SSP is Rsl=0x2 { export SSP; }
+Rslreg: USP is Rsl=0x3 { export USP; }
+Rslreg: MDH is Rsl=0x4 { export MDH; }
+Rslreg: MDL is Rsl=0x5 { export MDL; }
+
+#normal register read/writes
+macro write_ri(value) {
+	if (Ri == 0xF) goto <SP_HANDLER>;
+	Rireg = value;
+	goto <done>;
+	
+	<SP_HANDLER>
+	write_sp(value);
+	<done>
+}
+
+macro read_ri(dest) {
+	if (Ri == 0xF) goto <SP_HANDLER>;
+	
+	dest = Rireg;
+	goto <done>;
+	
+	<SP_HANDLER>
+	read_sp(dest);
+	<done>
+}
+
+macro read_rj(dest) {
+	if (Rj == 0xF) goto <SP_HANDLER>;
+	
+	dest = Rjreg;
+	goto <done>;
+	
+	<SP_HANDLER>
+	read_sp(dest);
+	<done>
+}
+
+# program status writes
+macro write_ps(value) {
+    local oldilm:1 = ILM;
+    local newilm:1 = (value >> 16) & 0x1F;
+    local data:4 = value;
+
+    if (oldilm < 16) goto <load>;
+    if (newilm >= 16) goto <load>;
+
+    data = data | 0x00100000;
+
+	<load>
+    PS = data;
+}
+
+#stack pointer handlers
+macro read_sp(dest) {
+	if (S == 1) goto <usermode>;
+	dest = SSP;
+	goto <done>;
+	
+	<usermode>
+	dest = USP;
+	
+	<done>
+}
+
+macro write_sp(data) {
+	if (S == 1) goto <usermode>;
+	SSP = data;
+	goto <done>;
+	
+	<usermode>
+	USP = data;
+	
+	<done>
+}
+
+#memory reference masks
+macro readw(addr, dest) {
+    local a:4 = addr & 0xfffffffc;
+    dest = *:4 a;
+}
+
+macro readh(addr, dest) {
+    local a:4 = addr & 0xfffffffe;
+    dest = *:2 a;
+}
+
+macro readb(addr, dest) {
+    dest = *:1 addr;
+}
+
+macro writew(addr, value) {
+    local a:4 = addr & 0xfffffffc;
+    *:4 a = value;
+}
+
+macro writeh(addr, value) {
+    local a:4 = addr & 0xfffffffe;
+    *:2 a = value;
+}
+
+macro writeb(addr, value) {
+    *:1 addr = value;
+}
+
+#generic flag setter
+macro set_nz(result) {
+	N = (result s< 0);
+	Z = (result == 0);
+}
+
+#instruction files
+@include "instructions/arithmetic.sinc"
+@include "instructions/logic.sinc"
+@include "instructions/muldiv.sinc"
+@include "instructions/shift.sinc"
+@include "instructions/memory.sinc"
+@include "instructions/branch.sinc"
+@include "instructions/coprocessor.sinc"

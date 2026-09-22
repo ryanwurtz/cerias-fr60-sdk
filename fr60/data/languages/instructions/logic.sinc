@@ -1,0 +1,403 @@
+# ==========
+# AND Rj, Ri 
+# ==========
+:AND Rjreg, Rireg is op8=0x82 & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local result:4 = a & b;
+	
+	set_nz(result);
+	write_ri(result);
+}
+
+# ===========
+# AND Rj, @Ri 
+# ===========
+:AND Rjreg, "@"^Rireg is op8=0x84 & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local mem:4;
+	readw(b,mem);
+	local result:4 = a & mem;
+	
+	set_nz(result);
+	writew(b,result);
+}
+
+# ============
+# ANDH Rj, @Ri 
+# ============
+:ANDH Rjreg, "@"^Rireg is op8=0x85 & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local mem:2;
+	readh(b,mem);
+	local result:2 = a:2 & mem;
+	
+	set_nz(result);
+	writeh(b,result);
+}
+
+# ============
+# ANDB Rj, @Ri 
+# ============
+:ANDB Rjreg, "@"^Rireg is op8=0x86 & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local mem:1;
+	readb(b,mem);
+	local result:1 = a:1 & mem;
+	
+	set_nz(result);
+	writeb(b,result);
+}
+
+# =========
+# OR Rj, Ri 
+# =========
+:OR Rjreg, Rireg is op8=0x92 & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local result:4 = a | b;
+	
+	set_nz(result);
+	write_ri(result);
+}
+
+# ==========
+# OR Rj, @Ri 
+# ==========
+:OR Rjreg, "@"^Rireg is op8=0x94 & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local mem:4;
+	readw(b,mem);
+	local result:4 = a | mem;
+	
+	set_nz(result);
+	writew(b,result);
+}
+
+# ===========
+# ORH Rj, @Ri
+# ===========
+:ORH Rjreg, "@"^Rireg is op8=0x95 & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local mem:2;
+	readh(b,mem);
+	local result:2 = a:2 | mem;
+	
+	set_nz(result);
+	writeh(b,result);
+}
+
+# ===========
+# ORB Rj, @Ri 
+# ===========
+:ORB Rjreg, "@"^Rireg is op8=0x96 & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local mem:1;
+	readb(b,mem);
+	local result:1 = a:1 | mem;
+	
+	set_nz(result);
+	writeb(b,result);
+}
+
+# ==========
+# EOR Rj, Ri 
+# ==========
+:EOR Rjreg, Rireg is op8=0x9A & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local result:4 = a ^ b;
+	
+	set_nz(result);
+	write_ri(result);
+}
+
+# ===========
+# EOR Rj, @Ri 
+# ===========
+:EOR Rjreg, "@"^Rireg is op8=0x9C & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local mem:4;
+	readw(b,mem);
+	local result:4 = a ^ mem;
+	
+	set_nz(result);
+	writew(b,result);
+}
+
+# ============
+# EORH Rj, @Ri
+# ============
+:EORH Rjreg, "@"^Rireg is op8=0x9D & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local mem:2;
+	readh(b,mem);
+	local result:2 = a:2 ^ mem;
+	
+	set_nz(result);
+	writeh(b,result);
+}
+
+# ===========
+# EORB Rj, @Ri 
+# ===========
+:EORB Rjreg, "@"^Rireg is op8=0x9E & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local mem:1;
+	readb(b,mem);
+	local result:1 = a:1 ^ mem;
+	
+	set_nz(result);
+	writeb(b,result);
+}
+
+# ==============
+# BANDL #u4, @Ri 
+# ==============
+:BANDL "#"^u4, "@"^Rireg is op8=0x80 & u4 & Rireg
+{	
+	local b:4;
+	read_ri(b);
+	
+	local mem:1;
+	readb(b,mem);
+	local mask:1 = 0xF0 | zext(u4);
+	local result:1 = mask & mem;
+	
+	writeb(b,result);
+}
+
+# ==============
+# BANDH #u4, @Ri 
+# ==============
+:BANDH "#"^u4, "@"^Rireg is op8=0x81 & u4 & Rireg
+{	
+	local b:4;
+	read_ri(b);
+	
+	local mem:1;
+	readb(b,mem);
+	local mask:1 = 0x0F | (zext(u4) << 4);
+	local result:1 = mask & mem;
+	
+	writeb(b,result);
+}
+
+# ==============
+# BORL #u4, @Ri 
+# ==============
+:BORL "#"^u4, "@"^Rireg is op8=0x90 & u4 & Rireg
+{	
+	local b:4;
+	read_ri(b);
+	
+	local mem:1;
+	readb(b,mem);
+	local result:1 = zext(u4) | mem;
+	
+	writeb(b,result);
+}
+
+# ==============
+# BORH #u4, @Ri 
+# ==============
+:BORH "#"^u4, "@"^Rireg is op8=0x91 & u4 & Rireg
+{	
+	local b:4;
+	read_ri(b);
+	
+	local mem:1;
+	readb(b,mem);
+	local result:1 = (zext(u4) << 4) | mem;
+	
+	writeb(b,result);
+}
+
+# ==============
+# BEORL #u4, @Ri 
+# ==============
+:BEORL "#"^u4, "@"^Rireg is op8=0x98 & u4 & Rireg
+{	
+	local b:4;
+	read_ri(b);
+	
+	local mem:1;
+	readb(b,mem);
+	local result:1 = zext(u4) ^ mem;
+	
+	writeb(b,result);
+}
+
+# ==============
+# BEORH #u4, @Ri 
+# ==============
+:BEORH "#"^u4, "@"^Rireg is op8=0x99 & u4 & Rireg
+{	
+	local b:4;
+	read_ri(b);
+	
+	local mem:1;
+	readb(b,mem);
+	local result:1 = (zext(u4) << 4) ^ mem;
+	
+	writeb(b,result);
+}
+
+# ==============
+# BTSTL #u4, @Ri 
+# ==============
+:BTSTL "#"^u4, "@"^Rireg is op8=0x88 & u4 & Rireg
+{	
+	local b:4;
+	read_ri(b);
+	
+	local mem:1;
+	readb(b,mem);
+	
+	local result:1 = zext(u4) & mem;
+	set_nz(result);
+}
+
+# ==============
+# BTSTH #u4, @Ri 
+# ==============
+:BTSTH "#"^u4, "@"^Rireg is op8=0x89 & u4 & Rireg
+{	
+	local b:4;
+	read_ri(b);
+	
+	local mem:1;
+	readb(b,mem);
+	
+	local result:1 = (zext(u4) << 4) & mem;
+	set_nz(result);
+}
+
+# ==========
+# ANDCCR #u8
+# ==========
+:ANDCCR "#"^u8 is op8=0x83 & u8
+{
+	CCR = CCR & u8;
+}
+
+# =========
+# ORCCR #u8
+# =========
+:ORCCR "#"^u8 is op8=0x93 & u8
+{
+	CCR = CCR | u8;
+}
+
+# ========
+# EXTSB Ri
+# ========
+:EXTSB Rireg is op12=0x978 & Rireg
+{	
+	local data:4;
+	read_ri(data);
+	
+	write_ri(sext(data:1));
+}
+
+# ========
+# EXTUB Ri
+# ========
+:EXTUB Rireg is op12=0x979 & Rireg
+{	
+	local data:4;
+	read_ri(data);
+	
+	write_ri(zext(data:1));
+}
+
+# ========
+# EXTSH Ri
+# ========
+:EXTSH Rireg is op12=0x97A & Rireg
+{	
+	local data:4;
+	read_ri(data);
+	
+	write_ri(sext(data:2));
+}
+
+# ========
+# EXTUH Ri
+# ========
+:EXTUH Rireg is op12=0x97B & Rireg
+{	
+	local data:4;
+	read_ri(data);
+	
+	write_ri(zext(data:2));
+}

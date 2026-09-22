@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<language_definitions>
+   <language processor="FR"
+            endian="big"
+            size="32"
+            variant="60"
+            version="1.0"
+            slafile="FR.sla"
+            processorspec="FR60.pspec"
+            id="FR:BE:32:60">
+    <description>FR60 Language Module</description>
+    <compiler name="default" spec="FR_GCC.cspec" id="default"/>
+    <compiler name="gcc" spec="FR_GCC.cspec" id="gcc"/>
+  </language> 
+</language_definitions>

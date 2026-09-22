@@ -1,0 +1,826 @@
+# ===============
+# LDI:32 #i32, Ri
+# ===============
+:LDI:32 "#"^i32, Rireg is op12=0x9F8 & Rireg ; i32
+{
+	write_ri(i32);
+}
+
+# ===============
+# LDI:20 #i20, Ri
+# ===============
+:LDI:20 "#"^i20, Rireg is op8=0x9B & Rireg & i20
+{
+	write_ri(i20);
+}
+
+# =============
+# LDI:8 #i8, Ri
+# =============
+:LDI:8 "#"^i8, Rireg is op4=0xC & i8 & Rireg
+{
+	write_ri(zext(i8));
+}
+
+# ==========
+# LD @Rj, Ri
+# ==========
+:LD "@"^Rjreg, Rireg is op8=0x04 & Rjreg & Rireg
+{
+	local addr:4;
+	local data:4;
+	
+	read_rj(addr);
+	readw(addr,data);
+	write_ri(data);
+}
+
+# ================
+# LD @(AC, Rj), Ri
+# ================
+:LD "@(AC, "^Rjreg^")", Rireg is op8=0x00 & Rjreg & Rireg
+{
+	local addr:4;
+	local data:4;
+	
+	read_rj(addr);
+	readw(addr + AC,data);
+	write_ri(data);
+}
+
+# ====================
+# LD @(FP, disp10), Ri
+# ====================
+:LD "@(FP, "^disp10^")", Rireg is op4=0x2 & disp10 & Rireg
+{
+	local addr:4;
+	local data:4;
+	
+	addr = FP + disp10;
+	readw(addr,data);
+	write_ri(data);
+}
+
+# ====================
+# LD @(SP, udisp6), Ri
+# ====================
+:LD "@(SP, "^udisp6^")", Rireg is op8=0x03 & udisp6 & Rireg
+{
+	local addr:4;
+	local data:4;
+	
+	read_sp(addr);
+	
+	readw(addr + udisp6,data);
+	write_ri(data);
+}
+
+# ===========
+# LD @SP+, Ri
+# ===========
+:LD "@SP+", Rireg is op12=0x070 & Rireg
+{
+    local addr:4;
+    local data:4;
+
+    read_sp(addr);
+    readw(addr, data);
+
+    if (Ri == 0xF) goto <active_sp>;
+
+    write_ri(data);
+    write_sp(addr + 4);
+    goto <done>;
+
+	<active_sp>
+    write_sp(addr + 4);
+    write_ri(data);
+
+	<done>
+}
+
+# ===========
+# LD @SP+, Rs
+# ===========
+:LD "@SP+", Rslreg is op12=0x078 & Rslreg
+{
+	local addr:4;
+	local data:4;
+	
+	read_sp(addr);
+	readw(addr,data);
+	
+	if ((Rsl == 0x2) && (S == 0)) goto <active_sp>;
+    if ((Rsl == 0x3) && (S == 1)) goto <active_sp>;
+	
+	Rslreg = data;
+	write_sp(addr + 4);
+	goto <done>;
+	
+	<active_sp>
+	write_sp(addr + 4);
+	Rslreg = data;
+	
+	<done>
+}
+
+# ===========
+# LD @SP+, PS
+# ===========
+:LD "@SP+, PS" is op16=0x0790
+{
+	local addr:4;
+    local data:4;
+	local olds:1 = S;
+
+    read_sp(addr);
+    readw(addr, data);
+
+    write_ps(data);
+	
+	if (olds == 1) goto <olduser>;
+	SSP = addr + 4;
+	goto <done>;
+	
+	<olduser>
+	USP = addr + 4;
+	
+	<done>	
+}
+
+# ============
+# LDUH @Rj, Ri
+# ============
+:LDUH "@"^Rjreg, Rireg is op8=0x05 & Rjreg & Rireg
+{	
+	local addr:4;
+	local data:2;
+	
+	read_rj(addr);
+	readh(addr,data);
+	
+	write_ri(zext(data));
+}
+
+# ==================
+# LDUH @(AC, Rj), Ri
+# ==================
+:LDUH "@(AC, "^Rjreg^")", Rireg is op8=0x01 & Rjreg & Rireg
+{
+	local addr:4;
+	local data:2;
+	
+	read_rj(addr);
+	readh(AC + addr,data);
+	
+	write_ri(zext(data));
+}
+
+# =====================
+# LDUH @(FP, disp9), Ri
+# =====================
+:LDUH "@(FP, "^disp9^")", Rireg is op4=0x4 & disp9 & Rireg
+{
+	local data:2;
+	
+	readh(FP + disp9,data);
+	
+	write_ri(zext(data));
+}
+
+# ============
+# LDUB @Rj, Ri
+# ============
+:LDUB "@"^Rjreg, Rireg is op8=0x06 & Rjreg & Rireg
+{	
+	local addr:4;
+	local data:1;
+	
+	read_rj(addr);
+	readb(addr,data);
+	
+	write_ri(zext(data));
+}
+
+# ==================
+# LDUB @(AC, Rj), Ri
+# ==================
+:LDUB "@(AC, "^Rjreg^")", Rireg is op8=0x02 & Rjreg & Rireg
+{
+	local addr:4;
+	local data:1;
+	
+	read_rj(addr);
+	readb(AC + addr,data);
+	
+	write_ri(zext(data));
+}
+
+# =====================
+# LDUB @(FP, disp8), Ri
+# =====================
+:LDUB "@(FP, "^s8^")", Rireg is op4=0x6 & s8 & Rireg
+{
+	local data:1;
+	
+	readb(FP + s8,data);
+	
+	write_ri(zext(data));
+}
+
+# ==========
+# ST Ri, @Rj
+# ==========
+:ST Rireg, "@"^Rjreg is op8=0x14 & Rjreg & Rireg
+{
+	local addr:4;
+	local data:4;
+	
+	read_rj(addr);
+	read_ri(data);
+	writew(addr,data);
+}
+
+# =================
+# ST Ri, @(R13, Rj)
+# =================
+:ST Rireg, "@(AC, "^Rjreg^")" is op8=0x10 & Rjreg & Rireg
+{
+	local addr:4;
+	local data:4;
+	
+	read_rj(addr);
+	read_ri(data);
+	writew(AC + addr,data);
+}
+
+# ====================
+# ST Ri, @(FP, disp10)
+# ====================
+:ST Rireg, "@(FP, "^disp10^")" is op4=0x3 & disp10 & Rireg
+{
+	local data:4;
+	
+	read_ri(data);
+	writew(FP + disp10,data);
+}
+
+# ====================
+# ST Ri, @(SP, udisp6)
+# ====================
+:ST Rireg, "@(SP, "^udisp6^")" is op8=0x13 & udisp6 & Rireg
+{	
+	local addr:4;
+	local data:4;
+	
+	read_sp(addr);
+	read_ri(data);
+	writew(addr + udisp6,data);
+}
+
+# ===========
+# ST Ri, @-SP
+# ===========
+:ST Rireg, "@-SP" is op12=0x170 & Rireg
+{
+	local addr:4;
+	local data:4;
+	
+	read_ri(data);
+	read_sp(addr);
+	addr = addr - 4;
+	
+	write_sp(addr);
+	writew(addr,data);
+}
+
+# ===========
+# ST Rs, @-SP
+# ===========
+:ST Rslreg, "@-SP" is op12=0x178 & Rslreg
+{
+	local addr:4;
+
+	read_sp(addr);
+	addr = addr - 4;
+	
+	write_sp(addr);
+	writew(addr,Rslreg);
+}
+
+# ===========
+# ST PS, @-SP
+# ===========
+:ST "PS, @-SP" is op16=0x1790
+{
+	local addr:4;
+
+	read_sp(addr);
+	addr = addr - 4;
+	
+	write_sp(addr);
+	writew(addr,PS);
+}
+
+# ===========
+# STH Ri, @Rj
+# ===========
+:STH Rireg, "@"^Rjreg is op8=0x15 & Rjreg & Rireg
+{
+	local addr:4;
+	local data:4;
+	
+	read_rj(addr);
+	read_ri(data);
+	writeh(addr,data:2);
+}
+
+# ==================
+# STH Ri, @(R13, Rj)
+# ==================
+:STH Rireg, "@(AC, "^Rjreg^")" is op8=0x11 & Rjreg & Rireg
+{
+	local addr:4;
+	local data:4;
+	
+	read_rj(addr);
+	read_ri(data);
+	writeh(AC + addr,data:2);
+}
+
+# ====================
+# STH Ri, @(FP, disp9)
+# ====================
+:STH Rireg, "@(FP, "^disp9^")" is op4=0x5 & disp9 & Rireg
+{
+	local data:4;
+	
+	read_ri(data);
+	writeh(FP + disp9,data:2);
+}
+
+# ===========
+# STB Ri, @Rj
+# ===========
+:STB Rireg, "@"^Rjreg is op8=0x16 & Rjreg & Rireg
+{
+	local addr:4;
+	local data:4;
+	
+	read_rj(addr);
+	read_ri(data);
+	writeb(addr,data:1);
+}
+
+# ==================
+# STB Ri, @(R13, Rj)
+# ==================
+:STB Rireg, "@(AC, "^Rjreg^")" is op8=0x12 & Rjreg & Rireg
+{
+	local addr:4;
+	local data:4;
+	
+	read_rj(addr);
+	read_ri(data);
+	writeb(AC + addr,data:1);
+}
+
+# ====================
+# STB Ri, @(FP, disp8)
+# ====================
+:STB Rireg, "@(FP, "^s8^")" is op4=0x7 & s8 & Rireg
+{
+	local data:4;
+	
+	read_ri(data);
+	writeb(FP + s8,data:1);
+}
+
+# ==========
+# MOV Rj, Ri
+# ==========
+:MOV Rjreg, Rireg is op8=0x8B & Rjreg & Rireg
+{
+	local data:4;
+	
+	read_rj(data);
+	write_ri(data);
+}
+
+# ==========
+# MOV Rs, Ri
+# ==========
+:MOV Rshreg, Rireg is op8=0xB7 & Rshreg & Rireg
+{
+	write_ri(Rshreg);
+}
+
+# ==========
+# MOV PS, Ri
+# ==========
+:MOV PS, Rireg is op12=0x171 & Rireg
+{
+	write_ri(PS);
+}
+
+# ==========
+# MOV Ri, Rs
+# ==========
+:MOV Rireg, Rshreg is op8=0xB3 & Rshreg & Rireg
+{
+	local data:4;
+	
+	read_ri(data);
+	Rshreg = data;
+}
+
+# ==========
+# MOV Ri, PS
+# ==========
+:MOV Rireg, PS is op12=0x071 & Rireg
+{
+	local data:4;
+	
+	read_ri(data);
+	write_ps(data);
+}
+
+# ===============
+# DMOV @dir10, AC
+# ===============
+:DMOV "@"^dir10, AC is op8=0x08 & dir10
+{
+	readw(dir10, AC);
+}
+
+# ===============
+# DMOV AC, @dir10
+# ===============
+:DMOV AC, "@"^dir10 is op8=0x18 & dir10
+{
+	writew(dir10, AC);
+}
+
+# =================
+# DMOV @dir10, @AC+
+# =================
+:DMOV "@"^dir10, "@AC+" is op8=0x0C & dir10
+{	
+	local data:4;
+	readw(dir10,data);
+	
+	writew(AC, data);
+	AC = AC + 4;
+}
+
+# =================
+# DMOV @AC+, @dir10
+# =================
+:DMOV "@AC+", "@"^dir10 is op8=0x1C & dir10
+{	
+	local data:4;
+	readw(AC,data);
+	
+	writew(dir10, data);
+	AC = AC + 4;
+}
+
+# =================
+# DMOV @dir10, @-SP
+# =================
+:DMOV "@"^dir10, "@-SP" is op8=0x0B & dir10
+{	
+	local data:4;
+	local addr:4;
+	
+	read_sp(addr);
+	addr = addr - 4;
+	readw(dir10,data);
+	
+	writew(addr, data);
+	write_sp(addr);
+}
+
+# =================
+# DMOV @SP+, @dir10
+# =================
+:DMOV "@SP+", "@"^dir10 is op8=0x1B & dir10
+{	
+	local data:4;
+	local addr:4;
+	
+	read_sp(addr);
+	readw(addr,data);
+	
+	writew(dir10, data);
+	write_sp(addr + 4);
+}
+
+# ===============
+# DMOVH @dir9, AC
+# ===============
+:DMOVH "@"^dir9, AC is op8=0x09 & dir9
+{
+	readh(dir9, AC);
+}
+
+# ===============
+# DMOVH AC, @dir9
+# ===============
+:DMOVH AC, "@"^dir9 is op8=0x19 & dir9
+{
+	writeh(dir9, AC);
+}
+
+# =================
+# DMOVH @dir9, @AC+
+# =================
+:DMOVH "@"^dir9, "@AC+" is op8=0x0D & dir9
+{	
+	local data:2;
+	readh(dir9,data);
+	
+	writeh(AC, data);
+	AC = AC + 2;
+}
+
+# =================
+# DMOVH @AC+, @dir9
+# =================
+:DMOVH "@AC+", "@"^dir9 is op8=0x1D & dir9
+{	
+	local data:2;
+	readh(AC,data);
+	
+	writeh(dir9, data);
+	AC = AC + 2;
+}
+
+# ===============
+# DMOVB @dir9, AC
+# ===============
+:DMOVB "@"^dir9, AC is op8=0x0A & dir9
+{
+	readb(dir9, AC);
+}
+
+# ===============
+# DMOVB AC, @dir9
+# ===============
+:DMOVB AC, "@"^dir9 is op8=0x1A & dir9
+{
+	writeb(dir9, AC);
+}
+
+# =================
+# DMOVB @dir9, @AC+
+# =================
+:DMOVB "@"^dir9, "@AC+" is op8=0x0E & dir9
+{	
+	local data:1;
+	readb(dir9,data);
+	
+	writeb(AC, data);
+	AC = AC + 1;
+}
+
+# =================
+# DMOVB @AC+, @dir9
+# =================
+:DMOVB "@AC+", "@"^dir9 is op8=0x1E & dir9
+{	
+	local data:1;
+	readb(AC,data);
+	
+	writeb(dir9, data);
+	AC = AC + 1;
+}
+
+# ==============
+# LDM0 (reglist)
+# ==============
+:LDM0 "("^reglist^")" is op8=0x8C & reglist
+{
+    local addr:4;
+    read_sp(addr);
+
+    if ((reglist & 0x01) == 0) goto <skip_r0>;
+    readw(addr, r0);
+    addr = addr + 4;
+	<skip_r0>
+
+    if ((reglist & 0x02) == 0) goto <skip_r1>;
+    readw(addr, r1);
+    addr = addr + 4;
+	<skip_r1>
+
+    if ((reglist & 0x04) == 0) goto <skip_r2>;
+    readw(addr, r2);
+    addr = addr + 4;
+	<skip_r2>
+
+    if ((reglist & 0x08) == 0) goto <skip_r3>;
+    readw(addr, r3);
+    addr = addr + 4;
+	<skip_r3>
+
+    if ((reglist & 0x10) == 0) goto <skip_r4>;
+    readw(addr, r4);
+    addr = addr + 4;
+	<skip_r4>
+
+    if ((reglist & 0x20) == 0) goto <skip_r5>;
+    readw(addr, r5);
+    addr = addr + 4;
+	<skip_r5>
+
+    if ((reglist & 0x40) == 0) goto <skip_r6>;
+    readw(addr, r6);
+    addr = addr + 4;
+	<skip_r6>
+
+    if ((reglist & 0x80) == 0) goto <skip_r7>;
+    readw(addr, r7);
+    addr = addr + 4;
+	<skip_r7>
+
+    write_sp(addr);
+}
+
+# ==============
+# LDM1 (reglist)
+# ==============
+:LDM1 "("^reglist^")" is op8=0x8D & reglist
+{
+    local addr:4;
+    local data:4;
+    read_sp(addr);
+
+    if ((reglist & 0x01) == 0) goto <skip_r8>;
+    readw(addr, r8);
+    addr = addr + 4;
+	<skip_r8>
+
+    if ((reglist & 0x02) == 0) goto <skip_r9>;
+    readw(addr, r9);
+    addr = addr + 4;
+	<skip_r9>
+
+    if ((reglist & 0x04) == 0) goto <skip_r10>;
+    readw(addr, r10);
+    addr = addr + 4;
+	<skip_r10>
+
+    if ((reglist & 0x08) == 0) goto <skip_r11>;
+    readw(addr, r11);
+    addr = addr + 4;
+	<skip_r11>
+
+    if ((reglist & 0x10) == 0) goto <skip_r12>;
+    readw(addr, r12);
+    addr = addr + 4;
+	<skip_r12>
+
+    if ((reglist & 0x20) == 0) goto <skip_r13>;
+    readw(addr, AC);
+    addr = addr + 4;
+	<skip_r13>
+
+    if ((reglist & 0x40) == 0) goto <skip_r14>;
+    readw(addr, FP);
+    addr = addr + 4;
+	<skip_r14>
+
+    if ((reglist & 0x80) == 0) goto <skip_r15>;
+    readw(addr, data);
+    addr = addr + 4;
+    write_sp(data);
+    goto <done>;
+
+	<skip_r15>
+    write_sp(addr);
+
+	<done>
+}
+
+# ==============
+# STM0 (reglist)
+# ==============
+:STM0 "("^reglist^")" is op8=0x8E & reglist
+{
+    local addr:4;
+    read_sp(addr);
+
+    if ((reglist & 0x80) == 0) goto <skip_r7>;
+    addr = addr - 4;
+    writew(addr, r7);
+    <skip_r7>
+
+    if ((reglist & 0x40) == 0) goto <skip_r6>;
+    addr = addr - 4;
+    writew(addr, r6);
+    <skip_r6>
+
+    if ((reglist & 0x20) == 0) goto <skip_r5>;
+    addr = addr - 4;
+    writew(addr, r5);
+    <skip_r5>
+
+    if ((reglist & 0x10) == 0) goto <skip_r4>;
+    addr = addr - 4;
+    writew(addr, r4);
+    <skip_r4>
+
+    if ((reglist & 0x08) == 0) goto <skip_r3>;
+    addr = addr - 4;
+    writew(addr, r3);
+    <skip_r3>
+
+    if ((reglist & 0x04) == 0) goto <skip_r2>;
+    addr = addr - 4;
+    writew(addr, r2);
+    <skip_r2>
+
+    if ((reglist & 0x02) == 0) goto <skip_r1>;
+    addr = addr - 4;
+    writew(addr, r1);
+    <skip_r1>
+
+    if ((reglist & 0x01) == 0) goto <skip_r0>;
+    addr = addr - 4;
+    writew(addr, r0);
+    <skip_r0>
+
+    write_sp(addr);
+}
+
+# ==============
+# STM1 (reglist)
+# ==============
+:STM1 "("^reglist^")" is op8=0x8F & reglist
+{
+    local addr:4;
+    local oldsp:4;
+    
+    read_sp(addr);
+    oldsp = addr;
+
+    if ((reglist & 0x80) == 0) goto <skip_r15>;
+    addr = addr - 4;
+    writew(addr, oldsp);
+    <skip_r15>
+
+    if ((reglist & 0x40) == 0) goto <skip_r14>;
+    addr = addr - 4;
+    writew(addr, FP);
+    <skip_r14>
+
+    if ((reglist & 0x20) == 0) goto <skip_r13>;
+    addr = addr - 4;
+    writew(addr, AC);
+    <skip_r13>
+
+    if ((reglist & 0x10) == 0) goto <skip_r12>;
+    addr = addr - 4;
+    writew(addr, r12);
+    <skip_r12>
+
+    if ((reglist & 0x08) == 0) goto <skip_r11>;
+    addr = addr - 4;
+    writew(addr, r11);
+    <skip_r11>
+
+    if ((reglist & 0x04) == 0) goto <skip_r10>;
+    addr = addr - 4;
+    writew(addr, r10);
+    <skip_r10>
+
+    if ((reglist & 0x02) == 0) goto <skip_r9>;
+    addr = addr - 4;
+    writew(addr, r9);
+    <skip_r9>
+
+    if ((reglist & 0x01) == 0) goto <skip_r8>;
+    addr = addr - 4;
+    writew(addr, r8);
+    <skip_r8>
+
+    write_sp(addr);
+}
+
+# ============
+# XCHB @Rj, Ri
+# ============
+:XCHB "@"^Rjreg, Rireg is op8=0x8A & Rjreg & Rireg
+{
+	local ri_data:4;
+	local addr:4;
+	local mem_data:1;
+	
+	read_ri(ri_data);
+	read_rj(addr);
+	readb(addr, mem_data);
+	
+	write_ri(zext(mem_data));
+	writeb(addr, ri_data:1);
+}

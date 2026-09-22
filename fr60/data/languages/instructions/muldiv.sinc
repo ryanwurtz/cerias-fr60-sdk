@@ -1,0 +1,173 @@
+# ==========
+# MUL Rj, Ri 
+# ==========
+:MUL Rjreg, Rireg is op8=0xAF & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local result:8 = sext(a) * sext(b);
+	
+	MDH = result >> 32;
+    MDL = result:4;
+
+    N = (MDL s< 0);
+    Z = (result == 0);
+    V = (result != sext(MDL));
+}
+
+# ===========
+# MULU Rj, Ri 
+# ===========
+:MULU Rjreg, Rireg is op8=0xAB & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local result:8 = zext(a) * zext(b);
+	
+	MDH = result >> 32;
+    MDL = result:4;
+
+    N = (MDL s< 0);
+    Z = (MDL == 0);
+    V = (MDH != 0);
+}
+
+# ===========
+# MULH Rj, Ri 
+# ===========
+:MULH Rjreg, Rireg is op8=0xBF & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local result:4 = sext(a:2) * sext(b:2);
+	
+	MDL = result;
+	set_nz(result);
+}
+
+# ============
+# MULUH Rj, Ri 
+# ============
+:MULUH Rjreg, Rireg is op8=0xBB & Rjreg & Rireg
+{	
+	local a:4;
+	local b:4;
+	
+	read_rj(a);
+	read_ri(b);
+	
+	local result:4 = zext(a:2) * zext(b:2);
+	
+	MDL = result;
+	set_nz(result);
+}
+
+# ========
+# DIV0S Ri 
+# ========
+:DIV0S Rireg is op12=0x974 & Rireg
+{	
+	local b:4;
+	read_ri(b);
+	
+	D0 = (MDL s< 0);
+	D1 = ((MDL s<0) ^ (b s<0));
+	MDH = sext(MDL) >> 32;
+}
+
+# ========
+# DIV0U Ri 
+# ========
+:DIV0U Rireg is op12=0x975 & Rireg
+{	
+	D0 = 0;
+	D1 = 0;
+	MDH = 0;
+}
+
+# =======
+# DIV1 Ri 
+# =======
+:DIV1 Rireg is op12=0x976 & Rireg
+{	
+	local b:4;
+	read_ri(b);
+	
+	local comb:8 = (zext(MDH) << 32) | zext(MDL);
+	comb = comb << 1;
+	MDH = comb >> 32;
+	MDL = comb:4;
+	
+	local temp:4;
+	if (D1 == 1) goto <add>;
+	temp = MDH - b;
+	C = MDH < b;
+	goto <check>;
+	<add>
+	temp = MDH + b;
+	C = carry(MDH, b);
+	
+	<check>
+	if ((D0 ^ D1 ^ C) != 0) goto <done>;
+	MDH = temp;
+	MDL = MDL | 0x1;
+	<done>
+	Z = (MDH == 0);
+}
+
+# =======
+# DIV2 Ri 
+# =======
+:DIV2 Rireg is op12=0x977 & Rireg
+{	
+	local b:4;
+	read_ri(b);
+	
+	local temp:4;
+	if (D1 == 1) goto <add>;
+	temp = MDH - b;
+	C = MDH < b;
+	goto <check>;
+	<add>
+	temp = MDH + b;
+	C = carry(MDH, b);
+	
+	<check>
+	Z = (temp == 0);
+	
+	if (Z != 1) goto <done>;
+	MDH = 0;
+	<done>
+}
+
+# ====
+# DIV3 
+# ====
+:DIV3 is op16=0x9F60
+{	
+	if (Z != 1) goto <done>;
+	MDL = MDL + 1;
+	<done>
+}
+
+# =====
+# DIV4S
+# =====
+:DIV4S is op16=0x9F70
+{	
+	if (D1 != 1) goto <done>;
+	MDL = 0 - MDL;
+	<done>
+}
