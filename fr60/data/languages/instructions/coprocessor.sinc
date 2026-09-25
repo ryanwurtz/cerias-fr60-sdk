@@ -1,34 +1,36 @@
 # ===============
 # LDRES @Ri+, #u4
 # ===============
-:LDRES "@"^Rireg^"+, #"^u4 is op8=0xBC & u4 & Rireg
+:LDRES "@"^Rireg^"+, #"^u4 is op8=0xBC & u4 & Rireg & Ri
 {
     local addr:4;
     local data:4;
+    local u:1 = u4;
 
-    read_ri(addr);
+    read_ri(Ri, Rireg, addr);
     readw(addr, data);
 
-    LDRES_OP(u4, data);
+    LDRES_OP(u, data);
 
-    write_ri(addr + 4);
+    write_ri(Ri, Rireg, addr + 4);
 }
 
 # ===============
 # STRES #u4, @Ri+
 # ===============
-:STRES "#"^u4^", @"^Rireg^"+" is op8=0xBD & u4 & Rireg
+:STRES "#"^u4^", @"^Rireg^"+" is op8=0xBD & u4 & Rireg & Ri
 {
     local addr:4;
     local data:4;
+    local u:1 = u4;
 
-    read_ri(addr);
+    read_ri(Ri, Rireg, addr);
 
-    data = STRES_OP(u4);
+    data = STRES_OP(u);
 
     writew(addr, data);
 
-    write_ri(addr + 4);
+    write_ri(Ri, Rireg, addr + 4);
 }
 
 # ==========================
@@ -36,38 +38,51 @@
 # ==========================
 :COPOP "#"^CPu4, "#"^CC, CRj, CRi is op12=0x9FC & CPu4 ; CC & CRj & CRi
 {
-	COPOP(CPu4, CC, CRj, CRi);
+    local CPu:1 = CPu4;
+    local cmd:1 = CC;
+    local cri:1 = CRi;
+    local crj:1 = CRj;
+	COPOP(CPu, cmd, crj, cri);
 }
 
 # =========================
 # COPLD #CPu4, #CC, Rj, CRi
 # =========================
-:COPLD "#"^CPu4, "#"^CC, Rjreg, CRi is op12=0x9FD & CPu4 ; CC & Rjreg & CRi
+:COPLD "#"^CPu4, "#"^CC, Rjreg, CRi is op12=0x9FD & CPu4 ; CC & Rjreg & Rj & CRi
 {
     local data:4;
-    read_rj(data);
+    read_rj(Rj, Rjreg, data);
 
-    COPLD(CPu4, CC, CRi, data);
+    local CPu:1 = CPu4;
+    local cmd:1 = CC;
+    local cri:1 = CRi;
+    COPLD(CPu, cmd, cri, data);
 }
 	
 # =========================
 # COPST #CPu4, #CC, CRj, Ri
 # =========================
-:COPST "#"^CPu4, "#"^CC, CRj, Ri is op12=0x9FE & CPu4 ; CC & CRj & Rireg
+:COPST "#"^CPu4, "#"^CC, CRj, Ri is op12=0x9FE & CPu4 ; CC & CRj & Rireg & Ri
 {
 	local data:4;
+    local CPu:1 = CPu4;
+    local cmd:1 = CC;
+    local crj:1 = CRj;
 
-    data = COPST(CPu4, CC, CRj);
-    write_ri(data);
+    data = COPST(CPu, cmd, crj);
+    write_ri(Ri, Rireg, data);
 }
 	
 # =========================
 # COPSV #CPu4, #CC, CRj, Ri
 # =========================
-:COPSV "#"^CPu4, "#"^CC, CRj, Ri is op12=0x9FF & CPu4 ; CC & CRj & Rireg
+:COPSV "#"^CPu4, "#"^CC, CRj, Ri is op12=0x9FF & CPu4 ; CC & CRj & Rireg & Ri
 {
 	local data:4;
+    local CPu:1 = CPu4;
+    local cmd:1 = CC;
+    local crj:1 = CRj;
 
-    data = COPSV(CPu4, CC, CRj);
-    write_ri(data);
+    data = COPSV(CPu, cmd, crj);
+    write_ri(Ri, Rireg, data);
 }

@@ -1,10 +1,10 @@
 # =======
 # JMP @Ri
 # =======
-:JMP "@"^Rireg is op12=0x970 & Rireg
+:JMP "@"^Rireg is op12=0x970 & Rireg & Ri
 {
 	local data:4;
-	read_ri(data);
+	read_ri(Ri, Rireg, data);
 	
 	goto [data];	
 }
@@ -21,10 +21,10 @@
 # ========
 # CALL @Ri
 # ========
-:CALL "@"^Rireg is op12=0x971 & Rireg
+:CALL "@"^Rireg is op12=0x971 & Rireg & Ri
 {	
 	local data:4;
-	read_ri(data);
+	read_ri(Ri, Rireg, data);
 	
 	RP = inst_next;
 	call [data];
@@ -46,11 +46,13 @@
 	SSP = SSP - 4;
 	writew(SSP, PS);
 	SSP = SSP - 4;
-	writew(SSP, inst_next);
+	local nextpc:4 = inst_next;
+	writew(SSP, nextpc);
 	S = 0;
 	I = 0;
 	
-	local addr:4 = TBR + 0x3FC - zext(u8 * 4);
+	local u:4 = u8;
+	local addr:4 = TBR + 0x03FC - u * 4;
 	local data:4;
 	
 	readw(addr, data);
@@ -65,8 +67,9 @@
 	SSP = SSP - 4;
 	writew(SSP, PS);
 	SSP = SSP - 4;
-	writew(SSP, inst_next);
-	ILM = 0x4;
+	local nextpc:4 = inst_next;
+	writew(SSP, nextpc);
+	ILM = 0;
 	S = 0;
 
 	local addr:4 = TBR + 0x3D8;
@@ -257,18 +260,18 @@
 # =========
 # JMP:D @Ri
 # =========
-:JMP:D "@"^Rireg is op12=0x9F0 & Rireg
+:"JMP:D" "@"^Rireg is op12=0x9F0 & Rireg & Ri
 {
 	delayslot(1);
 	local data:4;
-	read_ri(data);
+	read_ri(Ri, Rireg, data);
 	goto [data];	
 }
 
 # ==============
 # CALL:D label12
 # ==============
-:CALL:D label12 is op5=0x1B & label12
+:"CALL:D" label12 is op5=0x1B & label12
 {
 	RP = inst_next;
 	delayslot(1);
@@ -278,13 +281,13 @@
 # ==========
 # CALL:D @Ri
 # ==========
-:CALL:D "@"^Rireg is op12=0x9F1 & Rireg
+:"CALL:D" "@"^Rireg is op12=0x9F1 & Rireg & Ri
 {	
 	RP = inst_next;
 	delayslot(1);
 	
 	local data:4;
-	read_ri(data);
+	read_ri(Ri, Rireg, data);
 	
 	call [data];
 }
@@ -292,7 +295,7 @@
 # =====
 # RET:D
 # =====
-:RET:D is op16=0x9F20
+:"RET:D" is op16=0x9F20
 {	
 	delayslot(1);
 	return [RP];
@@ -301,7 +304,7 @@
 # ============
 # BRA:D label9
 # ============
-:BRA:D label9 is op4=0xF & cc=0x0 & label9
+:"BRA:D" label9 is op4=0xF & cc=0x0 & label9
 {	
 	delayslot(1);
 	goto label9;
@@ -310,7 +313,7 @@
 # ============
 # BNO:D label9
 # ============
-:BNO:D label9 is op4=0xF & cc=0x1 & label9
+:"BNO:D" label9 is op4=0xF & cc=0x1 & label9
 {	
 	delayslot(1);
 	# never taken
@@ -319,7 +322,7 @@
 # ============
 # BEQ:D label9
 # ============
-:BEQ:D label9 is op4=0xF & cc=0x2 & label9
+:"BEQ:D" label9 is op4=0xF & cc=0x2 & label9
 {
     local take:1 = (Z == 1);
 
@@ -333,7 +336,7 @@
 # ============
 # BNE:D label9
 # ============
-:BNE:D label9 is op4=0xF & cc=0x3 & label9
+:"BNE:D" label9 is op4=0xF & cc=0x3 & label9
 {
     local take:1 = (Z == 0);
 
@@ -347,7 +350,7 @@
 # ===========
 # BC:D label9
 # ===========
-:BC:D label9 is op4=0xF & cc=0x4 & label9
+:"BC:D" label9 is op4=0xF & cc=0x4 & label9
 {
     local take:1 = (C == 1);
 
@@ -361,7 +364,7 @@
 # ============
 # BNC:D label9
 # ============
-:BNC:D label9 is op4=0xF & cc=0x5 & label9
+:"BNC:D" label9 is op4=0xF & cc=0x5 & label9
 {
     local take:1 = (C == 0);
 
@@ -375,7 +378,7 @@
 # ===========
 # BN:D label9
 # ===========
-:BN:D label9 is op4=0xF & cc=0x6 & label9
+:"BN:D" label9 is op4=0xF & cc=0x6 & label9
 {
     local take:1 = (N == 1);
 
@@ -389,7 +392,7 @@
 # ===========
 # BP:D label9
 # ===========
-:BP:D label9 is op4=0xF & cc=0x7 & label9
+:"BP:D" label9 is op4=0xF & cc=0x7 & label9
 {
     local take:1 = (N == 0);
 
@@ -403,7 +406,7 @@
 # ===========
 # BV:D label9
 # ===========
-:BV:D label9 is op4=0xF & cc=0x8 & label9
+:"BV:D" label9 is op4=0xF & cc=0x8 & label9
 {
     local take:1 = (V == 1);
 
@@ -417,7 +420,7 @@
 # ============
 # BNV:D label9
 # ============
-:BNV:D label9 is op4=0xF & cc=0x9 & label9
+:"BNV:D" label9 is op4=0xF & cc=0x9 & label9
 {
     local take:1 = (V == 0);
 
@@ -431,7 +434,7 @@
 # ============
 # BLT:D label9
 # ============
-:BLT:D label9 is op4=0xF & cc=0xA & label9
+:"BLT:D" label9 is op4=0xF & cc=0xA & label9
 {
     local take:1 = ((V ^ N) == 1);
 
@@ -444,7 +447,7 @@
 # ============
 # BGE:D label9
 # ============
-:BGE:D label9 is op4=0xF & cc=0xB & label9
+:"BGE:D" label9 is op4=0xF & cc=0xB & label9
 {
     local take:1 = ((V ^ N) == 0);
 
@@ -458,7 +461,7 @@
 # ============
 # BLE:D label9
 # ============
-:BLE:D label9 is op4=0xF & cc=0xC & label9
+:"BLE:D" label9 is op4=0xF & cc=0xC & label9
 {
     local take:1 = (((V ^ N) | Z) == 1);
 
@@ -472,7 +475,7 @@
 # ============
 # BGT:D label9
 # ============
-:BGT:D label9 is op4=0xF & cc=0xD & label9
+:"BGT:D" label9 is op4=0xF & cc=0xD & label9
 {
     local take:1 = (((V ^ N) | Z) == 0);
 
@@ -485,7 +488,7 @@
 # ============
 # BLS:D label9
 # ============
-:BLS:D label9 is op4=0xF & cc=0xE & label9
+:"BLS:D" label9 is op4=0xF & cc=0xE & label9
 {
     local take:1 = ((C | Z) == 1);
 
@@ -499,7 +502,7 @@
 # ============
 # BHI:D label9
 # ============
-:BHI:D label9 is op4=0xF & cc=0xF & label9
+:"BHI:D" label9 is op4=0xF & cc=0xF & label9
 {
     local take:1 = ((C | Z) == 0);
 

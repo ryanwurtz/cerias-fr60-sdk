@@ -32,168 +32,170 @@ macro set_subc_flags(a, b, cin, result) {
 # ==========
 # ADD Rj, Ri 
 # ==========
-:ADD Rjreg, Rireg is op8=0xA6 & Rjreg & Rireg
+:ADD Rjreg, Rireg is op8=0xA6 & Rjreg & Rj & Rireg & Ri
 {
 	local a:4;
 	local b:4;
-	
-	read_rj(a);
-	read_ri(b);
+
+	read_rj(Rj, Rjreg, a);
+	read_ri(Ri, Rireg, b);
 	
 	local result:4 = a + b;
 	
 	set_add_flags(a,b,result);
-	write_ri(result);
+	write_ri(Ri, Rireg, result);
 }
 
 # ===========
 # ADD #u4, Ri
 # ===========
-:ADD "#"^u4, Rireg is op8=0xA4 & u4 & Rireg
+:ADD "#"^u4, Rireg is op8=0xA4 & u4 & Rireg & Ri
 {	
 	local b:4;
-	read_ri(b);
+	local u:4 = u4;
+	read_ri(Ri, Rireg, b);
 
-	local result:4 = b + zext(u4);
+	local result:4 = b + u;
 	
-	set_add_flags(zext(u4),b,result);
-	write_ri(result);
+	set_add_flags(u,b,result);
+	write_ri(Ri, Rireg, result);
 }
 
 # ============
 # ADD2 #n4, Ri
 # ============
-:ADD2 "#"^n4, Rireg is op8=0xA5 & n4 & Rireg
+:ADD2 "#"^n4, Rireg is op8=0xA5 & n4 & Rireg & Ri
 {
     local b:4;
-    read_ri(b);
+    read_ri(Ri, Rireg, b);
 
     local result:4 = b + n4;
     set_add_flags(b, n4, result);
-    write_ri(result);
+    write_ri(Ri, Rireg, result);
 }
 
 # ===========
 # ADDC Rj, Ri 
 # ===========
-:ADDC Rjreg, Rireg is op8=0xA7 & Rjreg & Rireg
+:ADDC Rjreg, Rireg is op8=0xA7 & Rjreg & Rj & Rireg & Ri
 {
 	local a:4;
 	local b:4;
-	
-	read_rj(a);
-	read_ri(b);
+
+	read_rj(Rj, Rjreg, a);
+	read_ri(Ri, Rireg, b);
 	
 
     local cin:4 = zext(C);
     local result:4 = a + b + cin;
 
     set_addc_flags(a, b, cin, result);
-    write_ri(result);
+    write_ri(Ri, Rireg, result);
 }
 
 # ===========
 # ADDN Rj, Ri
 # ===========
-:ADDN Rjreg, Rireg is op8=0xA2 & Rjreg & Rireg
+:ADDN Rjreg, Rireg is op8=0xA2 & Rjreg & Rj & Rireg & Ri
 {
 	local a:4;
 	local b:4;
-	
-	read_rj(a);
-	read_ri(b);
+
+	read_rj(Rj, Rjreg, a);
+	read_ri(Ri, Rireg, b);
 	
 	local result:4 = a + b;
 	
-	write_ri(result);
+	write_ri(Ri, Rireg, result);
 }
 
 # ============
 # ADDN #u4, Ri
 # ============
-:ADDN "#"^u4, Rireg is op8=0xA0 & u4 & Rireg
+:ADDN "#"^u4, Rireg is op8=0xA0 & u4 & Rireg & Ri
 {
 	local b:4;
-	read_ri(b);
+	local u:4 = u4;
+	read_ri(Ri, Rireg, b);
 	
-	local result:4 = zext(u4) + b;
+	local result:4 = u + b;
 	
-	write_ri(result);
+	write_ri(Ri, Rireg, result);
 }
 
 # =============
 # ADDN2 #n4, Ri
 # =============
-:ADDN2 "#"^n4, Rireg is op8=0xA1 & n4 & Rireg
+:ADDN2 "#"^n4, Rireg is op8=0xA1 & n4 & Rireg & Ri
 {
     local b:4;
-    read_ri(b);
+    read_ri(Ri, Rireg, b);
 
     local result:4 = b + n4;
-    write_ri(result);
+    write_ri(Ri, Rireg, result);
 }
 
 # ==========
 # SUB Rj, Ri 
 # ==========
-:SUB Rjreg, Rireg is op8=0xAC & Rjreg & Rireg
+:SUB Rjreg, Rireg is op8=0xAC & Rjreg & Rj & Rireg & Ri
 {
 	local a:4;
 	local b:4;
-	
-	read_rj(a);
-	read_ri(b);
+
+	read_rj(Rj, Rjreg, a);
+	read_ri(Ri, Rireg, b);
 	
 	local result:4 = b - a;
 	
 	set_sub_flags(b,a,result);
-	write_ri(result);
+	write_ri(Ri, Rireg, result);
 }
 
 # ===========
 # SUBC Rj, Ri 
 # ===========
-:SUBC Rjreg, Rireg is op8=0xAD & Rjreg & Rireg
+:SUBC Rjreg, Rireg is op8=0xAD & Rjreg & Rj & Rireg & Ri
 {
     local a:4;
 	local b:4;
 	
-	read_rj(a);
-	read_ri(b);
+	read_rj(Rj, Rjreg, a);
+	read_ri(Ri, Rireg, b);
 	
     local cin:4 = zext(C);
     local result:4 = b - a - cin;
 
     set_subc_flags(b,a,cin,result);
-    write_ri(result);
+    write_ri(Ri, Rireg, result);
 }
 
 # ===========
 # SUBN Rj, Ri
 # ===========
-:SUBN Rjreg, Rireg is op8=0xAE & Rjreg & Rireg
+:SUBN Rjreg, Rireg is op8=0xAE & Rjreg & Rj & Rireg & Ri
 {
 	local a:4;
 	local b:4;
-	
-	read_rj(a);
-	read_ri(b);
+
+	read_rj(Rj, Rjreg, a);
+	read_ri(Ri, Rireg, b);
 	
 	local result:4 = b - a;
 	
-	write_ri(result);
+	write_ri(Ri, Rireg, result);
 }
 
 # ==========
 # CMP Rj, Ri 
 # ==========
-:CMP Rjreg, Rireg is op8=0xAA & Rjreg & Rireg
+:CMP Rjreg, Rireg is op8=0xAA & Rjreg & Rj & Rireg & Ri
 {
 	local a:4;
 	local b:4;
-	
-	read_rj(a);
-	read_ri(b);
+
+	read_rj(Rj, Rjreg, a);
+	read_ri(Ri, Rireg, b);
 	
 	local result:4 = b - a;
 	
@@ -203,23 +205,24 @@ macro set_subc_flags(a, b, cin, result) {
 # ===========
 # CMP #u4, Ri
 # ===========
-:CMP "#"^u4, Rireg is op8=0xA8 & u4 & Rireg
+:CMP "#"^u4, Rireg is op8=0xA8 & u4 & Rireg & Ri
 {
 	local b:4;
-	read_ri(b);
+	local u:4 = u4;
+	read_ri(Ri, Rireg, b);
 	
-	local result:4 = b - zext(u4);
+	local result:4 = b - u;
 	
-	set_sub_flags(b,zext(u4),result);
+	set_sub_flags(b,u,result);
 }
 
 # ============
 # CMP2 #n4, Ri
 # ============
-:CMP2 "#"^n4, Rireg is op8=0xA9 & n4 & Rireg
+:CMP2 "#"^n4, Rireg is op8=0xA9 & n4 & Rireg & Ri
 {
     local b:4;
-    read_ri(b);
+    read_ri(Ri, Rireg, b);
 
     local result:4 = b - n4;
     set_sub_flags(b, n4, result);

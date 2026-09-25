@@ -1,17 +1,17 @@
 # ==========
 # MUL Rj, Ri 
 # ==========
-:MUL Rjreg, Rireg is op8=0xAF & Rjreg & Rireg
+:MUL Rjreg, Rireg is op8=0xAF & Rjreg & Rj & Rireg & Ri
 {	
 	local a:4;
 	local b:4;
 	
-	read_rj(a);
-	read_ri(b);
+	read_rj(Rj, Rjreg, a);
+	read_ri(Ri, Rireg, b);
 	
 	local result:8 = sext(a) * sext(b);
 	
-	MDH = result >> 32;
+	MDH = result(4);
     MDL = result:4;
 
     N = (MDL s< 0);
@@ -22,17 +22,17 @@
 # ===========
 # MULU Rj, Ri 
 # ===========
-:MULU Rjreg, Rireg is op8=0xAB & Rjreg & Rireg
+:MULU Rjreg, Rireg is op8=0xAB & Rjreg & Rj & Rireg & Ri
 {	
 	local a:4;
 	local b:4;
 	
-	read_rj(a);
-	read_ri(b);
+	read_rj(Rj, Rjreg, a);
+	read_ri(Ri, Rireg, b);
 	
 	local result:8 = zext(a) * zext(b);
 	
-	MDH = result >> 32;
+	MDH = result(4);
     MDL = result:4;
 
     N = (MDL s< 0);
@@ -43,13 +43,13 @@
 # ===========
 # MULH Rj, Ri 
 # ===========
-:MULH Rjreg, Rireg is op8=0xBF & Rjreg & Rireg
+:MULH Rjreg, Rireg is op8=0xBF & Rjreg & Rj & Rireg & Ri
 {	
 	local a:4;
 	local b:4;
 	
-	read_rj(a);
-	read_ri(b);
+	read_rj(Rj, Rjreg, a);
+	read_ri(Ri, Rireg, b);
 	
 	local result:4 = sext(a:2) * sext(b:2);
 	
@@ -60,13 +60,13 @@
 # ============
 # MULUH Rj, Ri 
 # ============
-:MULUH Rjreg, Rireg is op8=0xBB & Rjreg & Rireg
+:MULUH Rjreg, Rireg is op8=0xBB & Rjreg & Rj & Rireg & Ri
 {	
 	local a:4;
 	local b:4;
 	
-	read_rj(a);
-	read_ri(b);
+	read_rj(Rj, Rjreg, a);
+	read_ri(Ri, Rireg, b);
 	
 	local result:4 = zext(a:2) * zext(b:2);
 	
@@ -77,14 +77,15 @@
 # ========
 # DIV0S Ri 
 # ========
-:DIV0S Rireg is op12=0x974 & Rireg
+:DIV0S Rireg is op12=0x974 & Rireg & Ri
 {	
 	local b:4;
-	read_ri(b);
+	read_ri(Ri, Rireg, b);
 	
 	D0 = (MDL s< 0);
 	D1 = ((MDL s<0) ^ (b s<0));
-	MDH = sext(MDL) >> 32;
+	local extended:8 = sext(MDL);
+	MDH = extended(4);
 }
 
 # ========
@@ -100,14 +101,14 @@
 # =======
 # DIV1 Ri 
 # =======
-:DIV1 Rireg is op12=0x976 & Rireg
+:DIV1 Rireg is op12=0x976 & Rireg & Ri
 {	
 	local b:4;
-	read_ri(b);
+	read_ri(Ri, Rireg, b);
 	
 	local comb:8 = (zext(MDH) << 32) | zext(MDL);
 	comb = comb << 1;
-	MDH = comb >> 32;
+	MDH = comb(4);
 	MDL = comb:4;
 	
 	local temp:4;
@@ -130,10 +131,10 @@
 # =======
 # DIV2 Ri 
 # =======
-:DIV2 Rireg is op12=0x977 & Rireg
+:DIV2 Rireg is op12=0x977 & Rireg & Ri
 {	
 	local b:4;
-	read_ri(b);
+	read_ri(Ri, Rireg, b);
 	
 	local temp:4;
 	if (D1 == 1) goto <add>;

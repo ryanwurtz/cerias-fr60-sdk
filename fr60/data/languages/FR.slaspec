@@ -46,7 +46,7 @@ define token instr(16)
     CRj = (4,7)
     CRi = (0,3)
     CC = (8,15)
-    CRu4 = (0,3)
+    CPu4 = (0,3)
     reglist = (0,7)
 ;
 
@@ -66,31 +66,31 @@ define pcodeop COPSV;
 n4: value is u4
     [ value = u4 - 16; ]
 {
-    export value;
+    export *[const]:4 value;
 }
 
 i20: value is u4 ; i16
     [ value = (u4 << 16) | i16; ]
 {
-    export value;
+    export *[const]:4 value;
 }
 
 disp10: value is s8 
 	[ value = s8 * 4; ]
 {
-	export value;
+	export *[const]:4 value;
 }
 
 disp9: value is s8 
 	[ value = s8 * 2; ]
 {
-	export value;
+	export *[const]:4 value;
 }
 
 udisp6: value is u4
 	[ value = u4 * 4; ]
 {
-	export value;
+	export *[const]:4 value;
 }
 
 label12: target is rel11
@@ -108,101 +108,69 @@ label9: target is rel8
 dir10: value is u8
 	[ value = u8 * 4; ]
 {
-	export value;
+	export *[const]:4 value;
 }
 
 dir9: value is u8
 	[ value = u8 * 2; ]
 {
-	export value;
+	export *[const]:4 value;
 }
 
 #register mapping
-Rireg: r0 is Ri=0x0 { export r0; }
-Rireg: r1 is Ri=0x1 { export r1; }
-Rireg: r2 is Ri=0x2 { export r2; }
-Rireg: r3 is Ri=0x3 { export r3; }
-Rireg: r4 is Ri=0x4 { export r4; }
-Rireg: r5 is Ri=0x5 { export r5; }
-Rireg: r6 is Ri=0x6 { export r6; }
-Rireg: r7 is Ri=0x7 { export r7; }
-Rireg: r8 is Ri=0x8 { export r8; }
-Rireg: r9 is Ri=0x9 { export r9; }
-Rireg: r10 is Ri=0xA { export r10; }
-Rireg: r11 is Ri=0xB { export r11; }
-Rireg: r12 is Ri=0xC { export r12; }
-Rireg: AC is Ri=0xD { export AC; }
-Rireg: FP is Ri=0xE { export FP; }
-Rireg: SP is Ri=0xF { export SP; }
+Rireg: "r0" is Ri=0x0 { export r0; }
+Rireg: "r1" is Ri=0x1 { export r1; }
+Rireg: "r2" is Ri=0x2 { export r2; }
+Rireg: "r3" is Ri=0x3 { export r3; }
+Rireg: "r4" is Ri=0x4 { export r4; }
+Rireg: "r5" is Ri=0x5 { export r5; }
+Rireg: "r6" is Ri=0x6 { export r6; }
+Rireg: "r7" is Ri=0x7 { export r7; }
+Rireg: "r8" is Ri=0x8 { export r8; }
+Rireg: "r9" is Ri=0x9 { export r9; }
+Rireg: "r10" is Ri=0xA { export r10; }
+Rireg: "r11" is Ri=0xB { export r11; }
+Rireg: "r12" is Ri=0xC { export r12; }
+Rireg: "AC" is Ri=0xD { export AC; }
+Rireg: "FP" is Ri=0xE { export FP; }
+Rireg: "SP" is Ri=0xF { export SP; }
 
-Rjreg: r0 is Rj=0x0 { export r0; }
-Rjreg: r1 is Rj=0x1 { export r1; }
-Rjreg: r2 is Rj=0x2 { export r2; }
-Rjreg: r3 is Rj=0x3 { export r3; }
-Rjreg: r4 is Rj=0x4 { export r4; }
-Rjreg: r5 is Rj=0x5 { export r5; }
-Rjreg: r6 is Rj=0x6 { export r6; }
-Rjreg: r7 is Rj=0x7 { export r7; }
-Rjreg: r8 is Rj=0x8 { export r8; }
-Rjreg: r9 is Rj=0x9 { export r9; }
-Rjreg: r10 is Rj=0xA { export r10; }
-Rjreg: r11 is Rj=0xB { export r11; }
-Rjreg: r12 is Rj=0xC { export r12; }
-Rjreg: AC is Rj=0xD { export AC; }
-Rjreg: FP is Rj=0xE { export FP; }
-Rjreg: SP is Rj=0xF { export SP; }
+Rjreg: "r0" is Rj=0x0 { export r0; }
+Rjreg: "r1" is Rj=0x1 { export r1; }
+Rjreg: "r2" is Rj=0x2 { export r2; }
+Rjreg: "r3" is Rj=0x3 { export r3; }
+Rjreg: "r4" is Rj=0x4 { export r4; }
+Rjreg: "r5" is Rj=0x5 { export r5; }
+Rjreg: "r6" is Rj=0x6 { export r6; }
+Rjreg: "r7" is Rj=0x7 { export r7; }
+Rjreg: "r8" is Rj=0x8 { export r8; }
+Rjreg: "r9" is Rj=0x9 { export r9; }
+Rjreg: "r10" is Rj=0xA { export r10; }
+Rjreg: "r11" is Rj=0xB { export r11; }
+Rjreg: "r12" is Rj=0xC { export r12; }
+Rjreg: "AC" is Rj=0xD { export AC; }
+Rjreg: "FP" is Rj=0xE { export FP; }
+Rjreg: "SP" is Rj=0xF { export SP; }
 
-Rshreg: TBR is Rsh=0x0 { export TBR; }
-Rshreg: RP  is Rsh=0x1 { export RP; }
-Rshreg: SSP is Rsh=0x2 { export SSP; }
-Rshreg: USP is Rsh=0x3 { export USP; }
-Rshreg: MDH is Rsh=0x4 { export MDH; }
-Rshreg: MDL is Rsh=0x5 { export MDL; }
+Rshreg: "TBR" is Rsh=0x0 { export TBR; }
+Rshreg: "RP"  is Rsh=0x1 { export RP; }
+Rshreg: "SSP" is Rsh=0x2 { export SSP; }
+Rshreg: "USP" is Rsh=0x3 { export USP; }
+Rshreg: "MDH" is Rsh=0x4 { export MDH; }
+Rshreg: "MDL" is Rsh=0x5 { export MDL; }
 
-Rslreg: TBR is Rsl=0x0 { export TBR; }
-Rslreg: RP  is Rsl=0x1 { export RP; }
-Rslreg: SSP is Rsl=0x2 { export SSP; }
-Rslreg: USP is Rsl=0x3 { export USP; }
-Rslreg: MDH is Rsl=0x4 { export MDH; }
-Rslreg: MDL is Rsl=0x5 { export MDL; }
-
-#normal register read/writes
-macro write_ri(value) {
-	if (Ri == 0xF) goto <SP_HANDLER>;
-	Rireg = value;
-	goto <done>;
-	
-	<SP_HANDLER>
-	write_sp(value);
-	<done>
-}
-
-macro read_ri(dest) {
-	if (Ri == 0xF) goto <SP_HANDLER>;
-	
-	dest = Rireg;
-	goto <done>;
-	
-	<SP_HANDLER>
-	read_sp(dest);
-	<done>
-}
-
-macro read_rj(dest) {
-	if (Rj == 0xF) goto <SP_HANDLER>;
-	
-	dest = Rjreg;
-	goto <done>;
-	
-	<SP_HANDLER>
-	read_sp(dest);
-	<done>
-}
+Rslreg: "TBR" is Rsl=0x0 { export TBR; }
+Rslreg: "RP"  is Rsl=0x1 { export RP; }
+Rslreg: "SSP" is Rsl=0x2 { export SSP; }
+Rslreg: "USP" is Rsl=0x3 { export USP; }
+Rslreg: "MDH" is Rsl=0x4 { export MDH; }
+Rslreg: "MDL" is Rsl=0x5 { export MDL; }
 
 # program status writes
 macro write_ps(value) {
     local oldilm:1 = ILM;
-    local newilm:1 = (value >> 16) & 0x1F;
+    local ilmvalue:4 = (value >> 16) & 0x1F;
+	local newilm:1 = ilmvalue:1;
     local data:4 = value;
 
     if (oldilm < 16) goto <load>;
@@ -234,6 +202,39 @@ macro write_sp(data) {
 	<usermode>
 	USP = data;
 	
+	<done>
+}
+
+# Normal register reads/writes: pass the token index and selected register explicitly.
+macro write_ri(index, reg, value) {
+	if (index == 0xF:1) goto <SP_HANDLER>;
+	reg = value;
+	goto <done>;
+
+	<SP_HANDLER>
+	write_sp(value);
+	<done>
+}
+
+macro read_ri(index, reg, dest) {
+	if (index == 0xF:1) goto <SP_HANDLER>;
+
+	dest = reg;
+	goto <done>;
+
+	<SP_HANDLER>
+	read_sp(dest);
+	<done>
+}
+
+macro read_rj(index, reg, dest) {
+	if (index == 0xF:1) goto <SP_HANDLER>;
+
+	dest = reg;
+	goto <done>;
+
+	<SP_HANDLER>
+	read_sp(dest);
 	<done>
 }
 
