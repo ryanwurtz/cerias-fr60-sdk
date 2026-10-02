@@ -31,7 +31,7 @@
     	<range space="ram"/>
   	</global>
   	
-  	<stackpointer register="SSP" space="ram" growth="negative"/>
+  	<stackpointer register="SP" space="ram" growth="negative"/>
   
   	<default_proto>
   		<prototype name="default" extrapop="0" stackshift="0">
@@ -88,7 +88,7 @@
     			<register name="r10"/>
     			<register name="r11"/>
     			<register name="FP"/>
-    			<register name="SSP"/>
+    			<register name="SP"/>
       		</unaffected>
       		<killedbycall>
       			<register name="r0"/>

@@ -1,12 +1,9 @@
 # =======
 # JMP @Ri
 # =======
-:JMP "@"^Rireg is op12=0x970 & Rireg & Ri
+:JMP "@"^Rireg is op12=0x970 & Rireg
 {
-	local data:4;
-	read_ri(Ri, Rireg, data);
-	
-	goto [data];	
+	goto [Rireg];	
 }
 
 # ============
@@ -21,13 +18,10 @@
 # ========
 # CALL @Ri
 # ========
-:CALL "@"^Rireg is op12=0x971 & Rireg & Ri
+:CALL "@"^Rireg is op12=0x971 & Rireg
 {	
-	local data:4;
-	read_ri(Ri, Rireg, data);
-	
 	RP = inst_next;
-	call [data];
+	call [Rireg];
 }
 
 # ===
@@ -43,11 +37,11 @@
 # =======
 :INT "#"^u8 is op8=0x1F & u8
 {
-	SSP = SSP - 4;
-	writew(SSP, PS);
-	SSP = SSP - 4;
+	SP = SP - 4;
+	writew(SP, PS);
+	SP = SP - 4;
 	local nextpc:4 = inst_next;
-	writew(SSP, nextpc);
+	writew(SP, nextpc);
 	S = 0;
 	I = 0;
 	
@@ -64,11 +58,11 @@
 # ====
 :INTE is op16=0x9F30
 {
-	SSP = SSP - 4;
-	writew(SSP, PS);
-	SSP = SSP - 4;
+	SP = SP - 4;
+	writew(SP, PS);
+	SP = SP - 4;
 	local nextpc:4 = inst_next;
-	writew(SSP, nextpc);
+	writew(SP, nextpc);
 	ILM = 0;
 	S = 0;
 
@@ -88,7 +82,7 @@
     local pcdata:4;
     local psdata:4;
 
-    addr = SSP;
+    addr = SP;
 
     readw(addr, pcdata);
     addr = addr + 4;
@@ -96,7 +90,7 @@
     readw(addr, psdata);
     addr = addr + 4;
 
-    SSP = addr;
+    SP = addr;
     write_ps(psdata);
     return [pcdata];
 }
@@ -260,12 +254,10 @@
 # =========
 # JMP:D @Ri
 # =========
-:"JMP:D" "@"^Rireg is op12=0x9F0 & Rireg & Ri
+:"JMP:D" "@"^Rireg is op12=0x9F0 & Rireg
 {
 	delayslot(1);
-	local data:4;
-	read_ri(Ri, Rireg, data);
-	goto [data];	
+	goto [Rireg];	
 }
 
 # ==============
@@ -281,15 +273,11 @@
 # ==========
 # CALL:D @Ri
 # ==========
-:"CALL:D" "@"^Rireg is op12=0x9F1 & Rireg & Ri
+:"CALL:D" "@"^Rireg is op12=0x9F1 & Rireg
 {	
 	RP = inst_next;
 	delayslot(1);
-	
-	local data:4;
-	read_ri(Ri, Rireg, data);
-	
-	call [data];
+	call [Rireg];
 }
 
 # =====
@@ -526,12 +514,9 @@
 # ============
 :ENTER "#"^dir10 is op8=0x0F & dir10
 {
-	local addr:4;
-	read_sp(addr);
-	
-	writew(addr - 4, FP);
-	FP = addr - 4;
-	write_sp(addr - dir10);
+	writew(SP - 4, FP);
+	FP = SP - 4;
+	SP = SP - dir10;
 }
 
 # =====
@@ -540,10 +525,8 @@
 :LEAVE is op16=0x9F90
 {
     local data:4;
-    local addr:4 = FP + 4;
 
-    write_sp(addr);
-
-    readw(addr - 4, data);
+	SP = FP + 4;
+    readw(SP - 4, data);
     FP = data;
 }

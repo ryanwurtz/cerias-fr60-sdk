@@ -1,15 +1,9 @@
 # ==========
 # MUL Rj, Ri 
 # ==========
-:MUL Rjreg, Rireg is op8=0xAF & Rjreg & Rj & Rireg & Ri
+:MUL Rjreg, Rireg is op8=0xAF & Rjreg & Rireg
 {	
-	local a:4;
-	local b:4;
-	
-	read_rj(Rj, Rjreg, a);
-	read_ri(Ri, Rireg, b);
-	
-	local result:8 = sext(a) * sext(b);
+	local result:8 = sext(Rjreg) * sext(Rireg);
 	
 	MDH = result(4);
     MDL = result:4;
@@ -22,15 +16,9 @@
 # ===========
 # MULU Rj, Ri 
 # ===========
-:MULU Rjreg, Rireg is op8=0xAB & Rjreg & Rj & Rireg & Ri
-{	
-	local a:4;
-	local b:4;
-	
-	read_rj(Rj, Rjreg, a);
-	read_ri(Ri, Rireg, b);
-	
-	local result:8 = zext(a) * zext(b);
+:MULU Rjreg, Rireg is op8=0xAB & Rjreg & Rireg
+{		
+	local result:8 = zext(Rjreg) * zext(Rireg);
 	
 	MDH = result(4);
     MDL = result:4;
@@ -45,13 +33,7 @@
 # ===========
 :MULH Rjreg, Rireg is op8=0xBF & Rjreg & Rj & Rireg & Ri
 {	
-	local a:4;
-	local b:4;
-	
-	read_rj(Rj, Rjreg, a);
-	read_ri(Ri, Rireg, b);
-	
-	local result:4 = sext(a:2) * sext(b:2);
+	local result:4 = sext(Rjreg:2) * sext(Rireg:2);
 	
 	MDL = result;
 	set_nz(result);
@@ -60,15 +42,9 @@
 # ============
 # MULUH Rj, Ri 
 # ============
-:MULUH Rjreg, Rireg is op8=0xBB & Rjreg & Rj & Rireg & Ri
+:MULUH Rjreg, Rireg is op8=0xBB & Rjreg & Rireg
 {	
-	local a:4;
-	local b:4;
-	
-	read_rj(Rj, Rjreg, a);
-	read_ri(Ri, Rireg, b);
-	
-	local result:4 = zext(a:2) * zext(b:2);
+	local result:4 = zext(Rjreg:2) * zext(Rireg:2);
 	
 	MDL = result;
 	set_nz(result);
@@ -77,13 +53,11 @@
 # ========
 # DIV0S Ri 
 # ========
-:DIV0S Rireg is op12=0x974 & Rireg & Ri
+:DIV0S Rireg is op12=0x974 & Rireg
 {	
-	local b:4;
-	read_ri(Ri, Rireg, b);
-	
 	D0 = (MDL s< 0);
-	D1 = ((MDL s<0) ^ (b s<0));
+	D1 = ((MDL s<0) ^ (Rireg s<0));
+
 	local extended:8 = sext(MDL);
 	MDH = extended(4);
 }
@@ -101,11 +75,8 @@
 # =======
 # DIV1 Ri 
 # =======
-:DIV1 Rireg is op12=0x976 & Rireg & Ri
+:DIV1 Rireg is op12=0x976 & Rireg
 {	
-	local b:4;
-	read_ri(Ri, Rireg, b);
-	
 	local comb:8 = (zext(MDH) << 32) | zext(MDL);
 	comb = comb << 1;
 	MDH = comb(4);
@@ -113,12 +84,12 @@
 	
 	local temp:4;
 	if (D1 == 1) goto <add>;
-	temp = MDH - b;
-	C = MDH < b;
+	temp = MDH - Rireg;
+	C = MDH < Rireg;
 	goto <check>;
 	<add>
-	temp = MDH + b;
-	C = carry(MDH, b);
+	temp = MDH + Rireg;
+	C = carry(MDH, Rireg);
 	
 	<check>
 	if ((D0 ^ D1 ^ C) != 0) goto <done>;
@@ -131,19 +102,16 @@
 # =======
 # DIV2 Ri 
 # =======
-:DIV2 Rireg is op12=0x977 & Rireg & Ri
+:DIV2 Rireg is op12=0x977 & Rireg
 {	
-	local b:4;
-	read_ri(Ri, Rireg, b);
-	
 	local temp:4;
 	if (D1 == 1) goto <add>;
-	temp = MDH - b;
-	C = MDH < b;
+	temp = MDH - Rireg;
+	C = MDH < Rireg;
 	goto <check>;
 	<add>
-	temp = MDH + b;
-	C = carry(MDH, b);
+	temp = MDH + Rireg;
+	C = carry(MDH, Rireg);
 	
 	<check>
 	Z = (temp == 0);

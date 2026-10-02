@@ -5,7 +5,7 @@ define space ram type=ram_space size=4 default;
 define space register type=register_space size=1; 
 
 define register offset=0x00 size=4 [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 AC FP SP];
-define register offset=0x40 size=4 [ PC PS TBR RP SSP USP ];
+define register offset=0x40 size=4 [ PC PS TBR RP _ USP ];
 define register offset=0x5c size=4 [ MDH MDL ]; 
 
 #aliases for PS
@@ -154,14 +154,14 @@ Rjreg: "SP" is Rj=0xF { export SP; }
 
 Rshreg: "TBR" is Rsh=0x0 { export TBR; }
 Rshreg: "RP"  is Rsh=0x1 { export RP; }
-Rshreg: "SSP" is Rsh=0x2 { export SSP; }
+Rshreg: "SSP" is Rsh=0x2 { export SP; }
 Rshreg: "USP" is Rsh=0x3 { export USP; }
 Rshreg: "MDH" is Rsh=0x4 { export MDH; }
 Rshreg: "MDL" is Rsh=0x5 { export MDL; }
 
 Rslreg: "TBR" is Rsl=0x0 { export TBR; }
 Rslreg: "RP"  is Rsl=0x1 { export RP; }
-Rslreg: "SSP" is Rsl=0x2 { export SSP; }
+Rslreg: "SSP" is Rsl=0x2 { export SP; }
 Rslreg: "USP" is Rsl=0x3 { export USP; }
 Rslreg: "MDH" is Rsl=0x4 { export MDH; }
 Rslreg: "MDL" is Rsl=0x5 { export MDL; }
@@ -180,62 +180,6 @@ macro write_ps(value) {
 
 	<load>
     PS = data;
-}
-
-#stack pointer handlers
-macro read_sp(dest) {
-	if (S == 1) goto <usermode>;
-	dest = SSP;
-	goto <done>;
-	
-	<usermode>
-	dest = USP;
-	
-	<done>
-}
-
-macro write_sp(data) {
-	if (S == 1) goto <usermode>;
-	SSP = data;
-	goto <done>;
-	
-	<usermode>
-	USP = data;
-	
-	<done>
-}
-
-# Normal register reads/writes: pass the token index and selected register explicitly.
-macro write_ri(index, reg, value) {
-	if (index == 0xF:1) goto <SP_HANDLER>;
-	reg = value;
-	goto <done>;
-
-	<SP_HANDLER>
-	write_sp(value);
-	<done>
-}
-
-macro read_ri(index, reg, dest) {
-	if (index == 0xF:1) goto <SP_HANDLER>;
-
-	dest = reg;
-	goto <done>;
-
-	<SP_HANDLER>
-	read_sp(dest);
-	<done>
-}
-
-macro read_rj(index, reg, dest) {
-	if (index == 0xF:1) goto <SP_HANDLER>;
-
-	dest = reg;
-	goto <done>;
-
-	<SP_HANDLER>
-	read_sp(dest);
-	<done>
 }
 
 #memory reference masks

@@ -1,36 +1,27 @@
 # ===============
 # LDRES @Ri+, #u4
 # ===============
-:LDRES "@"^Rireg^"+, #"^u4 is op8=0xBC & u4 & Rireg & Ri
+:LDRES "@"^Rireg^"+, #"^u4 is op8=0xBC & u4 & Rireg
 {
-    local addr:4;
     local data:4;
     local u:1 = u4;
 
-    read_ri(Ri, Rireg, addr);
-    readw(addr, data);
-
+    readw(Rireg, data);
     LDRES_OP(u, data);
-
-    write_ri(Ri, Rireg, addr + 4);
+    Rireg = Rireg + 4;
 }
 
 # ===============
 # STRES #u4, @Ri+
 # ===============
-:STRES "#"^u4^", @"^Rireg^"+" is op8=0xBD & u4 & Rireg & Ri
+:STRES "#"^u4^", @"^Rireg^"+" is op8=0xBD & u4 & Rireg
 {
-    local addr:4;
     local data:4;
     local u:1 = u4;
 
-    read_ri(Ri, Rireg, addr);
-
     data = STRES_OP(u);
-
-    writew(addr, data);
-
-    write_ri(Ri, Rireg, addr + 4);
+    writew(Rireg, data);
+    Rireg = Rireg + 4;
 }
 
 # ==========================
@@ -48,21 +39,18 @@
 # =========================
 # COPLD #CPu4, #CC, Rj, CRi
 # =========================
-:COPLD "#"^CPu4, "#"^CC, Rjreg, CRi is op12=0x9FD & CPu4 ; CC & Rjreg & Rj & CRi
+:COPLD "#"^CPu4, "#"^CC, Rjreg, CRi is op12=0x9FD & CPu4 ; CC & Rjreg & CRi
 {
-    local data:4;
-    read_rj(Rj, Rjreg, data);
-
     local CPu:1 = CPu4;
     local cmd:1 = CC;
     local cri:1 = CRi;
-    COPLD(CPu, cmd, cri, data);
+    COPLD(CPu, cmd, cri, Rjreg);
 }
 	
 # =========================
 # COPST #CPu4, #CC, CRj, Ri
 # =========================
-:COPST "#"^CPu4, "#"^CC, CRj, Ri is op12=0x9FE & CPu4 ; CC & CRj & Rireg & Ri
+:COPST "#"^CPu4, "#"^CC, CRj, Rireg is op12=0x9FE & CPu4 ; CC & CRj & Rireg
 {
 	local data:4;
     local CPu:1 = CPu4;
@@ -70,13 +58,13 @@
     local crj:1 = CRj;
 
     data = COPST(CPu, cmd, crj);
-    write_ri(Ri, Rireg, data);
+    Rireg = data;
 }
 	
 # =========================
 # COPSV #CPu4, #CC, CRj, Ri
 # =========================
-:COPSV "#"^CPu4, "#"^CC, CRj, Ri is op12=0x9FF & CPu4 ; CC & CRj & Rireg & Ri
+:COPSV "#"^CPu4, "#"^CC, CRj, Rireg is op12=0x9FF & CPu4 ; CC & CRj & Rireg
 {
 	local data:4;
     local CPu:1 = CPu4;
@@ -84,5 +72,5 @@
     local crj:1 = CRj;
 
     data = COPSV(CPu, cmd, crj);
-    write_ri(Ri, Rireg, data);
+    Rireg = data;
 }

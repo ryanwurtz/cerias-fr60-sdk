@@ -19,155 +19,119 @@ macro right_setc(shift, dest) {
 # ==========
 # LSL Rj, Ri
 # ==========
-:LSL Rjreg, Rireg is op8=0xB6 & Rjreg & Rj & Rireg & Ri
+:LSL Rjreg, Rireg is op8=0xB6 & Rjreg & Rireg
 {	
-	local a:4;
-	local b:4;
+	local shift:1 = Rjreg:1 & 0x1F;
+	local result:4 = Rireg << shift;
 	
-	read_rj(Rj, Rjreg, a);
-	read_ri(Ri, Rireg, b);
-	
-	local shift:1 = a:1 & 0x1F;
-	local result:4 = b << shift;
-	
-	left_setc(shift, b);
-	write_ri(Ri, Rireg, result);
+	left_setc(shift, Rireg);
+	Rireg = result;
 	set_nz(result);
 }
 
 # ===========
 # LSL #u4, Ri
 # ===========
-:LSL "#"^u4, Rireg is op8=0xB4 & u4 & Rireg & Ri
+:LSL "#"^u4, Rireg is op8=0xB4 & u4 & Rireg
 {	
-	local b:4;
 	local u:4 = u4;
-	read_ri(Ri, Rireg, b);
+	local result:4 = Rireg << u;
 	
-	local result:4 = b << u;
-	
-	left_setc(u, b);
-	write_ri(Ri, Rireg, result);
+	left_setc(u, Rireg);
+	Rireg = result;
 	set_nz(result);
 }
 
 # ============
 # LSL2 #u4, Ri
 # ============
-:LSL2 "#"^u4, Rireg is op8=0xB5 & u4 & Rireg & Ri
+:LSL2 "#"^u4, Rireg is op8=0xB5 & u4 & Rireg
 {	
-	local b:4;
 	local u:4 = u4;
-	read_ri(Ri, Rireg, b);
-	
 	local shift:4 = u + 16;
-	local result:4 = b << shift;
+	local result:4 = Rireg << shift;
 	
-	left_setc(shift, b);
-	write_ri(Ri, Rireg, result);
+	left_setc(shift, Rireg);
+	Rireg = result;
 	set_nz(result);
 }
 
 # ==========
 # LSR Rj, Ri
 # ==========
-:LSR Rjreg, Rireg is op8=0xB2 & Rjreg & Rj & Rireg & Ri
+:LSR Rjreg, Rireg is op8=0xB2 & Rjreg & Rireg
 {	
-	local a:4;
-	local b:4;
+	local shift:1 = Rjreg:1 & 0x1F:1;
+	local result:4 = Rireg >> shift;
 	
-	read_rj(Rj, Rjreg, a);
-	read_ri(Ri, Rireg, b);
-	
-	local shift:1 = a:1 & 0x1F:1;
-	local result:4 = b >> shift;
-	
-	right_setc(shift, b);
-	write_ri(Ri, Rireg, result);
+	right_setc(shift, Rireg);
+	Rireg = result;
 	set_nz(result);
 }
 
 # ===========
 # LSR #u4, Ri
 # ===========
-:LSR "#"^u4, Rireg is op8=0xB0 & u4 & Rireg & Ri
+:LSR "#"^u4, Rireg is op8=0xB0 & u4 & Rireg
 {	
-	local b:4;
 	local u:4 = u4;
-	read_ri(Ri, Rireg, b);
+	local result:4 = Rireg >> u;
 	
-	local result:4 = b >> u;
-	
-	right_setc(u, b);
-	write_ri(Ri, Rireg, result);
+	right_setc(u, Rireg);
+	Rireg = result;
 	set_nz(result);
 }
 
 # ============
 # LSR2 #u4, Ri
 # ============
-:LSR2 "#"^u4, Rireg is op8=0xB1 & u4 & Rireg & Ri
+:LSR2 "#"^u4, Rireg is op8=0xB1 & u4 & Rireg
 {	
-	local b:4;
 	local u:4 = u4;
-	read_ri(Ri, Rireg, b);
-	
 	local shift:4 = u + 16;
-	local result:4 = b >> shift;
+	local result:4 = Rireg >> shift;
 	
-	right_setc(shift, b);
-	write_ri(Ri, Rireg, result);
+	right_setc(shift, Rireg);
+	Rireg = result;
 	set_nz(result);
 }
 
 # ==========
 # ASR Rj, Ri
 # ==========
-:ASR Rjreg, Rireg is op8=0xBA & Rjreg & Rj & Rireg & Ri
+:ASR Rjreg, Rireg is op8=0xBA & Rjreg & Rireg
 {	
-	local a:4;
-	local b:4;
+	local shift:1 = Rjreg:1 & 0x1F;
+	local result:4 = Rireg s>> shift;
 	
-	read_rj(Rj, Rjreg, a);
-	read_ri(Ri, Rireg, b);
-	
-	local shift:1 = a:1 & 0x1F;
-	local result:4 = b s>> shift;
-	
-	right_setc(shift, b);
-	write_ri(Ri, Rireg, result);
+	right_setc(shift, Rireg);
+	Rireg = result;
 	set_nz(result);
 }
 
 # ===========
 # ASR #u4, Ri
 # ===========
-:ASR "#"^u4, Rireg is op8=0xB8 & u4 & Rireg & Ri
+:ASR "#"^u4, Rireg is op8=0xB8 & u4 & Rireg
 {	
-	local b:4;
 	local u:4 = u4;
-	read_ri(Ri, Rireg, b);
+	local result:4 = Rireg s>> u;
 	
-	local result:4 = b s>> u;
-	
-	right_setc(u, b);
-	write_ri(Ri, Rireg, result);
+	right_setc(u, Rireg);
+	Rireg = result;
 	set_nz(result);
 }
 
 # ============
 # ASR2 #u4, Ri
 # ============
-:ASR2 "#"^u4, Rireg is op8=0xB9 & u4 & Rireg & Ri
+:ASR2 "#"^u4, Rireg is op8=0xB9 & u4 & Rireg
 {	
-	local b:4;
 	local u:4 = u4;
-	read_ri(Ri, Rireg, b);
-	
 	local shift:4 = u + 16;
-	local result:4 = b s>> shift;
+	local result:4 = Rireg s>> shift;
 	
-	right_setc(shift, b);
-	write_ri(Ri, Rireg, result);
+	right_setc(shift, Rireg);
+	Rireg = result;
 	set_nz(result);
 }
