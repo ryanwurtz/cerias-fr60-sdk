@@ -5,9 +5,11 @@ int multiply(int param_1,int param_2)
 }
 
 // main @ 0x0001002c
-undefined4 main(void)
+bool main(void)
 {
-  multiply(10,5);
-  return 0;
+  int iVar1;
+  
+  iVar1 = multiply(10,5);
+  return iVar1 < 1;
 }
 
