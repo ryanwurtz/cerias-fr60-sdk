@@ -1,7 +1,6 @@
 //@category Export
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 
 import ghidra.app.decompiler.DecompInterface;
@@ -16,7 +15,7 @@ public class ExportDecompiled extends GhidraScript {
     public void run() throws Exception {
 
         String[] args = getScriptArgs();
-        File outputFile = new File(getScriptArgs()[0]);
+        File outputFile = new File(args[0]);
 
         DecompInterface decompiler = new DecompInterface();
         decompiler.openProgram(currentProgram);

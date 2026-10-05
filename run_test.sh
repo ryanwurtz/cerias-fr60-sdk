@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #program parsing
-proj_dir=/home/ryanw/cerias/ghidra-extras
+proj_dir=$HOME/cerias/ghidra-extras
 program=multest
 while (($#)); do
     case "$1" in
@@ -21,16 +21,16 @@ while (($#)); do
 done
 
 #compile
-program_path="$proj_dir/bin/fr-30/$program.elf"
+program_path="$proj_dir/tests/bin/$program.elf"
 fr30-elf-gcc -O0 -g -nostdlib -Wl,-e,main -Wl,-Ttext=0x10000 \
     "$proj_dir/src/fr-30/$program.c" -lgcc -o "$program_path"
 
 #decompile
-/home/ryanw/tools/ghidra_12.1.4_PUBLIC/support/analyzeHeadless "$HOME" fr60-test \
+analyze=$HOME/opt/fr30/bin/fr30-elf-gcc
+#analyze=/$HOME/tools/ghidra_12.1.4_PUBLIC/support/analyzeHeadless 
+"$analyze" "$HOME" fr60-test \
     -import "$program_path" -overwrite \
     -processor FR:BE:32:60 \
     -cspec gcc \
-    -scriptPath ~/cerias/ghidra-extras/scripts \
+    -scriptPath ~/cerias/ghidra-extras/ghidra_scripts \
     -postScript ExportDecompiled.java "$proj_dir"/output/"$program"_dcmp.c
-
-exit 0
