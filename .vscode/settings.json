@@ -1,6 +1,6 @@
 {
-  "java.project.sourcePaths": ["scripts"],
+  "java.project.sourcePaths": ["ghidra_scripts"],
   "java.project.referencedLibraries": [
-    "/home/ryan-wurtz/Downloads/ghidra_12.1.3_PUBLIC_20260817/ghidra_12.1.3_PUBLIC/Ghidra/**/*.jar"
+    "/home/ryanw/tools/ghidra_12.1.4_PUBLIC/Ghidra/**/*.jar"
   ]
 }

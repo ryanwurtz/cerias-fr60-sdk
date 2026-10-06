@@ -6,7 +6,7 @@ set -e
 program=multest
 build=false
 proj_dir=$HOME/cerias/cerias-fr60-ghidra
-ghidra_dir=${GHIDRA_INSTALL_DIR:-$HOME/Downloads/ghidra_12.1.3_PUBLIC_20260817/ghidra_12.1.3_PUBLIC}
+ghidra_dir=${GHIDRA_INSTALL_DIR:-$HOME/tools/ghidra_12.1.4_PUBLIC}
 
 parse_args() {
     while (($#)); do
@@ -38,7 +38,6 @@ parse_args() {
 run() {
     local program_bin_path="$proj_dir/tests/bin/$program.elf"
     local analyze="$ghidra_dir/support/analyzeHeadless"
-    #local analyze=/$HOME/tools/ghidra_12.1.4_PUBLIC/support/analyzeHeadless 
 
     #compile
     fr30-elf-gcc -O0 -g -nostdlib -Wl,-e,main -Wl,-Ttext=0x10000 \
@@ -50,13 +49,25 @@ run() {
         -processor FR:BE:32:60 \
         -cspec gcc \
         -scriptPath "$proj_dir/ghidra_scripts" \
-        -postScript ExportDecompiled.java "$proj_dir"/tests/output/"$program"_dcmp.c
+        -postScript ExportDecompiled.java \
+        "$proj_dir/tests/output/dcmp/${program}_dcmp.c" \
+        "$proj_dir/tests/output/asm/$program.S" \
+        "$proj_dir/tests/output/pcode/$program.txt"
 }
 
 build() {
     local extension_dir="$proj_dir/fr60"
-    local install_dir="$ghidra_dir/Ghidra/Extensions"
+    local ghidra_version ghidra_release install_dir
+    ghidra_version=$(awk -F= '$1 == "application.version" {print $2}' "$ghidra_dir/Ghidra/application.properties")
+    ghidra_release=$(awk -F= '$1 == "application.release.name" {print $2}' "$ghidra_dir/Ghidra/application.properties")
+    install_dir="${XDG_CONFIG_HOME:-$HOME/.config}/ghidra/ghidra_${ghidra_version}_${ghidra_release}/Extensions"
     local archive
+
+    if [[ -d "$ghidra_dir/Ghidra/Extensions/fr60" ]]; then
+        printf 'Duplicate installation risk: move %s outside Ghidra before rebuilding.\n' \
+            "$ghidra_dir/Ghidra/Extensions/fr60" >&2
+        exit 1
+    fi
 
     (
         cd -- "$extension_dir/data"
@@ -68,6 +79,7 @@ build() {
 
     #install most recent build
     archive=$(ls -t "$extension_dir"/dist/*.zip | head -n 1)
+    mkdir -p -- "$install_dir"
     unzip -o "$archive" -d "$install_dir"
 }
 

@@ -1,4 +1,5 @@
 // divide @ 0x00010000
+
 undefined4 divide(undefined4 param_1,undefined4 param_2)
 {
   undefined4 uVar1;
@@ -7,14 +8,18 @@ undefined4 divide(undefined4 param_1,undefined4 param_2)
   return uVar1;
 }
 
+
 // main @ 0x00010038
+
 undefined4 main(void)
 {
   divide(10,5);
   return 0;
 }
 
+
 // __divsi3 @ 0x00010088
+
 uint __divsi3(int param_1,uint param_2)
 {
   longlong lVar1;
@@ -514,4 +519,5 @@ uint __divsi3(int param_1,uint param_2)
   }
   return uVar2;
 }
+
 

@@ -24,7 +24,7 @@
 		<link>
 			<name>Ghidra</name>
 			<type>2</type>
-			<location>/home/ryan-wurtz/Downloads/ghidra_12.1.3_PUBLIC_20260817/ghidra_12.1.3_PUBLIC</location>
+			<location>/home/ryanw/tools/ghidra_12.1.4_PUBLIC</location>
 		</link>
 	</linkedResources>
 	<filteredResources>
