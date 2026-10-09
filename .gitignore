@@ -1,0 +1,7 @@
+# Processor module build output and Gradle cache
+/fr60/.gradle/
+/fr60/build/
+/fr60/dist/
+/fr60/bin/
+# Project-local tool installations, downloads, and build trees
+/.tools/

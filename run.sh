@@ -6,8 +6,9 @@ set -e
 program=multest
 test=false
 build=false
-proj_dir=$HOME/cerias/cerias-fr60-ghidra
-ghidra_dir=${GHIDRA_INSTALL_DIR:-$HOME/tools/ghidra_12.1.4_PUBLIC}
+proj_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+ghidra_dir=${GHIDRA_INSTALL_DIR:-$proj_dir/.tools/ghidra}
+cross_prefix=${CROSS_PREFIX:-$proj_dir/.tools/cross/bin/fr30-elf-}
 
 parse_args() {
     while (($#)); do
@@ -42,7 +43,8 @@ run() {
     local analyze="$ghidra_dir/support/analyzeHeadless"
 
     #compile
-    fr30-elf-gcc -O0 -g -nostdlib -Wl,-e,main -Wl,-Ttext=0x10000 \
+    mkdir -p "$proj_dir/tests/bin" "$proj_dir/tests/output/"{dcmp,asm,pcode}
+    "${cross_prefix}gcc" -O0 -g -nostdlib -Wl,-e,main -Wl,-Ttext=0x10000 \
         "$proj_dir/tests/src/$program.c" -lgcc -o "$program_bin_path"
 
     #decompile
@@ -64,12 +66,6 @@ build() {
     ghidra_release=$(awk -F= '$1 == "application.release.name" {print $2}' "$ghidra_dir/Ghidra/application.properties")
     install_dir="${XDG_CONFIG_HOME:-$HOME/.config}/ghidra/ghidra_${ghidra_version}_${ghidra_release}/Extensions"
     local archive
-
-    if [[ -d "$ghidra_dir/Ghidra/Extensions/fr60" ]]; then
-        printf 'Duplicate installation risk: move %s outside Ghidra before rebuilding.\n' \
-            "$ghidra_dir/Ghidra/Extensions/fr60" >&2
-        exit 1
-    fi
 
     (
         cd -- "$extension_dir/data"
