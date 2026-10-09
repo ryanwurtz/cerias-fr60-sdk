@@ -198,7 +198,7 @@ macro right_setc(shift, dest) {
 
 :ADDN "#"^u4, ri is op8=0xA0 & u4 & ri {
 	local u:4 = u4;
-	ri = ri + u;;
+	ri = ri + u;
 }
 
 :ADDN2 "#"^n4, ri is op8=0xA1 & n4 & ri {

@@ -27,11 +27,13 @@ public class ExportDecompiled extends GhidraScript {
         try (PrintWriter dcmp = new PrintWriter(dcmpFile);
              PrintWriter asm = new PrintWriter(asmFile);
              PrintWriter pcode = new PrintWriter(pcodeFile)) {
+
             if (!decompiler.openProgram(currentProgram)) {
                 throw new IllegalStateException(
                     "Cannot initialize decompiler: " + decompiler.getLastMessage());
             }
-
+                
+            //dump decompiler output by function
             for (Function function : fm.getFunctions(true)) {
 
                 DecompileResults result = decompiler.decompileFunction(function, 60, monitor);
@@ -39,31 +41,26 @@ public class ExportDecompiled extends GhidraScript {
                 dcmp.println("// " + function.getName() + " @ 0x" + function.getEntryPoint());
                 if (result.decompileCompleted()) {
                     String code = result.getDecompiledFunction().getC();
-                    dcmp.print(code.replace("\n\n{", "\n{"));
+                    code = code.strip();
+                    code = code.replaceFirst("\\R\\s*\\{", " {");
+                    dcmp.println(code);
                 }
                 else {
                     dcmp.println("//Decompilation failed: " + result.getErrorMessage());
                 }
                 dcmp.println();
+            }
 
-                String header = "# " + function.getName() + " @ 0x" + function.getEntryPoint();
-                asm.println(header);
-                pcode.println(header);
-                for (Instruction instruction : currentProgram.getListing()
-                        .getInstructions(function.getBody(), true)) {
-                    String line = instruction.getAddress() + ": " + instruction;
-                    asm.println(line);
-                    pcode.println(line);
-                    PcodeOp[] ops = instruction.getPcode();
-                    for (int i = 0; i < ops.length; i++) {
-                        pcode.println("    " + i + ": " + ops[i]);
-                    }
-                    if (ops.length == 0) {
-                        pcode.println("    # No p-code operations");
-                    }
+            // Dump all defined instructions in address order, including outside functions.
+            for (Instruction instruction : currentProgram.getListing().getInstructions(true)) {
+                String line = instruction.getAddress() + ": " + instruction;
+                asm.println(line);
+                pcode.println(line);
+
+                PcodeOp[] ops = instruction.getPcode();
+                for (int i = 0; i < ops.length; i++) {
+                    pcode.println("    " + i + ": " + ops[i]);
                 }
-                asm.println();
-                pcode.println();
             }
         }
         finally {

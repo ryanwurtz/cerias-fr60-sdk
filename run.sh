@@ -43,7 +43,7 @@ run() {
     local analyze="$ghidra_dir/support/analyzeHeadless"
 
     #compile
-    mkdir -p "$proj_dir/tests/bin" "$proj_dir/tests/output/"{dcmp,asm,pcode}
+    mkdir -p "$proj_dir/ghidra_proj" "$proj_dir/tests/bin" "$proj_dir/tests/output/"{dcmp,asm,pcode}
     "${cross_prefix}gcc" -O0 -g -nostdlib -Wl,-e,main -Wl,-Ttext=0x10000 \
         "$proj_dir/tests/src/$program.c" -lgcc -o "$program_bin_path"
 
@@ -52,7 +52,7 @@ run() {
         -import "$program_bin_path" -overwrite \
         -processor FR:BE:32:60 \
         -cspec gcc \
-        -scriptPath "$proj_dir/ghidra_scripts" \
+        -scriptPath "$proj_dir/fr60/ghidra_scripts" \
         -postScript ExportDecompiled.java \
         "$proj_dir/tests/output/dcmp/${program}_dcmp.c" \
         "$proj_dir/tests/output/asm/$program.S" \
