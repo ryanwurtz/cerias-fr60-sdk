@@ -48,7 +48,7 @@ run() {
         "$proj_dir/tests/src/$program.c" -lgcc -o "$program_bin_path"
 
     #decompile
-    "$analyze" "$HOME" fr60-test \
+    "$analyze" "$proj_dir/ghidra_proj" fr60-test \
         -import "$program_bin_path" -overwrite \
         -processor FR:BE:32:60 \
         -cspec gcc \

@@ -5,3 +5,6 @@
 /fr60/bin/
 # Project-local tool installations, downloads, and build trees
 /.tools/
+
+# Headless Ghidra projects
+/ghidra_proj/

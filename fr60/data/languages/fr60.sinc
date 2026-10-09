@@ -98,7 +98,6 @@ dir9: value is u8 [ value = u8 * 2; ] {
 	export *[const]:4 value;
 }
 
-# program status writes
 macro write_ps(value) {
     local oldilm:1 = ILM;
     local ilmvalue:4 = (value >> 16) & 0x1F;
@@ -114,43 +113,11 @@ macro write_ps(value) {
     PS = data;
 }
 
-#memory reference masks
-macro readw(addr, dest) {
-    local a:4 = addr & 0xfffffffc;
-    dest = *:4 a;
-}
-
-macro readh(addr, dest) {
-    local a:4 = addr & 0xfffffffe;
-    dest = *:2 a;
-}
-
-macro readb(addr, dest) {
-    dest = *:1 addr;
-}
-
-macro writew(addr, value) {
-    local a:4 = addr & 0xfffffffc;
-    *:4 a = value;
-}
-
-macro writeh(addr, value) {
-    local a:4 = addr & 0xfffffffe;
-    *:2 a = value;
-}
-
-macro writeb(addr, value) {
-    *:1 addr = value;
-}
-
-#generic flag setter
 macro set_nz(result) {
 	N = (result s< 0);
 	Z = (result == 0);
 }
 
-#instruction files
-# MACRO FLAG HELPERS
 macro set_add_flags(a, b, result) {
 	set_nz(result);
 	C = carry(a, b);
@@ -181,9 +148,26 @@ macro set_subc_flags(a, b, cin, result) {
     V = sborrow(a, b) ^ sborrow(temp, cin);
 }
 
+macro left_setc(shift, dest) {
+	if (shift == 0) goto <clear>;
+	C = (((dest >> (32-shift)) & 0x1) == 1);
+	goto <done>;
+	<clear>
+	C = 0;
+	<done>
+}
+
+macro right_setc(shift, dest) {
+	if (shift == 0) goto <clear>;
+	C = (((dest >> (shift-1)) & 0x1) == 1);
+	goto <done>;
+	<clear>
+	C = 0;
+	<done>
+}
+
 :ADD rj, ri is op8=0xA6 & rj & ri {	
 	local result:4 = ri + rj;
-	
 	set_add_flags(ri,rj,result);
 	ri = result;
 }
@@ -191,7 +175,6 @@ macro set_subc_flags(a, b, cin, result) {
 :ADD "#"^u4, ri is op8=0xA4 & u4 & ri {	
 	local u:4 = u4;
 	local result:4 = ri + u;
-	
 	set_add_flags(u,ri,result);
 	ri = result;
 }
@@ -205,7 +188,6 @@ macro set_subc_flags(a, b, cin, result) {
 :ADDC rj, ri is op8=0xA7 & rj & ri {
     local cin:4 = zext(C);
     local result:4 = ri + rj + cin;
-
     set_addc_flags(ri, rj, cin, result);
     ri = result;
 }
@@ -216,9 +198,7 @@ macro set_subc_flags(a, b, cin, result) {
 
 :ADDN "#"^u4, ri is op8=0xA0 & u4 & ri {
 	local u:4 = u4;
-	local result:4 = u + ri;
-	
-	ri = result;
+	ri = ri + u;;
 }
 
 :ADDN2 "#"^n4, ri is op8=0xA1 & n4 & ri {
@@ -227,7 +207,6 @@ macro set_subc_flags(a, b, cin, result) {
 
 :SUB rj, ri is op8=0xAC & rj & ri {
 	local result:4 = ri - rj;
-	
 	set_sub_flags(ri,rj,result);
 	ri = result;
 }
@@ -235,7 +214,6 @@ macro set_subc_flags(a, b, cin, result) {
 :SUBC rj, ri is op8=0xAD & rj & ri {	
     local cin:4 = zext(C);
     local result:4 = ri - rj - cin;
-
     set_subc_flags(ri,rj,cin,result);
     ri = result;
 }
@@ -246,14 +224,12 @@ macro set_subc_flags(a, b, cin, result) {
 
 :CMP rj, ri is op8=0xAA & rj & ri {	
 	local result:4 = ri - rj;
-	
 	set_sub_flags(ri,rj,result);
 }
 
 :CMP "#"^u4, ri is op8=0xA8 & u4 & ri {
 	local u:4 = u4;
 	local result:4 = ri - u;
-	
 	set_sub_flags(ri,u,result);
 }
 
@@ -281,185 +257,115 @@ macro set_subc_flags(a, b, cin, result) {
 
 :AND rj, ri is op8=0x82 & rj & ri {	
 	local result:4 = rj & ri;
-	
 	set_nz(result);
 	ri = result;
 }
 
 :AND rj, "@"^ri is op8=0x84 & rj & ri {	
-	local mem:4;
-	readw(ri,mem);
-	local result:4 = rj & mem;
-	
+	local result:4 = rj & (*:4 ri);
 	set_nz(result);
-	writew(ri,result);
+	*:4 ri = result;
 }
 
 :ANDH rj, "@"^ri is op8=0x85 & rj & ri {	
-	local mem:2;
-	readh(ri,mem);
-	local result:2 = rj:2 & mem;
-	
+	local result:2 = rj:2 & (*:2 ri);
 	set_nz(result);
-	writeh(ri,result);
+	*:2 ri = result;
 }
 
 :ANDB rj, "@"^ri is op8=0x86 & rj & ri {
-	local mem:1;
-	readb(ri,mem);
-	local result:1 = rj:1 & mem;
-	
+	local result:1 = rj:1 & (*:1 ri);
 	set_nz(result);
-	writeb(ri, result);
+	*:1 ri = result;
 }
 
 :OR rj, ri is op8=0x92 & rj & ri {	
 	local result:4 = rj | ri;
-	
 	set_nz(result);
 	ri = result;
 }
 
 :OR rj, "@"^ri is op8=0x94 & rj & ri {
-	local mem:4;
-	readw(ri,mem);
-	local result:4 = rj | mem;
-	
+	local result:4 = rj | (*:4 ri);
 	set_nz(result);
-	writew(ri,result);
+	*:4 ri = result;
 }
 
 :ORH rj, "@"^ri is op8=0x95 & rj & ri {
-	local mem:2;
-	readh(ri,mem);
-	local result:2 = rj:2 | mem;
-	
+	local result:2 = rj:2 | (*:2 ri);
 	set_nz(result);
-	writeh(ri,result);
+	*:2 ri = result;
 }
 
 :ORB rj, "@"^ri is op8=0x96 & rj & ri {
-	local mem:1;
-	readb(ri,mem);
-	local result:1 = rj:1 | mem;
-	
+	local result:1 = rj:1 | (*:1 ri);
 	set_nz(result);
-	writeb(ri,result);
+	*:1 ri = result;
 }
 
 :EOR rj, ri is op8=0x9A & rj & ri {
 	local result:4 = rj ^ ri;
-	
 	set_nz(result);
 	ri = result;
 }
 
 :EOR rj, "@"^ri is op8=0x9C & rj & ri {
-	local mem:4;
-	readw(ri,mem);
-	local result:4 = rj ^ mem;
-	
+	local result:4 = rj ^ (*:4 ri);
 	set_nz(result);
-	writew(ri,result);
+	*:4 ri = result;
 }
 
 :EORH rj, "@"^ri is op8=0x9D & rj & ri {
-	local mem:2;
-	readh(ri,mem);
-	local result:2 = rj:2 ^ mem;
-	
+	local result:2 = rj:2 ^ (*:2 ri);
 	set_nz(result);
-	writeh(ri,result);
+	*:2 ri = result;
 }
 
 :EORB rj, "@"^ri is op8=0x9E & rj & ri {
-	local mem:1;
-	readb(ri,mem);
-	local result:1 = rj:1 ^ mem;
-	
+	local result:1 = rj:1 ^ (*:1 ri);
 	set_nz(result);
-	writeb(ri,result);
+	*:1 ri = result;
 }
 
 :BANDL "#"^u4, "@"^ri is op8=0x80 & u4 & ri {
-	local mem:1;
-	readb(ri,mem);
-
 	local u:1 = u4;
-	local mask:1 = 0xF0 | u;
-
-	local result:1 = mask & mem;
-	writeb(ri,result);
+	*:1 ri = (0xF0 | u) & (*:1 ri);
 }
 
 :BANDH "#"^u4, "@"^ri is op8=0x81 & u4 & ri {
-	local mem:1;
-	readb(ri,mem);
-
 	local u:1 = u4;
-	local mask:1 = 0x0F | (u << 4);
-
-	local result:1 = mask & mem;
-	writeb(ri,result);
+	*:1 ri = (0x0F | (u << 4)) & (*:1 ri);
 }
 
 :BORL "#"^u4, "@"^ri is op8=0x90 & u4 & ri {
-	local mem:1;
-	readb(ri,mem);
-
 	local u:1 = u4;
-	local result:1 = u | mem;
-
-	writeb(ri,result);
+	*:1 ri = u | (*:1 ri);
 }
 
 :BORH "#"^u4, "@"^ri is op8=0x91 & u4 & ri {	
-	local mem:1;
-	readb(ri,mem);
-
 	local u:1 = u4;
-	local result:1 = (u << 4) | mem;
-	
-	writeb(ri,result);
+	*:1 ri = (u << 4) | (*:1 ri);
 }
 
 :BEORL "#"^u4, "@"^ri is op8=0x98 & u4 & ri {
-	local mem:1;
-	readb(ri,mem);
-
 	local u:1 = u4;
-	local result:1 = u ^ mem;
-	
-	writeb(ri,result);
+	*:1 ri = u ^ (*:1 ri);
 }
 
 :BEORH "#"^u4, "@"^ri is op8=0x99 & u4 & ri {
-	local mem:1;
-	readb(ri,mem);
-
 	local u:1 = u4;
-	local result:1 = (u << 4) ^ mem;
-	
-	writeb(ri,result);
+	*:1 ri = (u << 4) ^ (*:1 ri);
 }
 
 :BTSTL "#"^u4, "@"^ri is op8=0x88 & u4 & ri {
-	local mem:1;
-	readb(ri,mem);
-	
 	local u:1 = u4;
-	local result:1 = u & mem;
-
+	local result:1 = u & (*:1 ri);
 	set_nz(result);
 }
 
 :BTSTH "#"^u4, "@"^ri is op8=0x89 & u4 & ri {
-	local mem:1;
-	readb(ri,mem);
-	
 	local u:1 = u4;
-	local result:1 = (u << 4) & mem;
-
+	local result:1 = (u << 4) & (*:1 ri);
 	set_nz(result);
 }
 
@@ -511,14 +417,12 @@ macro set_subc_flags(a, b, cin, result) {
 
 :MULH rj, ri is op8=0xBF & rj & ri {	
 	local result:4 = sext(rj:2) * sext(ri:2);
-	
 	MDL = result;
 	set_nz(result);
 }
 
 :MULUH rj, ri is op8=0xBB & rj & ri {	
 	local result:4 = zext(rj:2) * zext(ri:2);
-	
 	MDL = result;
 	set_nz(result);
 }
@@ -587,24 +491,6 @@ macro set_subc_flags(a, b, cin, result) {
 :DIV4S is op16=0x9F70 {	
 	if (D1 != 1) goto <done>;
 	MDL = 0 - MDL;
-	<done>
-}
-
-macro left_setc(shift, dest) {
-	if (shift == 0) goto <clear>;
-	C = (((dest >> (32-shift)) & 0x1) == 1);
-	goto <done>;
-	<clear>
-	C = 0;
-	<done>
-}
-
-macro right_setc(shift, dest) {
-	if (shift == 0) goto <clear>;
-	C = (((dest >> (shift-1)) & 0x1) == 1);
-	goto <done>;
-	<clear>
-	C = 0;
 	<done>
 }
 
@@ -706,152 +592,118 @@ macro right_setc(shift, dest) {
 }
 
 :LD "@"^rj, ri is op8=0x04 & rj & ri {
-	local data:4;
-	readw(rj,data);
-
-	ri = data;
+	ri = (*:4 rj);
 }
 
 :LD "@(AC, "^rj^")", ri is op8=0x00 & rj & ri {
-	local data:4;
-	readw(rj + AC,data);
-
-	ri = data;
+	ri = (*:4 (rj + AC));
 }
 
 :LD "@(FP, "^disp10^")", ri is op4=0x2 & disp10 & ri {
-	local data:4;
-	readw(FP + disp10,data);
-
-	ri = data;
+	ri = (*:4 (FP + disp10));
 }
 
 :LD "@(SP, "^udisp6^")", ri is op8=0x03 & udisp6 & ri {
-	local data:4;
-	readw(SP + udisp6,data);
-
-	ri = data;
+	ri = (*:4 (SP + udisp6));
 }
 
 :LD "@SP+", ri is op12=0x070 & ri {
-	local data:4;
-	readw(SP, data);
+	local data:4 = *:4 SP;
 	SP = SP + 4;
 	ri = data;
 }
 
 :LD "@SP+", rsl is op12=0x078 & rsl {
-	local data:4;
-	readw(SP, data);
+	local data:4 = *:4 SP;
 	SP = SP + 4;
 	rsl = data;
 }
 
 :LD "@SP+, PS" is op16=0x0790 {
-    local data:4;
-	readw(SP, data);
-
+    local data:4 = *:4 SP;
     write_ps(data);
 	SP = SP + 4;
 }
 
 :LDUH "@"^rj, ri is op8=0x05 & rj & ri {	
-	local data:2;
-	readh(rj,data);
-	
-	ri = zext(data);
+	ri = zext((*:2 rj));
 }
 
 :LDUH "@(AC, "^rj^")", ri is op8=0x01 & rj & ri {
-	local data:2;
-	readh(AC + rj,data);
-	
-	ri = zext(data);
+	ri = zext((*:2 (AC + rj)));
 }
 
 :LDUH "@(FP, "^disp9^")", ri is op4=0x4 & disp9 & ri {
-	local data:2;
-	
-	readh(FP + disp9,data);
-	ri = zext(data);
+	ri = zext(*:2 (FP + disp9));
 }
 
 :LDUB "@"^rj, ri is op8=0x06 & rj & ri {	
-	local data:1;
-	readb(rj,data);
-	
-	ri = zext(data);
+	ri = zext((*:1 rj));
 }
 
 :LDUB "@(AC, "^rj^")", ri is op8=0x02 & rj & ri {
-	local data:1;
-	readb(AC + rj,data);
-	
-	ri = zext(data);
+	ri = zext((*:1 (AC + rj)));
 }
 
 :LDUB "@(FP, "^s8^")", ri is op4=0x6 & s8 & ri {
-	local data:1;
-	readb(FP + s8,data);
-	
-	ri = zext(data);
+	ri = zext((*:1 (FP + s8)));
 }
 
 :ST ri, "@"^rj is op8=0x14 & rj & ri {
-	writew(rj,ri);
+	*:4 rj = ri;
 }
 
 :ST ri, "@(AC, "^rj^")" is op8=0x10 & rj & ri {
-	writew(AC + rj,ri);
+	*:4 (AC + rj) = ri;
 }
 
 :ST ri, "@(FP, "^disp10^")" is op4=0x3 & disp10 & ri {
-	writew(FP + disp10,ri);
+	*:4 (FP + disp10) = ri;
 }
 
 :ST ri, "@(SP, "^udisp6^")" is op8=0x13 & udisp6 & ri {	
-	writew(SP + udisp6,ri);
+	*:4 (SP + udisp6) = ri;
 }
 
 :ST ri, "@-SP" is op12=0x170 & ri {	
 	local data:4 = ri;
 	SP = SP - 4;
-	writew(SP,data);
+	*:4 SP = data;
 }
 
 :ST rsl, "@-SP" is op12=0x178 & rsl {
 	local data:4 = rsl;
 	SP = SP - 4;
-	writew(SP, data);
+	*:4 SP = data;
 }
 
 :ST "PS, @-SP" is op16=0x1790 {
 	SP = SP - 4;
-	writew(SP,PS);
+	*:4 SP = PS;
 }
 
 :STH ri, "@"^rj is op8=0x15 & rj & ri {
-	writeh(rj,ri:2);
+	*:2 rj = ri:2;
 }
 
 :STH ri, "@(AC, "^rj^")" is op8=0x11 & rj & ri {
-	writeh(AC + rj,ri:2);
+	*:2 (AC + rj) = ri:2;
 }
 
 :STH ri, "@(FP, "^disp9^")" is op4=0x5 & disp9 & ri {
-	writeh(FP + disp9,ri:2);
+	*:2 (FP + disp9) = ri:2;
 }
 
 :STB ri, "@"^rj is op8=0x16 & rj & ri {
-	writeb(rj,ri:1);
+	*:1 rj = ri:1;
 }
 
 :STB ri, "@(AC, "^rj^")" is op8=0x12 & rj & ri {
-	writeb(AC + rj,ri:1);
+	*:1 (AC + rj) = ri:1;
 }
 
 :STB ri, "@(FP, "^s8^")" is op4=0x7 & s8 & ri {
-	writeb(FP + s8,ri:1);
+	*:1 (FP + s8) = ri:1;
 }
 
 :MOV rj, ri is op8=0x8B & rj & ri {
@@ -875,216 +727,193 @@ macro right_setc(shift, dest) {
 }
 
 :DMOV "@"^dir10, "AC" is op8=0x08 & dir10 {
-	readw(dir10, AC);
+	AC = *:4 dir10;
 }
 
 :DMOV "AC", "@"^dir10 is op8=0x18 & dir10 {
-	writew(dir10, AC);
+	*:4 dir10 = AC;
 }
 
 :DMOV "@"^dir10, "@AC+" is op8=0x0C & dir10 {	
-	local data:4;
-	readw(dir10,data);
-	
-	writew(AC, data);
+	*:4 AC = (*:4 dir10);
 	AC = AC + 4;
 }
 
 :DMOV "@AC+", "@"^dir10 is op8=0x1C & dir10 {	
-	local data:4;
-	readw(AC,data);
-	
-	writew(dir10, data);
+	*:4 dir10 = (*:4 AC);
 	AC = AC + 4;
 }
 
 :DMOV "@"^dir10, "@-SP" is op8=0x0B & dir10 {	
-	local data:4;
-	readw(dir10,data);
-
+	local data:4 = *:4 dir10;
 	SP = SP - 4;
-	writew(SP, data);
+	*:4 SP = data;
 }
 
 :DMOV "@SP+", "@"^dir10 is op8=0x1B & dir10 {	
-	local data:4;
-	readw(SP,data);
-	
-	writew(dir10, data);
+	*:4 dir10 = (*:4 SP);
 	SP = SP + 4;
 }
 
 :DMOVH "@"^dir9, "AC" is op8=0x09 & dir9 {
-	readh(dir9, AC);
+	AC = zext(*:2 dir9);
 }
 
 :DMOVH "AC", "@"^dir9 is op8=0x19 & dir9 {
-	writeh(dir9, AC);
+	*:2 dir9 = AC:2;
 }
 
 :DMOVH "@"^dir9, "@AC+" is op8=0x0D & dir9 {	
-	local data:2;
-	readh(dir9,data);
-	
-	writeh(AC, data);
+	*:2 AC = (*:2 dir9);
 	AC = AC + 2;
 }
 
 :DMOVH "@AC+", "@"^dir9 is op8=0x1D & dir9 {	
-	local data:2;
-	readh(AC,data);
-	
-	writeh(dir9, data);
+	*:2 dir9 = (*:2 AC);
 	AC = AC + 2;
 }
 
 :DMOVB "@"^dir9, "AC" is op8=0x0A & dir9 {
-	readb(dir9, AC);
+	AC = zext(*:1 dir9);
 }
 
 :DMOVB "AC", "@"^dir9 is op8=0x1A & dir9 {
-	writeb(dir9, AC);
+	*:1 dir9 = AC:1;
 }
 
 :DMOVB "@"^dir9, "@AC+" is op8=0x0E & dir9 {	
-	local data:1;
-	readb(dir9,data);
-	
-	writeb(AC, data);
+	*:1 AC = (*:1 dir9);
 	AC = AC + 1;
 }
 
 :DMOVB "@AC+", "@"^dir9 is op8=0x1E & dir9 {	
-	local data:1;
-	readb(AC,data);
-	
-	writeb(dir9, data);
+	*:1 dir9 = (*:1 AC);
 	AC = AC + 1;
 }
 
 # Register-list operands: loads build upward; stores build downward.
-ldm_r7: r7 is r7 & listbit7=1 { readw(SP, r7); SP = SP + 4; }
+ldm_r7: r7 is r7 & listbit7=1 { r7 = *:4 SP; SP = SP + 4; }
 ldm_r7: "" is listbit7=0 { }
 
-ldm_r6: r6 is r6 & ldm_r7 & listbit6=1 & listtail6=0 { readw(SP, r6); SP = SP + 4; build ldm_r7; }
-ldm_r6: r6,ldm_r7 is r6 & ldm_r7 & listbit6=1 { readw(SP, r6); SP = SP + 4; build ldm_r7; }
+ldm_r6: r6 is r6 & ldm_r7 & listbit6=1 & listtail6=0 { r6 = *:4 SP; SP = SP + 4; build ldm_r7; }
+ldm_r6: r6,ldm_r7 is r6 & ldm_r7 & listbit6=1 { r6 = *:4 SP; SP = SP + 4; build ldm_r7; }
 ldm_r6: ldm_r7 is ldm_r7 & listbit6=0 { build ldm_r7; }
 
-ldm_r5: r5 is r5 & ldm_r6 & listbit5=1 & listtail5=0 { readw(SP, r5); SP = SP + 4; build ldm_r6; }
-ldm_r5: r5,ldm_r6 is r5 & ldm_r6 & listbit5=1 { readw(SP, r5); SP = SP + 4; build ldm_r6; }
+ldm_r5: r5 is r5 & ldm_r6 & listbit5=1 & listtail5=0 { r5 = *:4 SP; SP = SP + 4; build ldm_r6; }
+ldm_r5: r5,ldm_r6 is r5 & ldm_r6 & listbit5=1 { r5 = *:4 SP; SP = SP + 4; build ldm_r6; }
 ldm_r5: ldm_r6 is ldm_r6 & listbit5=0 { build ldm_r6; }
 
-ldm_r4: r4 is r4 & ldm_r5 & listbit4=1 & listtail4=0 { readw(SP, r4); SP = SP + 4; build ldm_r5; }
-ldm_r4: r4,ldm_r5 is r4 & ldm_r5 & listbit4=1 { readw(SP, r4); SP = SP + 4; build ldm_r5; }
+ldm_r4: r4 is r4 & ldm_r5 & listbit4=1 & listtail4=0 { r4 = *:4 SP; SP = SP + 4; build ldm_r5; }
+ldm_r4: r4,ldm_r5 is r4 & ldm_r5 & listbit4=1 { r4 = *:4 SP; SP = SP + 4; build ldm_r5; }
 ldm_r4: ldm_r5 is ldm_r5 & listbit4=0 { build ldm_r5; }
 
-ldm_r3: r3 is r3 & ldm_r4 & listbit3=1 & listtail3=0 { readw(SP, r3); SP = SP + 4; build ldm_r4; }
-ldm_r3: r3,ldm_r4 is r3 & ldm_r4 & listbit3=1 { readw(SP, r3); SP = SP + 4; build ldm_r4; }
+ldm_r3: r3 is r3 & ldm_r4 & listbit3=1 & listtail3=0 { r3 = *:4 SP; SP = SP + 4; build ldm_r4; }
+ldm_r3: r3,ldm_r4 is r3 & ldm_r4 & listbit3=1 { r3 = *:4 SP; SP = SP + 4; build ldm_r4; }
 ldm_r3: ldm_r4 is ldm_r4 & listbit3=0 { build ldm_r4; }
 
-ldm_r2: r2 is r2 & ldm_r3 & listbit2=1 & listtail2=0 { readw(SP, r2); SP = SP + 4; build ldm_r3; }
-ldm_r2: r2,ldm_r3 is r2 & ldm_r3 & listbit2=1 { readw(SP, r2); SP = SP + 4; build ldm_r3; }
+ldm_r2: r2 is r2 & ldm_r3 & listbit2=1 & listtail2=0 { r2 = *:4 SP; SP = SP + 4; build ldm_r3; }
+ldm_r2: r2,ldm_r3 is r2 & ldm_r3 & listbit2=1 { r2 = *:4 SP; SP = SP + 4; build ldm_r3; }
 ldm_r2: ldm_r3 is ldm_r3 & listbit2=0 { build ldm_r3; }
 
-ldm_r1: r1 is r1 & ldm_r2 & listbit1=1 & listtail1=0 { readw(SP, r1); SP = SP + 4; build ldm_r2; }
-ldm_r1: r1,ldm_r2 is r1 & ldm_r2 & listbit1=1 { readw(SP, r1); SP = SP + 4; build ldm_r2; }
+ldm_r1: r1 is r1 & ldm_r2 & listbit1=1 & listtail1=0 { r1 = *:4 SP; SP = SP + 4; build ldm_r2; }
+ldm_r1: r1,ldm_r2 is r1 & ldm_r2 & listbit1=1 { r1 = *:4 SP; SP = SP + 4; build ldm_r2; }
 ldm_r1: ldm_r2 is ldm_r2 & listbit1=0 { build ldm_r2; }
 
-ldm0_list: r0 is r0 & ldm_r1 & listbit0=1 & listtail0=0 { readw(SP, r0); SP = SP + 4; build ldm_r1; }
-ldm0_list: r0,ldm_r1 is r0 & ldm_r1 & listbit0=1 { readw(SP, r0); SP = SP + 4; build ldm_r1; }
+ldm0_list: r0 is r0 & ldm_r1 & listbit0=1 & listtail0=0 { r0 = *:4 SP; SP = SP + 4; build ldm_r1; }
+ldm0_list: r0,ldm_r1 is r0 & ldm_r1 & listbit0=1 { r0 = *:4 SP; SP = SP + 4; build ldm_r1; }
 ldm0_list: ldm_r1 is ldm_r1 & listbit0=0 { build ldm_r1; }
 
-ldm_r15: SP is SP & listbit7=1 { local data:4; readw(SP, data); SP = data; }
+ldm_r15: SP is SP & listbit7=1 { local data:4; data = *:4 SP; SP = data; }
 ldm_r15: "" is listbit7=0 { }
 
-ldm_r14: FP is FP & ldm_r15 & listbit6=1 & listtail6=0 { readw(SP, FP); SP = SP + 4; build ldm_r15; }
-ldm_r14: FP,ldm_r15 is FP & ldm_r15 & listbit6=1 { readw(SP, FP); SP = SP + 4; build ldm_r15; }
+ldm_r14: FP is FP & ldm_r15 & listbit6=1 & listtail6=0 { FP = *:4 SP; SP = SP + 4; build ldm_r15; }
+ldm_r14: FP,ldm_r15 is FP & ldm_r15 & listbit6=1 { FP = *:4 SP; SP = SP + 4; build ldm_r15; }
 ldm_r14: ldm_r15 is ldm_r15 & listbit6=0 { build ldm_r15; }
 
-ldm_r13: AC is AC & ldm_r14 & listbit5=1 & listtail5=0 { readw(SP, AC); SP = SP + 4; build ldm_r14; }
-ldm_r13: AC,ldm_r14 is AC & ldm_r14 & listbit5=1 { readw(SP, AC); SP = SP + 4; build ldm_r14; }
+ldm_r13: AC is AC & ldm_r14 & listbit5=1 & listtail5=0 { AC = *:4 SP; SP = SP + 4; build ldm_r14; }
+ldm_r13: AC,ldm_r14 is AC & ldm_r14 & listbit5=1 { AC = *:4 SP; SP = SP + 4; build ldm_r14; }
 ldm_r13: ldm_r14 is ldm_r14 & listbit5=0 { build ldm_r14; }
 
-ldm_r12: r12 is r12 & ldm_r13 & listbit4=1 & listtail4=0 { readw(SP, r12); SP = SP + 4; build ldm_r13; }
-ldm_r12: r12,ldm_r13 is r12 & ldm_r13 & listbit4=1 { readw(SP, r12); SP = SP + 4; build ldm_r13; }
+ldm_r12: r12 is r12 & ldm_r13 & listbit4=1 & listtail4=0 { r12 = *:4 SP; SP = SP + 4; build ldm_r13; }
+ldm_r12: r12,ldm_r13 is r12 & ldm_r13 & listbit4=1 { r12 = *:4 SP; SP = SP + 4; build ldm_r13; }
 ldm_r12: ldm_r13 is ldm_r13 & listbit4=0 { build ldm_r13; }
 
-ldm_r11: r11 is r11 & ldm_r12 & listbit3=1 & listtail3=0 { readw(SP, r11); SP = SP + 4; build ldm_r12; }
-ldm_r11: r11,ldm_r12 is r11 & ldm_r12 & listbit3=1 { readw(SP, r11); SP = SP + 4; build ldm_r12; }
+ldm_r11: r11 is r11 & ldm_r12 & listbit3=1 & listtail3=0 { r11 = *:4 SP; SP = SP + 4; build ldm_r12; }
+ldm_r11: r11,ldm_r12 is r11 & ldm_r12 & listbit3=1 { r11 = *:4 SP; SP = SP + 4; build ldm_r12; }
 ldm_r11: ldm_r12 is ldm_r12 & listbit3=0 { build ldm_r12; }
 
-ldm_r10: r10 is r10 & ldm_r11 & listbit2=1 & listtail2=0 { readw(SP, r10); SP = SP + 4; build ldm_r11; }
-ldm_r10: r10,ldm_r11 is r10 & ldm_r11 & listbit2=1 { readw(SP, r10); SP = SP + 4; build ldm_r11; }
+ldm_r10: r10 is r10 & ldm_r11 & listbit2=1 & listtail2=0 { r10 = *:4 SP; SP = SP + 4; build ldm_r11; }
+ldm_r10: r10,ldm_r11 is r10 & ldm_r11 & listbit2=1 { r10 = *:4 SP; SP = SP + 4; build ldm_r11; }
 ldm_r10: ldm_r11 is ldm_r11 & listbit2=0 { build ldm_r11; }
 
-ldm_r9: r9 is r9 & ldm_r10 & listbit1=1 & listtail1=0 { readw(SP, r9); SP = SP + 4; build ldm_r10; }
-ldm_r9: r9,ldm_r10 is r9 & ldm_r10 & listbit1=1 { readw(SP, r9); SP = SP + 4; build ldm_r10; }
+ldm_r9: r9 is r9 & ldm_r10 & listbit1=1 & listtail1=0 { r9 = *:4 SP; SP = SP + 4; build ldm_r10; }
+ldm_r9: r9,ldm_r10 is r9 & ldm_r10 & listbit1=1 { r9 = *:4 SP; SP = SP + 4; build ldm_r10; }
 ldm_r9: ldm_r10 is ldm_r10 & listbit1=0 { build ldm_r10; }
 
-ldm1_list: r8 is r8 & ldm_r9 & listbit0=1 & listtail0=0 { readw(SP, r8); SP = SP + 4; build ldm_r9; }
-ldm1_list: r8,ldm_r9 is r8 & ldm_r9 & listbit0=1 { readw(SP, r8); SP = SP + 4; build ldm_r9; }
+ldm1_list: r8 is r8 & ldm_r9 & listbit0=1 & listtail0=0 { r8 = *:4 SP; SP = SP + 4; build ldm_r9; }
+ldm1_list: r8,ldm_r9 is r8 & ldm_r9 & listbit0=1 { r8 = *:4 SP; SP = SP + 4; build ldm_r9; }
 ldm1_list: ldm_r9 is ldm_r9 & listbit0=0 { build ldm_r9; }
 
-stm_r7: r7 is r7 & listbit7=1 { SP = SP - 4; writew(SP, r7); }
+stm_r7: r7 is r7 & listbit7=1 { SP = SP - 4; *:4 SP = r7; }
 stm_r7: "" is listbit7=0 { }
 
-stm_r6: r6 is r6 & stm_r7 & listbit6=1 & listtail6=0 { build stm_r7; SP = SP - 4; writew(SP, r6); }
-stm_r6: r6,stm_r7 is r6 & stm_r7 & listbit6=1 { build stm_r7; SP = SP - 4; writew(SP, r6); }
+stm_r6: r6 is r6 & stm_r7 & listbit6=1 & listtail6=0 { build stm_r7; SP = SP - 4; *:4 SP = r6; }
+stm_r6: r6,stm_r7 is r6 & stm_r7 & listbit6=1 { build stm_r7; SP = SP - 4; *:4 SP = r6; }
 stm_r6: stm_r7 is stm_r7 & listbit6=0 { build stm_r7; }
 
-stm_r5: r5 is r5 & stm_r6 & listbit5=1 & listtail5=0 { build stm_r6; SP = SP - 4; writew(SP, r5); }
-stm_r5: r5,stm_r6 is r5 & stm_r6 & listbit5=1 { build stm_r6; SP = SP - 4; writew(SP, r5); }
+stm_r5: r5 is r5 & stm_r6 & listbit5=1 & listtail5=0 { build stm_r6; SP = SP - 4; *:4 SP = r5; }
+stm_r5: r5,stm_r6 is r5 & stm_r6 & listbit5=1 { build stm_r6; SP = SP - 4; *:4 SP = r5; }
 stm_r5: stm_r6 is stm_r6 & listbit5=0 { build stm_r6; }
 
-stm_r4: r4 is r4 & stm_r5 & listbit4=1 & listtail4=0 { build stm_r5; SP = SP - 4; writew(SP, r4); }
-stm_r4: r4,stm_r5 is r4 & stm_r5 & listbit4=1 { build stm_r5; SP = SP - 4; writew(SP, r4); }
+stm_r4: r4 is r4 & stm_r5 & listbit4=1 & listtail4=0 { build stm_r5; SP = SP - 4; *:4 SP = r4; }
+stm_r4: r4,stm_r5 is r4 & stm_r5 & listbit4=1 { build stm_r5; SP = SP - 4; *:4 SP = r4; }
 stm_r4: stm_r5 is stm_r5 & listbit4=0 { build stm_r5; }
 
-stm_r3: r3 is r3 & stm_r4 & listbit3=1 & listtail3=0 { build stm_r4; SP = SP - 4; writew(SP, r3); }
-stm_r3: r3,stm_r4 is r3 & stm_r4 & listbit3=1 { build stm_r4; SP = SP - 4; writew(SP, r3); }
+stm_r3: r3 is r3 & stm_r4 & listbit3=1 & listtail3=0 { build stm_r4; SP = SP - 4; *:4 SP = r3; }
+stm_r3: r3,stm_r4 is r3 & stm_r4 & listbit3=1 { build stm_r4; SP = SP - 4; *:4 SP = r3; }
 stm_r3: stm_r4 is stm_r4 & listbit3=0 { build stm_r4; }
 
-stm_r2: r2 is r2 & stm_r3 & listbit2=1 & listtail2=0 { build stm_r3; SP = SP - 4; writew(SP, r2); }
-stm_r2: r2,stm_r3 is r2 & stm_r3 & listbit2=1 { build stm_r3; SP = SP - 4; writew(SP, r2); }
+stm_r2: r2 is r2 & stm_r3 & listbit2=1 & listtail2=0 { build stm_r3; SP = SP - 4; *:4 SP = r2; }
+stm_r2: r2,stm_r3 is r2 & stm_r3 & listbit2=1 { build stm_r3; SP = SP - 4; *:4 SP = r2; }
 stm_r2: stm_r3 is stm_r3 & listbit2=0 { build stm_r3; }
 
-stm_r1: r1 is r1 & stm_r2 & listbit1=1 & listtail1=0 { build stm_r2; SP = SP - 4; writew(SP, r1); }
-stm_r1: r1,stm_r2 is r1 & stm_r2 & listbit1=1 { build stm_r2; SP = SP - 4; writew(SP, r1); }
+stm_r1: r1 is r1 & stm_r2 & listbit1=1 & listtail1=0 { build stm_r2; SP = SP - 4; *:4 SP = r1; }
+stm_r1: r1,stm_r2 is r1 & stm_r2 & listbit1=1 { build stm_r2; SP = SP - 4; *:4 SP = r1; }
 stm_r1: stm_r2 is stm_r2 & listbit1=0 { build stm_r2; }
 
-stm0_list: r0 is r0 & stm_r1 & listbit0=1 & listtail0=0 { build stm_r1; SP = SP - 4; writew(SP, r0); }
-stm0_list: r0,stm_r1 is r0 & stm_r1 & listbit0=1 { build stm_r1; SP = SP - 4; writew(SP, r0); }
+stm0_list: r0 is r0 & stm_r1 & listbit0=1 & listtail0=0 { build stm_r1; SP = SP - 4; *:4 SP = r0; }
+stm0_list: r0,stm_r1 is r0 & stm_r1 & listbit0=1 { build stm_r1; SP = SP - 4; *:4 SP = r0; }
 stm0_list: stm_r1 is stm_r1 & listbit0=0 { build stm_r1; }
 
-stm_r15: SP is SP & listbit7=1 { local oldsp:4 = SP; SP = SP - 4; writew(SP, oldsp); }
+stm_r15: SP is SP & listbit7=1 { local oldsp:4 = SP; SP = SP - 4; *:4 SP = oldsp; }
 stm_r15: "" is listbit7=0 { }
 
-stm_r14: FP is FP & stm_r15 & listbit6=1 & listtail6=0 { build stm_r15; SP = SP - 4; writew(SP, FP); }
-stm_r14: FP,stm_r15 is FP & stm_r15 & listbit6=1 { build stm_r15; SP = SP - 4; writew(SP, FP); }
+stm_r14: FP is FP & stm_r15 & listbit6=1 & listtail6=0 { build stm_r15; SP = SP - 4; *:4 SP = FP; }
+stm_r14: FP,stm_r15 is FP & stm_r15 & listbit6=1 { build stm_r15; SP = SP - 4; *:4 SP = FP; }
 stm_r14: stm_r15 is stm_r15 & listbit6=0 { build stm_r15; }
 
-stm_r13: AC is AC & stm_r14 & listbit5=1 & listtail5=0 { build stm_r14; SP = SP - 4; writew(SP, AC); }
-stm_r13: AC,stm_r14 is AC & stm_r14 & listbit5=1 { build stm_r14; SP = SP - 4; writew(SP, AC); }
+stm_r13: AC is AC & stm_r14 & listbit5=1 & listtail5=0 { build stm_r14; SP = SP - 4; *:4 SP = AC; }
+stm_r13: AC,stm_r14 is AC & stm_r14 & listbit5=1 { build stm_r14; SP = SP - 4; *:4 SP = AC; }
 stm_r13: stm_r14 is stm_r14 & listbit5=0 { build stm_r14; }
 
-stm_r12: r12 is r12 & stm_r13 & listbit4=1 & listtail4=0 { build stm_r13; SP = SP - 4; writew(SP, r12); }
-stm_r12: r12,stm_r13 is r12 & stm_r13 & listbit4=1 { build stm_r13; SP = SP - 4; writew(SP, r12); }
+stm_r12: r12 is r12 & stm_r13 & listbit4=1 & listtail4=0 { build stm_r13; SP = SP - 4; *:4 SP = r12; }
+stm_r12: r12,stm_r13 is r12 & stm_r13 & listbit4=1 { build stm_r13; SP = SP - 4; *:4 SP = r12; }
 stm_r12: stm_r13 is stm_r13 & listbit4=0 { build stm_r13; }
 
-stm_r11: r11 is r11 & stm_r12 & listbit3=1 & listtail3=0 { build stm_r12; SP = SP - 4; writew(SP, r11); }
-stm_r11: r11,stm_r12 is r11 & stm_r12 & listbit3=1 { build stm_r12; SP = SP - 4; writew(SP, r11); }
+stm_r11: r11 is r11 & stm_r12 & listbit3=1 & listtail3=0 { build stm_r12; SP = SP - 4; *:4 SP = r11; }
+stm_r11: r11,stm_r12 is r11 & stm_r12 & listbit3=1 { build stm_r12; SP = SP - 4; *:4 SP = r11; }
 stm_r11: stm_r12 is stm_r12 & listbit3=0 { build stm_r12; }
 
-stm_r10: r10 is r10 & stm_r11 & listbit2=1 & listtail2=0 { build stm_r11; SP = SP - 4; writew(SP, r10); }
-stm_r10: r10,stm_r11 is r10 & stm_r11 & listbit2=1 { build stm_r11; SP = SP - 4; writew(SP, r10); }
+stm_r10: r10 is r10 & stm_r11 & listbit2=1 & listtail2=0 { build stm_r11; SP = SP - 4; *:4 SP = r10; }
+stm_r10: r10,stm_r11 is r10 & stm_r11 & listbit2=1 { build stm_r11; SP = SP - 4; *:4 SP = r10; }
 stm_r10: stm_r11 is stm_r11 & listbit2=0 { build stm_r11; }
 
-stm_r9: r9 is r9 & stm_r10 & listbit1=1 & listtail1=0 { build stm_r10; SP = SP - 4; writew(SP, r9); }
-stm_r9: r9,stm_r10 is r9 & stm_r10 & listbit1=1 { build stm_r10; SP = SP - 4; writew(SP, r9); }
+stm_r9: r9 is r9 & stm_r10 & listbit1=1 & listtail1=0 { build stm_r10; SP = SP - 4; *:4 SP = r9; }
+stm_r9: r9,stm_r10 is r9 & stm_r10 & listbit1=1 { build stm_r10; SP = SP - 4; *:4 SP = r9; }
 stm_r9: stm_r10 is stm_r10 & listbit1=0 { build stm_r10; }
 
-stm1_list: r8 is r8 & stm_r9 & listbit0=1 & listtail0=0 { build stm_r9; SP = SP - 4; writew(SP, r8); }
-stm1_list: r8,stm_r9 is r8 & stm_r9 & listbit0=1 { build stm_r9; SP = SP - 4; writew(SP, r8); }
+stm1_list: r8 is r8 & stm_r9 & listbit0=1 & listtail0=0 { build stm_r9; SP = SP - 4; *:4 SP = r8; }
+stm1_list: r8,stm_r9 is r8 & stm_r9 & listbit0=1 { build stm_r9; SP = SP - 4; *:4 SP = r8; }
 stm1_list: stm_r9 is stm_r9 & listbit0=0 { build stm_r9; }
 
 :LDM0 "("^ldm0_list^")" is op8=0x8C & ldm0_list {
@@ -1104,10 +933,8 @@ stm1_list: stm_r9 is stm_r9 & listbit0=0 { build stm_r9; }
 }
 
 :XCHB "@"^rj, ri is op8=0x8A & rj & ri {
-	local data:1;
-	readb(rj, data);
-	
-	writeb(rj, ri:1);
+	local data:1 = *:1 rj;
+	*:1 rj = ri:1;
 	ri = zext(data);
 }
 
@@ -1131,34 +958,30 @@ stm1_list: stm_r9 is stm_r9 & listbit0=0 { build stm_r9; }
 
 :INT "#"^u8 is op8=0x1F & u8 {
 	SP = SP - 4;
-	writew(SP, PS);
+	*:4 SP = PS;
 	SP = SP - 4;
-	local nextpc:4 = inst_next;
-	writew(SP, nextpc);
+	*:4 SP = inst_next;
 	S = 0;
 	I = 0;
 	
 	local u:4 = u8;
 	local addr:4 = TBR + 0x03FC - u * 4;
-	local data:4;
-	
-	readw(addr, data);
+	local data:4 = *:4 addr;
+
 	goto [data];
 }
 
 :INTE is op16=0x9F30 {
 	SP = SP - 4;
-	writew(SP, PS);
+	*:4 SP = PS;
 	SP = SP - 4;
-	local nextpc:4 = inst_next;
-	writew(SP, nextpc);
+	*:4 SP = inst_next;
 	ILM = 0;
 	S = 0;
 
 	local addr:4 = TBR + 0x3D8;
-	local data:4;
-	
-	readw(addr, data);
+	local data:4 = *:4 addr;
+
 	goto [data];
 }
 
@@ -1169,10 +992,10 @@ stm1_list: stm_r9 is stm_r9 & listbit0=0 { build stm_r9; }
 
     addr = SP;
 
-    readw(addr, pcdata);
+    pcdata = *:4 addr;
     addr = addr + 4;
 
-    readw(addr, psdata);
+    psdata = *:4 addr;
     addr = addr + 4;
 
     SP = addr;
@@ -1180,7 +1003,6 @@ stm1_list: stm_r9 is stm_r9 & listbit0=0 { build stm_r9; }
     return [pcdata];
 }
 
-# Branch conditions are captured before executing a delay slot.
 condition: "EQ" is cc=0x2 {
     local take:1 = (Z == 1);
     export take;
@@ -1310,7 +1132,7 @@ condition: "HI" is cc=0xF {
 }
 
 :ENTER "#"^dir10 is op8=0x0F & dir10 {
-	writew(SP - 4, FP);
+	*:4 (SP - 4) = FP;
 	FP = SP - 4;
 	SP = SP - dir10;
 }
@@ -1319,7 +1141,7 @@ condition: "HI" is cc=0xF {
     local data:4;
 
 	SP = FP + 4;
-    readw(SP - 4, data);
+    data = *:4 (SP - 4);
     FP = data;
 }
 
@@ -1327,7 +1149,7 @@ condition: "HI" is cc=0xF {
     local data:4;
     local u:1 = u4;
 
-    readw(ri, data);
+    data = *:4 ri;
     LDRES_OP(u, data);
     ri = ri + 4;
 }
@@ -1337,7 +1159,7 @@ condition: "HI" is cc=0xF {
     local u:1 = u4;
 
     data = STRES_OP(u);
-    writew(ri, data);
+    *:4 ri = data;
     ri = ri + 4;
 }
 
@@ -1361,7 +1183,6 @@ condition: "HI" is cc=0xF {
     local CPu:1 = cpu4;
     local cmd:1 = cpc;
     local crj:1 = cprj;
-
     data = COPST(CPu, cmd, crj);
     ri = data;
 }
@@ -1371,7 +1192,6 @@ condition: "HI" is cc=0xF {
     local CPu:1 = cpu4;
     local cmd:1 = cpc;
     local crj:1 = cprj;
-
     data = COPSV(CPu, cmd, crj);
     ri = data;
 }
