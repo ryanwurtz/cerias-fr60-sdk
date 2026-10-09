@@ -1,0 +1,26 @@
+define endian=big;
+define alignment=2;
+
+define space ram type=ram_space size=4 default;
+define space register type=register_space size=1; 
+
+define register offset=0x00 size=4 [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 AC FP SP];
+define register offset=0x40 size=4 [ PC PS TBR RP SSP USP MDH MDL];
+
+#aliases for PS
+define bitrange ILM=PS[16,5]; 
+define bitrange SCR=PS[8,3];
+define bitrange CCR=PS[0,8];
+#aliases for SCR
+define bitrange T=PS[8,1];
+define bitrange D0=PS[9, 1];
+define bitrange D1=PS[10,1];
+#aliases for CCR
+define bitrange C=PS[0,1];
+define bitrange V=PS[1,1];
+define bitrange Z=PS[2,1];
+define bitrange N=PS[3,1];
+define bitrange I=PS[4,1];
+define bitrange S=PS[5,1];
+
+@include "fr60.sinc" 

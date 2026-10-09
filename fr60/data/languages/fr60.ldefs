@@ -6,11 +6,10 @@
             size="32"
             variant="60"
             version="1.0"
-            slafile="FR.sla"
-            processorspec="FR60.pspec"
+            slafile="fr.sla"
+            processorspec="fr60.pspec"
             id="FR:BE:32:60">
     <description>FR60 Language Module</description>
-    <compiler name="default" spec="FR_GCC.cspec" id="default"/>
-    <compiler name="gcc" spec="FR_GCC.cspec" id="gcc"/>
+    <compiler name="gcc" spec="fr60.cspec" id="gcc"/>
   </language> 
 </language_definitions>

@@ -4,6 +4,7 @@ set -e
 
 #global args
 program=multest
+test=false
 build=false
 proj_dir=$HOME/cerias/cerias-fr60-ghidra
 ghidra_dir=${GHIDRA_INSTALL_DIR:-$HOME/tools/ghidra_12.1.4_PUBLIC}
@@ -16,6 +17,7 @@ parse_args() {
                     printf 'Missing value for %s\n' "$1" >&2
                     exit 2
                 fi
+                test=true
                 program=$2
                 shift 2
                 ;;
@@ -87,4 +89,6 @@ parse_args "$@"
 if $build; then
     build
 fi
-run
+if $test; then
+    run
+fi
