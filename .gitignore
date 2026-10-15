@@ -6,6 +6,7 @@
 
 # Project-local tool installations, downloads, and build trees
 /.tools/
+/build/
 
 # Headless Ghidra projects
 /ghidra_proj/

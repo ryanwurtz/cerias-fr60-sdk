@@ -1,0 +1,7 @@
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_PROCESSOR fr30)
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+
+set(CROSS_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../.tools/cross/bin/fr30-elf-"
+    CACHE STRING "FR30 toolchain executable prefix")
+set(CMAKE_C_COMPILER "${CROSS_PREFIX}gcc")
