@@ -21,11 +21,19 @@ static void integer_to_string(int32_t value, char *text) {
     *text = '\0';
 }
 
+int factorial(int n) {
+    if (n == 1) {
+        return n;
+    }
+    return n * factorial(n-1);
+}
+
 int main(void) {
-    int32_t num = 12345;
+    int num = 10;
     char text[12];
 
-    integer_to_string(num, text);
+
+    integer_to_string(factorial(num), text);
 
     for (unsigned int i = 0; text[i] != '\0'; ++i) {
         usart0->dr = (uint8_t)text[i];

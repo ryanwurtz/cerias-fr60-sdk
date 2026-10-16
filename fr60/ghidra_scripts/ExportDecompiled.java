@@ -2,12 +2,14 @@
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.List;
 
-import ghidra.app.decompiler.DecompInterface;
-import ghidra.app.decompiler.DecompileResults;
+import ghidra.app.util.Option;
+
+import ghidra.app.util.exporter.CppExporter;
 import ghidra.app.script.GhidraScript;
-import ghidra.program.model.listing.Function;
-import ghidra.program.model.listing.FunctionManager;
 import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.pcode.PcodeOp;
 
@@ -21,35 +23,37 @@ public class ExportDecompiled extends GhidraScript {
         File asmFile = new File(args[1]);
         File pcodeFile = new File(args[2]);
 
-        DecompInterface decompiler = new DecompInterface();
-        FunctionManager fm = currentProgram.getFunctionManager();
+        CppExporter exporter = new CppExporter();
+        exporter.setOptions(List.of(
+            new Option(CppExporter.EMIT_TYPE_DEFINITONS, false),
+            new Option(CppExporter.EMIT_REFERENCED_GLOBALS, true)));
+        if (!exporter.export(dcmpFile, currentProgram, null, monitor)) {
+            throw new IllegalStateException("C/C++ export failed: " + exporter.getMessageLog());
+        }
 
-        try (PrintWriter dcmp = new PrintWriter(dcmpFile);
-             PrintWriter asm = new PrintWriter(asmFile);
+        // Supply FR60 scalar aliases without exporting unrelated program structures.
+        String typedefs = """
+            typedef unsigned char byte;
+            typedef unsigned short ushort;
+            typedef unsigned int uint;
+            typedef unsigned long ulong;
+            typedef long long longlong;
+            typedef unsigned long long ulonglong;
+            typedef unsigned short word;
+            typedef unsigned int dword;
+            typedef unsigned long long qword;
+            typedef unsigned char undefined;
+            typedef unsigned char undefined1;
+            typedef unsigned short undefined2;
+            typedef unsigned int undefined4;
+            typedef unsigned long long undefined8;
+
+            """;
+        String code = Files.readString(dcmpFile.toPath(), StandardCharsets.UTF_8);
+        Files.writeString(dcmpFile.toPath(), typedefs + code, StandardCharsets.UTF_8);
+
+        try (PrintWriter asm = new PrintWriter(asmFile);
              PrintWriter pcode = new PrintWriter(pcodeFile)) {
-
-            if (!decompiler.openProgram(currentProgram)) {
-                throw new IllegalStateException(
-                    "Cannot initialize decompiler: " + decompiler.getLastMessage());
-            }
-                
-            //dump decompiler output by function
-            for (Function function : fm.getFunctions(true)) {
-
-                DecompileResults result = decompiler.decompileFunction(function, 60, monitor);
-
-                dcmp.println("// " + function.getName() + " @ 0x" + function.getEntryPoint());
-                if (result.decompileCompleted()) {
-                    String code = result.getDecompiledFunction().getC();
-                    code = code.strip();
-                    code = code.replaceFirst("\\R\\s*\\{", " {");
-                    dcmp.println(code);
-                }
-                else {
-                    dcmp.println("//Decompilation failed: " + result.getErrorMessage());
-                }
-                dcmp.println();
-            }
 
             // Dump all defined instructions in address order, including outside functions.
             for (Instruction instruction : currentProgram.getListing().getInstructions(true)) {
@@ -62,9 +66,6 @@ public class ExportDecompiled extends GhidraScript {
                     pcode.println("    " + i + ": " + ops[i]);
                 }
             }
-        }
-        finally {
-            decompiler.dispose();
         }
 
         System.out.println("Wrote decompiler output to: " + dcmpFile.getAbsolutePath());
