@@ -96,7 +96,7 @@ build() {
 clean() {
     rm -rf "$proj_dir/ghidra_proj" "$proj_dir/build"
     rm -rf "$proj_dir/fr60/.gradle" "$proj_dir/fr60/build" "$proj_dir/fr60/dist"
-    rm -rf "$proj_dir/tests/output/"*
+    rm -rf "$proj_dir/tests/output/"
 }
 
 parse_args "$@"

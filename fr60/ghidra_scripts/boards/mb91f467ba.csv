@@ -1,9 +1,0 @@
-name,address,size,read,write,description
-usart0_scr,0x00000040,1,true,true,"USART0 Serial Control Register"
-usart0_smr,0x00000041,1,true,true,"USART0 Serial Mode Register"
-usart0_ssr,0x00000042,1,true,true,"USART0 Serial Status Register"
-usart0_dr,0x00000043,1,true,true,"USART0 RX/TX Data Register"
-usart0_escr,0x00000044,1,true,true,"USART0 Extended Status/Control Register"
-usart0_eccr,0x00000045,1,true,true,"USART0 Extended Comm. Control Register"
-usart0_fsr,0x00000046,1,true,true,"USART0 FIFO Status Register"
-usart0_fcr,0x00000047,1,true,true,"USART0 FIFO Control Register"
