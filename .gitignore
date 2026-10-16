@@ -10,3 +10,6 @@
 
 # Headless Ghidra projects
 /ghidra_proj/
+
+#output
+/tests/output/
