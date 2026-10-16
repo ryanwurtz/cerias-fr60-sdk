@@ -1,76 +1,78 @@
 <?xml version='1.0' encoding='utf-8'?>
 <device name="MB91F467BA">
-  <peripheral name="GPIO_PDR" type="none" size="44">
-    <register name="PDR00" offset="0" size="1" access="rw" desc="Port Data Register 0" />
-    <register name="PDR01" offset="1" size="1" access="rw" desc="Port Data Register 1" />
-    <register name="PDR02" offset="2" size="1" access="rw" desc="Port Data Register 2" />
-    <register name="PDR03" offset="3" size="1" access="rw" desc="Port Data Register 3" />
-    <register name="PDR04" offset="4" size="1" access="rw" desc="Port Data Register 4" />
-    <register name="PDR05" offset="5" size="1" access="rw" desc="Port Data Register 5" />
-    <register name="PDR06" offset="6" size="1" access="rw" desc="Port Data Register 6" />
-    <register name="PDR07" offset="7" size="1" access="rw" desc="Port Data Register 7" />
-    <register name="PDR08" offset="8" size="1" access="rw" desc="Port Data Register 8" />
-    <register name="PDR09" offset="9" size="1" access="rw" desc="Port Data Register 9" />
-    <register name="PDR10" offset="10" size="1" access="rw" desc="Port Data Register 10" />
-    <register name="PDR11" offset="11" size="1" access="rw" desc="Port Data Register 11" />
-    <register name="PDR12" offset="12" size="1" access="rw" desc="Port Data Register 12" />
-    <register name="PDR13" offset="13" size="1" access="rw" desc="Port Data Register 13" />
-    <register name="PDR14" offset="14" size="1" access="rw" desc="Port Data Register 14" />
-    <register name="PDR15" offset="15" size="1" access="rw" desc="Port Data Register 15" />
-    <register name="PDR16" offset="16" size="1" access="rw" desc="Port Data Register 16" />
-    <register name="PDR17" offset="17" size="1" access="rw" desc="Port Data Register 17" />
-    <register name="PDR18" offset="18" size="1" access="rw" desc="Port Data Register 18" />
-    <register name="PDR19" offset="19" size="1" access="rw" desc="Port Data Register 19" />
-    <register name="PDR20" offset="20" size="1" access="rw" desc="Port Data Register 20" />
-    <register name="PDR21" offset="21" size="1" access="rw" desc="Port Data Register 21" />
-    <register name="PDR22" offset="22" size="1" access="rw" desc="Port Data Register 22" />
-    <register name="PDR23" offset="23" size="1" access="rw" desc="Port Data Register 23" />
-    <register name="PDR24" offset="24" size="1" access="rw" desc="Port Data Register 24" />
-    <register name="PDR25" offset="25" size="1" access="rw" desc="Port Data Register 25" />
-    <register name="PDR26" offset="26" size="1" access="rw" desc="Port Data Register 26" />
-    <register name="PDR27" offset="27" size="1" access="rw" desc="Port Data Register 27" />
-    <register name="PDR28" offset="28" size="1" access="rw" desc="Port Data Register 28" />
-    <register name="PDR29" offset="29" size="1" access="rw" desc="Port Data Register 29" />
-    <register name="PDR30" offset="30" size="1" access="rw" desc="Port Data Register 30" />
-    <register name="PDR31" offset="31" size="1" access="rw" desc="Port Data Register 31" />
-    <register name="PDR32" offset="32" size="1" access="rw" desc="Port Data Register 32" />
-    <register name="PDR33" offset="33" size="1" access="rw" desc="Port Data Register 33" />
-    <register name="PDR34" offset="34" size="1" access="rw" desc="Port Data Register 34" />
-    <register name="PDR35" offset="35" size="1" access="rw" desc="Port Data Register 35" />
-    <register name="PDR36" offset="36" size="1" access="rw" desc="Port Data Register 36" />
-    <register name="PDR37" offset="37" size="1" access="rw" desc="Port Data Register 37" />
-    <register name="PDR38" offset="38" size="1" access="rw" desc="Port Data Register 38" />
-    <register name="PDR39" offset="39" size="1" access="rw" desc="Port Data Register 39" />
-    <register name="PDR40" offset="40" size="1" access="rw" desc="Port Data Register 40" />
-  </peripheral>
-
-  <peripheralType name="EXTI" size="4">
-    <register name="EIRR" offset="0" size="1" access="rw" desc="External Interrupt Request Register"/>
-    <register name="ENIR" offset="1" size="1" access="rw" desc="External Interrupt Enable Register"/>
-    <register name="ELVR" offset="2" size="2" access="rw" desc="External Interrupt Level Register"/>
+  <peripheralType name="gpio_pdr" size="44">
+    <register name="pdr00" offset="0" size="1" desc="Port Data Register 0" />
+    <register name="pdr01" offset="1" size="1" desc="Port Data Register 1" />
+    <register name="pdr02" offset="2" size="1" desc="Port Data Register 2" />
+    <register name="pdr03" offset="3" size="1" desc="Port Data Register 3" />
+    <register name="pdr04" offset="4" size="1" desc="Port Data Register 4" />
+    <register name="pdr05" offset="5" size="1" desc="Port Data Register 5" />
+    <register name="pdr06" offset="6" size="1" desc="Port Data Register 6" />
+    <register name="pdr07" offset="7" size="1" desc="Port Data Register 7" />
+    <register name="pdr08" offset="8" size="1" desc="Port Data Register 8" />
+    <register name="pdr09" offset="9" size="1" desc="Port Data Register 9" />
+    <register name="pdr10" offset="10" size="1" desc="Port Data Register 10" />
+    <register name="pdr11" offset="11" size="1" desc="Port Data Register 11" />
+    <register name="pdr12" offset="12" size="1" desc="Port Data Register 12" />
+    <register name="pdr13" offset="13" size="1" desc="Port Data Register 13" />
+    <register name="pdr14" offset="14" size="1" desc="Port Data Register 14" />
+    <register name="pdr15" offset="15" size="1" desc="Port Data Register 15" />
+    <register name="pdr16" offset="16" size="1" desc="Port Data Register 16" />
+    <register name="pdr17" offset="17" size="1" desc="Port Data Register 17" />
+    <register name="pdr18" offset="18" size="1" desc="Port Data Register 18" />
+    <register name="pdr19" offset="19" size="1" desc="Port Data Register 19" />
+    <register name="pdr20" offset="20" size="1" desc="Port Data Register 20" />
+    <register name="pdr21" offset="21" size="1" desc="Port Data Register 21" />
+    <register name="pdr22" offset="22" size="1" desc="Port Data Register 22" />
+    <register name="pdr23" offset="23" size="1" desc="Port Data Register 23" />
+    <register name="pdr24" offset="24" size="1" desc="Port Data Register 24" />
+    <register name="pdr25" offset="25" size="1" desc="Port Data Register 25" />
+    <register name="pdr26" offset="26" size="1" desc="Port Data Register 26" />
+    <register name="pdr27" offset="27" size="1" desc="Port Data Register 27" />
+    <register name="pdr28" offset="28" size="1" desc="Port Data Register 28" />
+    <register name="pdr29" offset="29" size="1" desc="Port Data Register 29" />
+    <register name="pdr30" offset="30" size="1" desc="Port Data Register 30" />
+    <register name="pdr31" offset="31" size="1" desc="Port Data Register 31" />
+    <register name="pdr32" offset="32" size="1" desc="Port Data Register 32" />
+    <register name="pdr33" offset="33" size="1" desc="Port Data Register 33" />
+    <register name="pdr34" offset="34" size="1" desc="Port Data Register 34" />
+    <register name="pdr35" offset="35" size="1" desc="Port Data Register 35" />
+    <register name="pdr36" offset="36" size="1" desc="Port Data Register 36" />
+    <register name="pdr37" offset="37" size="1" desc="Port Data Register 37" />
+    <register name="pdr38" offset="38" size="1" desc="Port Data Register 38" />
+    <register name="pdr39" offset="39" size="1" desc="Port Data Register 39" />
+    <register name="pdr40" offset="40" size="1" desc="Port Data Register 40" />
   </peripheralType>
 
-  <peripheral name="EXTI0 NMI" type="EXTI" base="0x00000030" />
-  <peripheral name="EXTI1" type="EXTI" base="0x00000034" />
+  <peripheral name="gpio" type="gpio_pdr" base="0x00000000" />
 
-  <peripheralType name="USART" size="8">
-    <register name="SCR" offset="0" size="1" access="rw" desc="Serial Control Register" />
-    <register name="SMR" offset="1" size="1" access="rw" desc="Serial Mode Register" />
-    <register name="SSR" offset="2" size="1" access="rw" desc="Serial Status Register" />
-    <register name="DR" offset="3" size="1" access="rw" desc="RX/TX Data Register" />
-    <register name="ESCR" offset="4" size="1" access="rw" desc="Extended Status/Control Register" />
-    <register name="ECCR" offset="5" size="1" access="rw" desc="Extended Comm. Control Register" />
-    <register name="FSR" offset="6" size="1" access="rw" desc="FIFO Status Register" />
-    <register name="FCR" offset="7" size="1" access="rw" desc="FIFO Control Register" />
+  <peripheralType name="exti" size="4">
+    <register name="eirr" offset="0" size="1" desc="External Interrupt Request Register"/>
+    <register name="enir" offset="1" size="1" desc="External Interrupt Enable Register"/>
+    <register name="elvr" offset="2" size="2" desc="External Interrupt Level Register"/>
   </peripheralType>
 
-  <peripheral name="uart0" type="USART" base="0x00000040"/>
-  <peripheral name="uart1" type="USART" base="0x00000048"/>
-  <peripheral name="uart2" type="USART" base="0x00000050"/>
-  <peripheral name="uart3" type="USART" base="0x00000058"/>
-  <peripheral name="uart4" type="USART" base="0x00000060"/>
-  <peripheral name="uart5" type="USART" base="0x00000068"/>
-  <peripheral name="uart6" type="USART" base="0x00000070"/>
-  <peripheral name="uart7" type="USART" base="0x00000078"/>
+  <peripheral name="exti0 nmi" type="exti" base="0x00000030" />
+  <peripheral name="exti1" type="exti" base="0x00000034" />
+
+  <peripheralType name="usart" size="8">
+    <register name="scr" offset="0" size="1" desc="Serial Control Register" />
+    <register name="smr" offset="1" size="1" desc="Serial Mode Register" />
+    <register name="ssr" offset="2" size="1" desc="Serial Status Register" />
+    <register name="dr" offset="3" size="1" desc="RX/TX Data Register" />
+    <register name="escr" offset="4" size="1" desc="Extended Status/Control Register" />
+    <register name="eccr" offset="5" size="1" desc="Extended Comm. Control Register" />
+    <register name="fsr" offset="6" size="1" desc="FIFO Status Register" />
+    <register name="fcr" offset="7" size="1" desc="FIFO Control Register" />
+  </peripheralType>
+
+  <peripheral name="uart0" type="usart" base="0x00000040"/>
+  <peripheral name="uart1" type="usart" base="0x00000048"/>
+  <peripheral name="uart2" type="usart" base="0x00000050"/>
+  <peripheral name="uart3" type="usart" base="0x00000058"/>
+  <peripheral name="uart4" type="usart" base="0x00000060"/>
+  <peripheral name="uart5" type="usart" base="0x00000068"/>
+  <peripheral name="uart6" type="usart" base="0x00000070"/>
+  <peripheral name="uart7" type="usart" base="0x00000078"/>
 
 </device>

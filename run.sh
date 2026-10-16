@@ -64,7 +64,7 @@ run() {
         -scriptPath "$proj_dir/fr60/ghidra_scripts" \
         -preScript DisableDwarf.java \
         -preScript ImportMmio.java \
-        "$proj_dir/fr60/ghidra_scripts/boards/mb91f467ba.csv" \
+        "$proj_dir/fr60/ghidra_scripts/boards/mb91f467ba.xml" \
         -postScript ExportDecompiled.java \
         "$proj_dir/tests/output/$program/decomp.c" \
         "$proj_dir/tests/output/$program/disassembly.S" \

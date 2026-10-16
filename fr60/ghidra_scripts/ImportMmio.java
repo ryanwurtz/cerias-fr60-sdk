@@ -1,9 +1,13 @@
 //@category FR60
 
-import java.io.BufferedReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
+
+import java.util.HashMap;
+import java.util.Map;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import ghidra.app.script.GhidraScript;
 import ghidra.program.model.address.Address;
@@ -11,7 +15,6 @@ import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.ByteDataType;
 import ghidra.program.model.data.UnsignedShortDataType;
 import ghidra.program.model.data.UnsignedIntegerDataType;
-import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.symbol.SourceType;
 
@@ -19,53 +22,96 @@ public class ImportMmio extends GhidraScript {
     @Override
     public void run() throws Exception {
 
-        String[] args = getScriptArgs();
-        Path csv = Path.of(args[0]);
-        Memory memory = currentProgram.getMemory();
+        if (getScriptArgs().length != 1) {
+            throw new IllegalArgumentException("Usage: ImportMmio.java <board.xml>");
+        }
 
-        try (BufferedReader reader = Files.newBufferedReader(csv, StandardCharsets.UTF_8)) {
-            reader.readLine();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        Document document = factory.newDocumentBuilder().parse(Path.of(getScriptArgs()[0]).toFile());
+        Element device = document.getDocumentElement();
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                monitor.checkCancelled();
+        //parsing loop
+        Map<String, Element> types = new HashMap<>();
+        for (Node node = device.getFirstChild(); node != null; node = node.getNextSibling()) {
+            monitor.checkCancelled();
 
-                String[] fields = line.split(",", 6);
-                String name = fields[0].trim();
-                long address = Long.decode(fields[1].trim());
-                int size = Integer.parseInt(fields[2].trim());
-                DataType type;
-                switch (size) {
-                    case 1:
-                        type = ByteDataType.dataType;
-                        break;
-                    case 2:
-                        type = UnsignedShortDataType.dataType;
-                        break;
-                    case 3:
-                        type = UnsignedIntegerDataType.dataType;
-                        break;
-                    default:
-                        type = ByteDataType.dataType;
+            if (node instanceof Element element && (element.getTagName().equals("peripheralType") || element.getTagName().equals("peripheral"))) {
+
+                if (element.getTagName().equals("peripheralType")) {
+                    String typeName = element.getAttribute("name");
+                    if (typeName.isBlank() || types.putIfAbsent(typeName, element) != null) {
+                        throw new IllegalArgumentException("Missing or duplicate peripheral type: " + typeName);
+                    }
                 }
-                boolean read = Boolean.parseBoolean(fields[3].trim());
-                boolean write = Boolean.parseBoolean(fields[4].trim());
-                String note = fields[5].trim();
-
-                create_register(memory, name, toAddr(address), type, note, read, write);
+                
+                if (element.getTagName().equals("peripheral")) {
+                    parse_peripheral(types, element);
+                }
             }
         }
     }
 
-    private void create_register(Memory mem, String name, Address addr, DataType type, String note, Boolean read, Boolean write) throws Exception {
-        MemoryBlock block = mem.createUninitializedBlock(name, addr, type.getLength(), false);
-        block.setRead(read);
-        block.setWrite(write);
-        block.setExecute(false);
-        block.setVolatile(true);
-
+    private void createLabel(String name, Address addr, DataType type, String note) throws Exception {
         createData(addr, type);
         currentProgram.getSymbolTable().createLabel(addr, name, SourceType.USER_DEFINED);
         setEOLComment(addr, note);
+    }
+
+    private void parse_register(Element register, String block_name, Address blockAddress) throws Exception{
+        long offset = Long.decode(register.getAttribute("offset"));
+        int size = Integer.parseInt(register.getAttribute("size"));
+
+        String label = (block_name + "_" + register.getAttribute("name")).replaceAll("[^A-Za-z0-9_]", "_");
+        String description = register.getAttribute("desc");
+
+        DataType type;
+        switch (size) {
+            case 1:
+                type = ByteDataType.dataType;
+                break;
+            case 2:
+                type = UnsignedShortDataType.dataType;
+                break;
+            case 4:
+                type = UnsignedIntegerDataType.dataType;
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported register size " + size + " for " + label);
+        }
+
+        createLabel(label, blockAddress.addNoWrap(offset), type, description);
+    }
+
+    private void parse_peripheral(Map<String, Element> types, Element peripheral) throws Exception{
+        //attribute parsing
+        String name = peripheral.getAttribute("name");
+        
+        String baseText = peripheral.getAttribute("base");
+        long base = baseText.isEmpty() ? 0 : Long.decode(baseText);
+        
+        String typeName = peripheral.getAttribute("type");
+        Element definition = types.get(typeName);
+        if (definition == null) {
+            throw new IllegalArgumentException("Unknown peripheral type " + typeName + " for " + name);
+        }
+
+        int blockSize = Integer.parseInt(definition.getAttribute("size"));
+
+        //ghidra memoryblock creation
+        Address blockAddress = toAddr(base);
+        blockAddress.addNoWrap(blockSize - 1L);
+        MemoryBlock block = currentProgram.getMemory().createUninitializedBlock(name.replaceAll("[^A-Za-z0-9_]", "_"), blockAddress, blockSize, false);
+        block.setExecute(false);
+        block.setVolatile(true);
+
+        //register parsing
+        for (Node child = definition.getFirstChild(); child != null; child = child.getNextSibling()) {
+            if (!(child instanceof Element register) || !register.getTagName().equals("register")) {
+                continue;
+            }
+            
+            monitor.checkCancelled();
+            parse_register(register, name, blockAddress);
+        }
     }
 }
