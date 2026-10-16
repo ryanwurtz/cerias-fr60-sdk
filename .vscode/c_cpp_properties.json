@@ -1,0 +1,15 @@
+{
+  "configurations": [
+    {
+      "name": "FR30",
+      "compilerPath": "${workspaceFolder}/.tools/cross/bin/fr30-elf-gcc",
+      "compileCommands": "${workspaceFolder}/build/tests/compile_commands.json",
+      "includePath": [
+        "${workspaceFolder}/sdk/include",
+        "${workspaceFolder}/.tools/cross/fr30-elf/include"
+      ],
+      "cStandard": "c17"
+    }
+  ],
+  "version": 4
+}
