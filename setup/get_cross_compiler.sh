@@ -11,7 +11,7 @@ jobs=${JOBS:-$(nproc)}
 
 # dependecies
 sudo apt-get update
-sudo apt-get install -y build-essential cmake curl ca-certificates xz-utils \
+sudo apt-get install -y build-essential curl ca-certificates xz-utils \
     flex bison texinfo libgmp-dev libmpfr-dev libmpc-dev zlib1g-dev
 
 mkdir -p "$tools_dir/downloads" "$tools_dir/build" "$prefix"
