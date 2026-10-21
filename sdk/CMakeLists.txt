@@ -4,10 +4,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # clangd intellisense support
 
 # build sdk library
 add_library(fr60_sdk STATIC 
-    sdk/src/syscalls.c
-    sdk/src/uart.c)
+    src/syscalls.c
+    src/uart.c)
 target_include_directories(fr60_sdk PUBLIC
-    "${CMAKE_CURRENT_SOURCE_DIR}/sdk/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 target_compile_options(fr60_sdk PRIVATE -g -ffreestanding -Wall -Wextra)
 
@@ -15,7 +15,9 @@ target_compile_options(fr60_sdk PRIVATE -g -ffreestanding -Wall -Wextra)
 if(NOT DEFINED FR60_TEST_PROGRAM)
     set(FR60_TEST_PROGRAM "multest")
 endif()
-add_executable(${FR60_TEST_PROGRAM} tests/src/${FR60_TEST_PROGRAM}.c)
+add_executable(${FR60_TEST_PROGRAM}
+    "${CMAKE_CURRENT_SOURCE_DIR}/../tests/src/${FR60_TEST_PROGRAM}.c"
+)
 
 # compiler/linker options
 target_link_libraries(${FR60_TEST_PROGRAM} PRIVATE
@@ -23,9 +25,14 @@ target_link_libraries(${FR60_TEST_PROGRAM} PRIVATE
 )
 target_compile_options(${FR60_TEST_PROGRAM} PRIVATE -O0 -g -ffreestanding)
 target_link_options(${FR60_TEST_PROGRAM} PRIVATE
-    -nostdlib -Wl,-e,main -Wl,-Ttext=0x10000
+    -nostdlib
+    "-Wl,-T,${CMAKE_CURRENT_SOURCE_DIR}/linker.ld"
+    "-Wl,-Map,${CMAKE_CURRENT_BINARY_DIR}/${FR60_TEST_PROGRAM}.map"
+)
+set_property(TARGET ${FR60_TEST_PROGRAM} APPEND PROPERTY
+    LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld"
 )
 set_target_properties(${FR60_TEST_PROGRAM} PROPERTIES
     SUFFIX ".elf"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/tests/output/${FR60_TEST_PROGRAM}"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../tests/output/${FR60_TEST_PROGRAM}"
 )

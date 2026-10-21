@@ -49,7 +49,7 @@ run() {
 
     #compile
     mkdir -p "$proj_dir/ghidra_proj" "$proj_dir/tests/output/$program"
-    cmake -S "$proj_dir" -B "$proj_dir/build/tests" \
+    cmake -S "$proj_dir/sdk" -B "$proj_dir/build/tests" \
         -DCMAKE_TOOLCHAIN_FILE="$proj_dir/sdk/fr60-toolchain.cmake" \
         -DCROSS_PREFIX="$cross_prefix" \
         -DFR60_TEST_PROGRAM="$program"
