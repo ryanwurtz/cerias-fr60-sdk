@@ -35,6 +35,10 @@ public class ImportMmio extends GhidraScript {
         for (Node node = device.getFirstChild(); node != null; node = node.getNextSibling()) {
             monitor.checkCancelled();
 
+            if (node instanceof Element element && element.getTagName().equals("memoryRegion")) {
+                parse_memory_region(element);
+            }
+
             if (node instanceof Element element && (element.getTagName().equals("peripheralType") || element.getTagName().equals("peripheral"))) {
 
                 if (element.getTagName().equals("peripheralType")) {
@@ -49,6 +53,22 @@ public class ImportMmio extends GhidraScript {
                 }
             }
         }
+    }
+
+    private void parse_memory_region(Element region) throws Exception {
+        String name = region.getAttribute("name");
+        Address base = toAddr(Long.decode(region.getAttribute("base")));
+        long size = Long.decode(region.getAttribute("size"));
+        String permissions = region.getAttribute("permissions");
+        if (name.isBlank() || size <= 0 || !permissions.matches("[rwx]+")) {
+            throw new IllegalArgumentException("Invalid memory region: " + name);
+        }
+        base.addNoWrap(size - 1);
+        MemoryBlock block = currentProgram.getMemory().createUninitializedBlock(name, base, size, false);
+        block.setRead(permissions.contains("r"));
+        block.setWrite(permissions.contains("w"));
+        block.setExecute(permissions.contains("x"));
+        block.setVolatile(false);
     }
 
     private void createLabel(String name, Address addr, DataType type, String note) throws Exception {

@@ -1,5 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <device name="MB91F467BA">
+  <memoryRegion name="DRAM" base="0x0002A000" size="0x6000" permissions="rw" />
+  <memoryRegion name="IDRAM" base="0x00030000" size="0x4000" permissions="rwx" />
+  
   <peripheralType name="gpio" size="30">
     <register name="pdr00" offset="0x0" size="1" desc="Port data 0 [R/W]" />
     <register name="pdr01" offset="0x1" size="1" desc="Port data 1 [R/W]" />

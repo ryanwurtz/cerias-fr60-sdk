@@ -44,7 +44,8 @@ parse_args() {
 }
 
 run() {
-    local program_bin_path="$proj_dir/tests/output/$program/${program}.elf"
+    local program_elf_path="$proj_dir/tests/output/$program/${program}.elf"
+    local program_bin_path="$proj_dir/tests/output/$program/${program}.bin"
     local analyze="$ghidra_dir/support/analyzeHeadless"
 
     #compile
@@ -54,17 +55,21 @@ run() {
         -DCROSS_PREFIX="$cross_prefix" \
         -DFR60_TEST_PROGRAM="$program"
     cmake --build "$proj_dir/build/tests" --target "$program"
-    "${cross_prefix}objdump" -d "$program_bin_path" > "$proj_dir/tests/output/$program/objdump.S"
+    "${cross_prefix}objdump" -d "$program_elf_path" > "$proj_dir/tests/output/$program/objdump.S"
+    "${cross_prefix}objcopy" -O binary "$program_elf_path" "$program_bin_path"
 
     #decompile
     "$analyze" "$proj_dir/ghidra_proj" fr60-test \
         -import "$program_bin_path" -overwrite \
+        -loader BinaryLoader \
+        -loader-baseAddr 0x40000 \
         -processor FR:BE:32:60 \
         -cspec gcc \
         -scriptPath "$proj_dir/fr60/ghidra_scripts" \
         -preScript DisableDwarf.java \
         -preScript ImportMmio.java \
         "$proj_dir/fr60/ghidra_scripts/boards/mb91f467ba.xml" \
+        -preScript SeedBootEntry.java 0xF4000 \
         -postScript ExportDecompiled.java \
         "$proj_dir/tests/output/$program/decomp.c" \
         "$proj_dir/tests/output/$program/disassembly.S" \

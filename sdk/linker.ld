@@ -1,3 +1,5 @@
+ENTRY(_start)
+
 MEMORY
 {
     RAM   (rw)  : ORIGIN = 0x0002A000, LENGTH = 24K
@@ -9,9 +11,13 @@ STACK_SIZE = 4K;
 HEAP_SIZE = 4K;
 
 SECTIONS
-{
-    .text : ALIGN(4) { 
-        KEEP(*(.text.boot)) 
+{   
+    .startup 0x000F4000 : ALIGN(4) {
+        KEEP(*(.text.boot .text.boot.*))
+        KEEP(*(.startup .startup.*))
+    } > FLASH
+
+    .text 0x00040000 : ALIGN(4) { 
         *(.text .text.* .gnu.linkonce.t.*)
     } > FLASH
 
@@ -26,6 +32,11 @@ SECTIONS
     } > RAM AT> FLASH
 
     __data_load_start = LOADADDR(.data);
+
+    ASSERT(LOADADDR(.data) + SIZEOF(.data) <= ADDR(.startup),
+       "FLASH overflow: code/data image reaches startup at 0xF4000")
+    ASSERT(DEFINED(_start) ? _start == ADDR(.startup) : 1,
+       "_start must be at the beginning of startup at 0xF4000")
 
     .bss (NOLOAD) : ALIGN(4) {
         __bss_start = .;
