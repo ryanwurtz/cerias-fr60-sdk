@@ -2,16 +2,37 @@
 #include <sys/types.h>
 #include <stddef.h>
 #include <errno.h>
+#include "uart.h"
 
 extern char __heap_start[];
 extern char __heap_limit[];
 
 ssize_t _write(int file, const void *ptr, size_t len) {
+    if (file != 1 || file != 2) {
+        errno = EBADF;
+        return -1;
+    } 
 
+    char * buf = (char *)ptr;
+    for (size_t i=0; i<len; i++) {
+        usart_putc(usart0, buf[i]);
+    }
+
+    return (ssize_t)len;
 }
 
 ssize_t _read(int file, void *ptr, size_t len) {
+    if (file != 0) {
+        errno = EBADF;
+        return -1;
+    } 
 
+    char * buf = (char *)ptr;
+    for (size_t i=0; i<len; i++) {
+        usart_getc(usart0, &buf[i]);
+    }
+
+    return (ssize_t)len;
 }
 
 void *_sbrk(ptrdiff_t increment) {

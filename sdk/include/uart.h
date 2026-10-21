@@ -52,7 +52,10 @@ typedef struct {
 extern const usart_basic_t usart;
 extern const usart_fifo_t usart_fifo;
 
-bool usart_exists(usart_basic_hw_t *ch);
+static inline bool usart_exists(usart_basic_hw_t *ch) { return ch != NULL; }
+static inline bool usart_rx_full(usart_basic_hw_t *ch) { return (ch->ssr & 0x10u) != 0; }
+static inline bool usart_tx_empty(usart_basic_hw_t *ch) { return (ch->ssr & 0x08u) != 0; }
+
 int usart_putc(usart_basic_hw_t *ch, char c);
 int usart_getc(usart_basic_hw_t *ch, char *dest);
 

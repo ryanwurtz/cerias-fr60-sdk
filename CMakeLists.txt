@@ -4,7 +4,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # clangd intellisense support
 
 # build sdk library
 add_library(fr60_sdk STATIC 
-    sdk/src/syscalls.c)
+    sdk/src/syscalls.c
+    sdk/src/uart.c)
 target_include_directories(fr60_sdk PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/sdk/include"
 )
