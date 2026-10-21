@@ -1,78 +1,827 @@
 <?xml version='1.0' encoding='utf-8'?>
 <device name="MB91F467BA">
-  <peripheralType name="gpio_pdr" size="44">
-    <register name="pdr00" offset="0" size="1" desc="Port Data Register 0" />
-    <register name="pdr01" offset="1" size="1" desc="Port Data Register 1" />
-    <register name="pdr02" offset="2" size="1" desc="Port Data Register 2" />
-    <register name="pdr03" offset="3" size="1" desc="Port Data Register 3" />
-    <register name="pdr04" offset="4" size="1" desc="Port Data Register 4" />
-    <register name="pdr05" offset="5" size="1" desc="Port Data Register 5" />
-    <register name="pdr06" offset="6" size="1" desc="Port Data Register 6" />
-    <register name="pdr07" offset="7" size="1" desc="Port Data Register 7" />
-    <register name="pdr08" offset="8" size="1" desc="Port Data Register 8" />
-    <register name="pdr09" offset="9" size="1" desc="Port Data Register 9" />
-    <register name="pdr10" offset="10" size="1" desc="Port Data Register 10" />
-    <register name="pdr11" offset="11" size="1" desc="Port Data Register 11" />
-    <register name="pdr12" offset="12" size="1" desc="Port Data Register 12" />
-    <register name="pdr13" offset="13" size="1" desc="Port Data Register 13" />
-    <register name="pdr14" offset="14" size="1" desc="Port Data Register 14" />
-    <register name="pdr15" offset="15" size="1" desc="Port Data Register 15" />
-    <register name="pdr16" offset="16" size="1" desc="Port Data Register 16" />
-    <register name="pdr17" offset="17" size="1" desc="Port Data Register 17" />
-    <register name="pdr18" offset="18" size="1" desc="Port Data Register 18" />
-    <register name="pdr19" offset="19" size="1" desc="Port Data Register 19" />
-    <register name="pdr20" offset="20" size="1" desc="Port Data Register 20" />
-    <register name="pdr21" offset="21" size="1" desc="Port Data Register 21" />
-    <register name="pdr22" offset="22" size="1" desc="Port Data Register 22" />
-    <register name="pdr23" offset="23" size="1" desc="Port Data Register 23" />
-    <register name="pdr24" offset="24" size="1" desc="Port Data Register 24" />
-    <register name="pdr25" offset="25" size="1" desc="Port Data Register 25" />
-    <register name="pdr26" offset="26" size="1" desc="Port Data Register 26" />
-    <register name="pdr27" offset="27" size="1" desc="Port Data Register 27" />
-    <register name="pdr28" offset="28" size="1" desc="Port Data Register 28" />
-    <register name="pdr29" offset="29" size="1" desc="Port Data Register 29" />
-    <register name="pdr30" offset="30" size="1" desc="Port Data Register 30" />
-    <register name="pdr31" offset="31" size="1" desc="Port Data Register 31" />
-    <register name="pdr32" offset="32" size="1" desc="Port Data Register 32" />
-    <register name="pdr33" offset="33" size="1" desc="Port Data Register 33" />
-    <register name="pdr34" offset="34" size="1" desc="Port Data Register 34" />
-    <register name="pdr35" offset="35" size="1" desc="Port Data Register 35" />
-    <register name="pdr36" offset="36" size="1" desc="Port Data Register 36" />
-    <register name="pdr37" offset="37" size="1" desc="Port Data Register 37" />
-    <register name="pdr38" offset="38" size="1" desc="Port Data Register 38" />
-    <register name="pdr39" offset="39" size="1" desc="Port Data Register 39" />
-    <register name="pdr40" offset="40" size="1" desc="Port Data Register 40" />
+  <peripheralType name="gpio" size="30">
+    <register name="pdr00" offset="0x0" size="1" desc="Port data 0 [R/W]" />
+    <register name="pdr01" offset="0x1" size="1" desc="Port data 1 [R/W]" />
+    <register name="pdr05" offset="0x5" size="1" desc="Port data 5 [R/W]" />
+    <register name="pdr06" offset="0x6" size="1" desc="Port data 6 [R/W]" />
+    <register name="pdr07" offset="0x7" size="1" desc="Port data 7 [R/W]" />
+    <register name="pdr08" offset="0x8" size="1" desc="Port data 8 [R/W]" />
+    <register name="pdr09" offset="0x9" size="1" desc="Port data 9 [R/W]" />
+    <register name="pdr10" offset="0xa" size="1" desc="Port data 10 [R/W]" />
+    <register name="pdr14" offset="0xe" size="1" desc="Port data 14 [R/W]" />
+    <register name="pdr15" offset="0xf" size="1" desc="Port data 15 [R/W]" />
+    <register name="pdr16" offset="0x10" size="1" desc="Port data 16 [R/W]" />
+    <register name="pdr17" offset="0x11" size="1" desc="Port data 17 [R/W]" />
+    <register name="pdr18" offset="0x12" size="1" desc="Port data 18 [R/W]" />
+    <register name="pdr19" offset="0x13" size="1" desc="Port data 19 [R/W]" />
+    <register name="pdr20" offset="0x14" size="1" desc="Port data 20 [R/W]" />
+    <register name="pdr21" offset="0x15" size="1" desc="Port data 21 [R/W]" />
+    <register name="pdr22" offset="0x16" size="1" desc="Port data 22 [R/W]" />
+    <register name="pdr23" offset="0x17" size="1" desc="Port data 23 [R/W]" />
+    <register name="pdr24" offset="0x18" size="1" desc="Port data 24 [R/W]" />
+    <register name="pdr26" offset="0x1a" size="1" desc="Port data 26 [R/W]" />
+    <register name="pdr27" offset="0x1b" size="1" desc="Port data 27 [R/W]" />
+    <register name="pdr28" offset="0x1c" size="1" desc="Port data 28 [R/W]" />
+    <register name="pdr29" offset="0x1d" size="1" desc="Port data 29 [R/W]" />
   </peripheralType>
+  <peripheral name="gpio" type="gpio" base="0x00000000" />
 
-  <peripheral name="gpio" type="gpio_pdr" base="0x00000000" />
+  <peripheralType name="gpio_direct" size="30">
+    <register name="pdrd00" offset="0x0" size="1" desc="Port data direct read 0 [R]" />
+    <register name="pdrd01" offset="0x1" size="1" desc="Port data direct read 1 [R]" />
+    <register name="pdrd05" offset="0x5" size="1" desc="Port data direct read 5 [R]" />
+    <register name="pdrd06" offset="0x6" size="1" desc="Port data direct read 6 [R]" />
+    <register name="pdrd07" offset="0x7" size="1" desc="Port data direct read 7 [R]" />
+    <register name="pdrd08" offset="0x8" size="1" desc="Port data direct read 8 [R]" />
+    <register name="pdrd09" offset="0x9" size="1" desc="Port data direct read 9 [R]" />
+    <register name="pdrd10" offset="0xa" size="1" desc="Port data direct read 10 [R]" />
+    <register name="pdrd14" offset="0xe" size="1" desc="Port data direct read 14 [R]" />
+    <register name="pdrd15" offset="0xf" size="1" desc="Port data direct read 15 [R]" />
+    <register name="pdrd16" offset="0x10" size="1" desc="Port data direct read 16 [R]" />
+    <register name="pdrd17" offset="0x11" size="1" desc="Port data direct read 17 [R]" />
+    <register name="pdrd18" offset="0x12" size="1" desc="Port data direct read 18 [R]" />
+    <register name="pdrd19" offset="0x13" size="1" desc="Port data direct read 19 [R]" />
+    <register name="pdrd20" offset="0x14" size="1" desc="Port data direct read 20 [R]" />
+    <register name="pdrd21" offset="0x15" size="1" desc="Port data direct read 21 [R]" />
+    <register name="pdrd22" offset="0x16" size="1" desc="Port data direct read 22 [R]" />
+    <register name="pdrd23" offset="0x17" size="1" desc="Port data direct read 23 [R]" />
+    <register name="pdrd24" offset="0x18" size="1" desc="Port data direct read 24 [R]" />
+    <register name="pdrd26" offset="0x1a" size="1" desc="Port data direct read 26 [R]" />
+    <register name="pdrd27" offset="0x1b" size="1" desc="Port data direct read 27 [R]" />
+    <register name="pdrd28" offset="0x1c" size="1" desc="Port data direct read 28 [R]" />
+    <register name="pdrd29" offset="0x1d" size="1" desc="Port data direct read 29 [R]" />
+  </peripheralType>
+  <peripheral name="gpio_direct" type="gpio_direct" base="0x00000d00" />
+
+  <peripheralType name="gpio_direction" size="30">
+    <register name="ddr00" offset="0x0" size="1" desc="Port direction 0 [R/W]" />
+    <register name="ddr01" offset="0x1" size="1" desc="Port direction 1 [R/W]" />
+    <register name="ddr05" offset="0x5" size="1" desc="Port direction 5 [R/W]" />
+    <register name="ddr06" offset="0x6" size="1" desc="Port direction 6 [R/W]" />
+    <register name="ddr07" offset="0x7" size="1" desc="Port direction 7 [R/W]" />
+    <register name="ddr08" offset="0x8" size="1" desc="Port direction 8 [R/W]" />
+    <register name="ddr09" offset="0x9" size="1" desc="Port direction 9 [R/W]" />
+    <register name="ddr10" offset="0xa" size="1" desc="Port direction 10 [R/W]" />
+    <register name="ddr14" offset="0xe" size="1" desc="Port direction 14 [R/W]" />
+    <register name="ddr15" offset="0xf" size="1" desc="Port direction 15 [R/W]" />
+    <register name="ddr16" offset="0x10" size="1" desc="Port direction 16 [R/W]" />
+    <register name="ddr17" offset="0x11" size="1" desc="Port direction 17 [R/W]" />
+    <register name="ddr18" offset="0x12" size="1" desc="Port direction 18 [R/W]" />
+    <register name="ddr19" offset="0x13" size="1" desc="Port direction 19 [R/W]" />
+    <register name="ddr20" offset="0x14" size="1" desc="Port direction 20 [R/W]" />
+    <register name="ddr21" offset="0x15" size="1" desc="Port direction 21 [R/W]" />
+    <register name="ddr22" offset="0x16" size="1" desc="Port direction 22 [R/W]" />
+    <register name="ddr23" offset="0x17" size="1" desc="Port direction 23 [R/W]" />
+    <register name="ddr24" offset="0x18" size="1" desc="Port direction 24 [R/W]" />
+    <register name="ddr26" offset="0x1a" size="1" desc="Port direction 26 [R/W]" />
+    <register name="ddr27" offset="0x1b" size="1" desc="Port direction 27 [R/W]" />
+    <register name="ddr28" offset="0x1c" size="1" desc="Port direction 28 [R/W]" />
+    <register name="ddr29" offset="0x1d" size="1" desc="Port direction 29 [R/W]" />
+  </peripheralType>
+  <peripheral name="gpio_direction" type="gpio_direction" base="0x00000d40" />
+
+  <peripheralType name="gpio_function" size="30">
+    <register name="pfr00" offset="0x0" size="1" desc="Port function 0 [R/W]" />
+    <register name="pfr01" offset="0x1" size="1" desc="Port function 1 [R/W]" />
+    <register name="pfr05" offset="0x5" size="1" desc="Port function 5 [R/W]" />
+    <register name="pfr06" offset="0x6" size="1" desc="Port function 6 [R/W]" />
+    <register name="pfr07" offset="0x7" size="1" desc="Port function 7 [R/W]" />
+    <register name="pfr08" offset="0x8" size="1" desc="Port function 8 [R/W]" />
+    <register name="pfr09" offset="0x9" size="1" desc="Port function 9 [R/W]" />
+    <register name="pfr10" offset="0xa" size="1" desc="Port function 10 [R/W]" />
+    <register name="pfr14" offset="0xe" size="1" desc="Port function 14 [R/W]" />
+    <register name="pfr15" offset="0xf" size="1" desc="Port function 15 [R/W]" />
+    <register name="pfr16" offset="0x10" size="1" desc="Port function 16 [R/W]" />
+    <register name="pfr17" offset="0x11" size="1" desc="Port function 17 [R/W]" />
+    <register name="pfr18" offset="0x12" size="1" desc="Port function 18 [R/W]" />
+    <register name="pfr19" offset="0x13" size="1" desc="Port function 19 [R/W]" />
+    <register name="pfr20" offset="0x14" size="1" desc="Port function 20 [R/W]" />
+    <register name="pfr21" offset="0x15" size="1" desc="Port function 21 [R/W]" />
+    <register name="pfr22" offset="0x16" size="1" desc="Port function 22 [R/W]" />
+    <register name="pfr23" offset="0x17" size="1" desc="Port function 23 [R/W]" />
+    <register name="pfr24" offset="0x18" size="1" desc="Port function 24 [R/W]" />
+    <register name="pfr26" offset="0x1a" size="1" desc="Port function 26 [R/W]" />
+    <register name="pfr27" offset="0x1b" size="1" desc="Port function 27 [R/W]" />
+    <register name="pfr28" offset="0x1c" size="1" desc="Port function 28 [R/W]" />
+    <register name="pfr29" offset="0x1d" size="1" desc="Port function 29 [R/W]" />
+  </peripheralType>
+  <peripheral name="gpio_function" type="gpio_function" base="0x00000d80" />
+
+  <peripheralType name="gpio_drive" size="30">
+    <register name="podr00" offset="0x0" size="1" desc="Port output drive select 0 [R/W]" />
+    <register name="podr01" offset="0x1" size="1" desc="Port output drive select 1 [R/W]" />
+    <register name="podr05" offset="0x5" size="1" desc="Port output drive select 5 [R/W]" />
+    <register name="podr06" offset="0x6" size="1" desc="Port output drive select 6 [R/W]" />
+    <register name="podr07" offset="0x7" size="1" desc="Port output drive select 7 [R/W]" />
+    <register name="podr08" offset="0x8" size="1" desc="Port output drive select 8 [R/W]" />
+    <register name="podr09" offset="0x9" size="1" desc="Port output drive select 9 [R/W]" />
+    <register name="podr10" offset="0xa" size="1" desc="Port output drive select 10 [R/W]" />
+    <register name="podr14" offset="0xe" size="1" desc="Port output drive select 14 [R/W]" />
+    <register name="podr15" offset="0xf" size="1" desc="Port output drive select 15 [R/W]" />
+    <register name="podr16" offset="0x10" size="1" desc="Port output drive select 16 [R/W]" />
+    <register name="podr17" offset="0x11" size="1" desc="Port output drive select 17 [R/W]" />
+    <register name="podr18" offset="0x12" size="1" desc="Port output drive select 18 [R/W]" />
+    <register name="podr19" offset="0x13" size="1" desc="Port output drive select 19 [R/W]" />
+    <register name="podr20" offset="0x14" size="1" desc="Port output drive select 20 [R/W]" />
+    <register name="podr21" offset="0x15" size="1" desc="Port output drive select 21 [R/W]" />
+    <register name="podr22" offset="0x16" size="1" desc="Port output drive select 22 [R/W]" />
+    <register name="podr23" offset="0x17" size="1" desc="Port output drive select 23 [R/W]" />
+    <register name="podr24" offset="0x18" size="1" desc="Port output drive select 24 [R/W]" />
+    <register name="podr26" offset="0x1a" size="1" desc="Port output drive select 26 [R/W]" />
+    <register name="podr27" offset="0x1b" size="1" desc="Port output drive select 27 [R/W]" />
+    <register name="podr28" offset="0x1c" size="1" desc="Port output drive select 28 [R/W]" />
+    <register name="podr29" offset="0x1d" size="1" desc="Port output drive select 29 [R/W]" />
+  </peripheralType>
+  <peripheral name="gpio_drive" type="gpio_drive" base="0x00000e00" />
+
+  <peripheralType name="gpio_input" size="30">
+    <register name="pilr00" offset="0x0" size="1" desc="Port input level select 0 [R/W]" />
+    <register name="pilr01" offset="0x1" size="1" desc="Port input level select 1 [R/W]" />
+    <register name="pilr05" offset="0x5" size="1" desc="Port input level select 5 [R/W]" />
+    <register name="pilr06" offset="0x6" size="1" desc="Port input level select 6 [R/W]" />
+    <register name="pilr07" offset="0x7" size="1" desc="Port input level select 7 [R/W]" />
+    <register name="pilr08" offset="0x8" size="1" desc="Port input level select 8 [R/W]" />
+    <register name="pilr09" offset="0x9" size="1" desc="Port input level select 9 [R/W]" />
+    <register name="pilr10" offset="0xa" size="1" desc="Port input level select 10 [R/W]" />
+    <register name="pilr14" offset="0xe" size="1" desc="Port input level select 14 [R/W]" />
+    <register name="pilr15" offset="0xf" size="1" desc="Port input level select 15 [R/W]" />
+    <register name="pilr16" offset="0x10" size="1" desc="Port input level select 16 [R/W]" />
+    <register name="pilr17" offset="0x11" size="1" desc="Port input level select 17 [R/W]" />
+    <register name="pilr18" offset="0x12" size="1" desc="Port input level select 18 [R/W]" />
+    <register name="pilr19" offset="0x13" size="1" desc="Port input level select 19 [R/W]" />
+    <register name="pilr20" offset="0x14" size="1" desc="Port input level select 20 [R/W]" />
+    <register name="pilr21" offset="0x15" size="1" desc="Port input level select 21 [R/W]" />
+    <register name="pilr22" offset="0x16" size="1" desc="Port input level select 22 [R/W]" />
+    <register name="pilr23" offset="0x17" size="1" desc="Port input level select 23 [R/W]" />
+    <register name="pilr24" offset="0x18" size="1" desc="Port input level select 24 [R/W]" />
+    <register name="pilr26" offset="0x1a" size="1" desc="Port input level select 26 [R/W]" />
+    <register name="pilr27" offset="0x1b" size="1" desc="Port input level select 27 [R/W]" />
+    <register name="pilr28" offset="0x1c" size="1" desc="Port input level select 28 [R/W]" />
+    <register name="pilr29" offset="0x1d" size="1" desc="Port input level select 29 [R/W]" />
+  </peripheralType>
+  <peripheral name="gpio_input" type="gpio_input" base="0x00000e40" />
+
+  <peripheralType name="gpio_extra_input" size="30">
+    <register name="epilr00" offset="0x0" size="1" desc="Port extra input level select 0 [R/W]" />
+    <register name="epilr01" offset="0x1" size="1" desc="Port extra input level select 1 [R/W]" />
+    <register name="epilr05" offset="0x5" size="1" desc="Port extra input level select 5 [R/W]" />
+    <register name="epilr06" offset="0x6" size="1" desc="Port extra input level select 6 [R/W]" />
+    <register name="epilr07" offset="0x7" size="1" desc="Port extra input level select 7 [R/W]" />
+    <register name="epilr08" offset="0x8" size="1" desc="Port extra input level select 8 [R/W]" />
+    <register name="epilr09" offset="0x9" size="1" desc="Port extra input level select 9 [R/W]" />
+    <register name="epilr10" offset="0xa" size="1" desc="Port extra input level select 10 [R/W]" />
+    <register name="epilr14" offset="0xe" size="1" desc="Port extra input level select 14 [R/W]" />
+    <register name="epilr15" offset="0xf" size="1" desc="Port extra input level select 15 [R/W]" />
+    <register name="epilr16" offset="0x10" size="1" desc="Port extra input level select 16 [R/W]" />
+    <register name="epilr17" offset="0x11" size="1" desc="Port extra input level select 17 [R/W]" />
+    <register name="epilr18" offset="0x12" size="1" desc="Port extra input level select 18 [R/W]" />
+    <register name="epilr19" offset="0x13" size="1" desc="Port extra input level select 19 [R/W]" />
+    <register name="epilr20" offset="0x14" size="1" desc="Port extra input level select 20 [R/W]" />
+    <register name="epilr21" offset="0x15" size="1" desc="Port extra input level select 21 [R/W]" />
+    <register name="epilr22" offset="0x16" size="1" desc="Port extra input level select 22 [R/W]" />
+    <register name="epilr23" offset="0x17" size="1" desc="Port extra input level select 23 [R/W]" />
+    <register name="epilr24" offset="0x18" size="1" desc="Port extra input level select 24 [R/W]" />
+    <register name="epilr26" offset="0x1a" size="1" desc="Port extra input level select 26 [R/W]" />
+    <register name="epilr27" offset="0x1b" size="1" desc="Port extra input level select 27 [R/W]" />
+    <register name="epilr28" offset="0x1c" size="1" desc="Port extra input level select 28 [R/W]" />
+    <register name="epilr29" offset="0x1d" size="1" desc="Port extra input level select 29 [R/W]" />
+  </peripheralType>
+  <peripheral name="gpio_extra_input" type="gpio_extra_input" base="0x00000e80" />
+
+  <peripheralType name="gpio_pull_enable" size="30">
+    <register name="pper00" offset="0x0" size="1" desc="Port pull-up/down enable 0 [R/W]" />
+    <register name="pper01" offset="0x1" size="1" desc="Port pull-up/down enable 1 [R/W]" />
+    <register name="pper05" offset="0x5" size="1" desc="Port pull-up/down enable 5 [R/W]" />
+    <register name="pper06" offset="0x6" size="1" desc="Port pull-up/down enable 6 [R/W]" />
+    <register name="pper07" offset="0x7" size="1" desc="Port pull-up/down enable 7 [R/W]" />
+    <register name="pper08" offset="0x8" size="1" desc="Port pull-up/down enable 8 [R/W]" />
+    <register name="pper09" offset="0x9" size="1" desc="Port pull-up/down enable 9 [R/W]" />
+    <register name="pper10" offset="0xa" size="1" desc="Port pull-up/down enable 10 [R/W]" />
+    <register name="pper14" offset="0xe" size="1" desc="Port pull-up/down enable 14 [R/W]" />
+    <register name="pper15" offset="0xf" size="1" desc="Port pull-up/down enable 15 [R/W]" />
+    <register name="pper16" offset="0x10" size="1" desc="Port pull-up/down enable 16 [R/W]" />
+    <register name="pper17" offset="0x11" size="1" desc="Port pull-up/down enable 17 [R/W]" />
+    <register name="pper18" offset="0x12" size="1" desc="Port pull-up/down enable 18 [R/W]" />
+    <register name="pper19" offset="0x13" size="1" desc="Port pull-up/down enable 19 [R/W]" />
+    <register name="pper20" offset="0x14" size="1" desc="Port pull-up/down enable 20 [R/W]" />
+    <register name="pper21" offset="0x15" size="1" desc="Port pull-up/down enable 21 [R/W]" />
+    <register name="pper22" offset="0x16" size="1" desc="Port pull-up/down enable 22 [R/W]" />
+    <register name="pper23" offset="0x17" size="1" desc="Port pull-up/down enable 23 [R/W]" />
+    <register name="pper24" offset="0x18" size="1" desc="Port pull-up/down enable 24 [R/W]" />
+    <register name="pper26" offset="0x1a" size="1" desc="Port pull-up/down enable 26 [R/W]" />
+    <register name="pper27" offset="0x1b" size="1" desc="Port pull-up/down enable 27 [R/W]" />
+    <register name="pper28" offset="0x1c" size="1" desc="Port pull-up/down enable 28 [R/W]" />
+    <register name="pper29" offset="0x1d" size="1" desc="Port pull-up/down enable 29 [R/W]" />
+  </peripheralType>
+  <peripheral name="gpio_pull_enable" type="gpio_pull_enable" base="0x00000ec0" />
+
+  <peripheralType name="gpio_pull_control" size="30">
+    <register name="ppcr00" offset="0x0" size="1" desc="Port pull-up/down control 0 [R/W]" />
+    <register name="ppcr01" offset="0x1" size="1" desc="Port pull-up/down control 1 [R/W]" />
+    <register name="ppcr05" offset="0x5" size="1" desc="Port pull-up/down control 5 [R/W]" />
+    <register name="ppcr06" offset="0x6" size="1" desc="Port pull-up/down control 6 [R/W]" />
+    <register name="ppcr07" offset="0x7" size="1" desc="Port pull-up/down control 7 [R/W]" />
+    <register name="ppcr08" offset="0x8" size="1" desc="Port pull-up/down control 8 [R/W]" />
+    <register name="ppcr09" offset="0x9" size="1" desc="Port pull-up/down control 9 [R/W]" />
+    <register name="ppcr10" offset="0xa" size="1" desc="Port pull-up/down control 10 [R/W]" />
+    <register name="ppcr14" offset="0xe" size="1" desc="Port pull-up/down control 14 [R/W]" />
+    <register name="ppcr15" offset="0xf" size="1" desc="Port pull-up/down control 15 [R/W]" />
+    <register name="ppcr16" offset="0x10" size="1" desc="Port pull-up/down control 16 [R/W]" />
+    <register name="ppcr17" offset="0x11" size="1" desc="Port pull-up/down control 17 [R/W]" />
+    <register name="ppcr18" offset="0x12" size="1" desc="Port pull-up/down control 18 [R/W]" />
+    <register name="ppcr19" offset="0x13" size="1" desc="Port pull-up/down control 19 [R/W]" />
+    <register name="ppcr20" offset="0x14" size="1" desc="Port pull-up/down control 20 [R/W]" />
+    <register name="ppcr21" offset="0x15" size="1" desc="Port pull-up/down control 21 [R/W]" />
+    <register name="ppcr22" offset="0x16" size="1" desc="Port pull-up/down control 22 [R/W]" />
+    <register name="ppcr23" offset="0x17" size="1" desc="Port pull-up/down control 23 [R/W]" />
+    <register name="ppcr24" offset="0x18" size="1" desc="Port pull-up/down control 24 [R/W]" />
+    <register name="ppcr26" offset="0x1a" size="1" desc="Port pull-up/down control 26 [R/W]" />
+    <register name="ppcr27" offset="0x1b" size="1" desc="Port pull-up/down control 27 [R/W]" />
+    <register name="ppcr28" offset="0x1c" size="1" desc="Port pull-up/down control 28 [R/W]" />
+    <register name="ppcr29" offset="0x1d" size="1" desc="Port pull-up/down control 29 [R/W]" />
+  </peripheralType>
+  <peripheral name="gpio_pull_control" type="gpio_pull_control" base="0x00000f00" />
+
+  <!-- EPFR21 is explicitly listed in the datasheet although all its bits are unimplemented (all dash marks). -->
+  <peripheralType name="gpio_extra_function" size="28">
+    <register name="epfr10" offset="0xa" size="1" desc="Port extra function 10 [R/W]" />
+    <register name="epfr14" offset="0xe" size="1" desc="Port extra function 14 [R/W]" />
+    <register name="epfr15" offset="0xf" size="1" desc="Port extra function 15 [R/W]" />
+    <register name="epfr16" offset="0x10" size="1" desc="Port extra function 16 [R/W]" />
+    <register name="epfr18" offset="0x12" size="1" desc="Port extra function 18 [R/W]" />
+    <register name="epfr19" offset="0x13" size="1" desc="Port extra function 19 [R/W]" />
+    <register name="epfr20" offset="0x14" size="1" desc="Port extra function 20 [R/W]" />
+    <register name="epfr21" offset="0x15" size="1" desc="Port extra function 21 [R/W]" />
+    <register name="epfr26" offset="0x1a" size="1" desc="Port extra function 26 [R/W]" />
+    <register name="epfr27" offset="0x1b" size="1" desc="Port extra function 27 [R/W]" />
+  </peripheralType>
+  <peripheral name="gpio_extra_function" type="gpio_extra_function" base="0x00000dc0" />
 
   <peripheralType name="exti" size="4">
-    <register name="eirr" offset="0" size="1" desc="External Interrupt Request Register"/>
-    <register name="enir" offset="1" size="1" desc="External Interrupt Enable Register"/>
-    <register name="elvr" offset="2" size="2" desc="External Interrupt Level Register"/>
+    <register name="eirr" offset="0x0" size="1" desc="External interrupt request [R/W]" />
+    <register name="enir" offset="0x1" size="1" desc="External interrupt enable [R/W]" />
+    <register name="elvr" offset="0x2" size="2" desc="External interrupt level [R/W]" />
   </peripheralType>
-
-  <peripheral name="exti0 nmi" type="exti" base="0x00000030" />
+  <peripheral name="exti0" type="exti" base="0x00000030" />
   <peripheral name="exti1" type="exti" base="0x00000034" />
 
-  <peripheralType name="usart" size="8">
-    <register name="scr" offset="0" size="1" desc="Serial Control Register" />
-    <register name="smr" offset="1" size="1" desc="Serial Mode Register" />
-    <register name="ssr" offset="2" size="1" desc="Serial Status Register" />
-    <register name="dr" offset="3" size="1" desc="RX/TX Data Register" />
-    <register name="escr" offset="4" size="1" desc="Extended Status/Control Register" />
-    <register name="eccr" offset="5" size="1" desc="Extended Comm. Control Register" />
-    <register name="fsr" offset="6" size="1" desc="FIFO Status Register" />
-    <register name="fcr" offset="7" size="1" desc="FIFO Control Register" />
+  <peripheralType name="delay_interrupt" size="4">
+    <register name="dicr" offset="0x0" size="1" desc="Delay interrupt control [R/W]" />
+    <register name="hrcl" offset="0x1" size="1" desc="Hardware interrupt request clear level [R/W]" />
+    <register name="rbsync" offset="0x2" size="2" desc="R-bus write synchronization; byte or halfword read [R]" />
+  </peripheralType>
+  <peripheral name="delay_interrupt" type="delay_interrupt" base="0x00000038" />
+
+  <peripheralType name="usart" size="6">
+    <register name="scr" offset="0x0" size="1" desc="Serial control [R/W,W]" />
+    <register name="smr" offset="0x1" size="1" desc="Serial mode [R/W,W]" />
+    <register name="ssr" offset="0x2" size="1" desc="Serial status [R/W,R]" />
+    <register name="rdr_tdr" offset="0x3" size="1" desc="Receive data (RDR) / transmit data (TDR) [R/W]" />
+    <register name="escr" offset="0x4" size="1" desc="Extended serial control [R/W]" />
+    <register name="eccr" offset="0x5" size="1" desc="Extended communication control [R/W,R,W]" />
   </peripheralType>
 
-  <peripheral name="uart0" type="usart" base="0x00000040"/>
-  <peripheral name="uart1" type="usart" base="0x00000048"/>
-  <peripheral name="uart2" type="usart" base="0x00000050"/>
-  <peripheral name="uart3" type="usart" base="0x00000058"/>
-  <peripheral name="uart4" type="usart" base="0x00000060"/>
-  <peripheral name="uart5" type="usart" base="0x00000068"/>
-  <peripheral name="uart6" type="usart" base="0x00000070"/>
-  <peripheral name="uart7" type="usart" base="0x00000078"/>
+  <peripheralType name="usart_fifo" size="8">
+    <register name="scr" offset="0x0" size="1" desc="Serial control [R/W,W]" />
+    <register name="smr" offset="0x1" size="1" desc="Serial mode [R/W,W]" />
+    <register name="ssr" offset="0x2" size="1" desc="Serial status [R/W,R]" />
+    <register name="rdr_tdr" offset="0x3" size="1" desc="Receive data (RDR) / transmit data (TDR) [R/W]" />
+    <register name="escr" offset="0x4" size="1" desc="Extended serial control [R/W]" />
+    <register name="eccr" offset="0x5" size="1" desc="Extended communication control [R/W,R,W]" />
+    <register name="fsr" offset="0x6" size="1" desc="FIFO status [R]" />
+    <register name="fcr" offset="0x7" size="1" desc="FIFO control [R/W]" />
+  </peripheralType>
+  <peripheral name="uart0" type="usart" base="0x00000040" />
+  <peripheral name="uart2" type="usart" base="0x00000050" />
+  <peripheral name="uart3" type="usart" base="0x00000058" />
+  <peripheral name="uart4" type="usart_fifo" base="0x00000060" />
+  <peripheral name="uart5" type="usart_fifo" base="0x00000068" />
+  <peripheral name="uart6" type="usart_fifo" base="0x00000070" />
+  <peripheral name="uart7" type="usart_fifo" base="0x00000078" />
 
+  <peripheralType name="uart_baud" size="16">
+    <register name="bgr100" offset="0x0" size="1" desc="LIN-USART 0 baud rate generator high byte [R/W]" />
+    <register name="bgr000" offset="0x1" size="1" desc="LIN-USART 0 baud rate generator low byte [R/W]" />
+    <register name="bgr102" offset="0x4" size="1" desc="LIN-USART 2 baud rate generator high byte [R/W]" />
+    <register name="bgr002" offset="0x5" size="1" desc="LIN-USART 2 baud rate generator low byte [R/W]" />
+    <register name="bgr103" offset="0x6" size="1" desc="LIN-USART 3 baud rate generator high byte [R/W]" />
+    <register name="bgr003" offset="0x7" size="1" desc="LIN-USART 3 baud rate generator low byte [R/W]" />
+    <register name="bgr104" offset="0x8" size="1" desc="LIN-USART 4 baud rate generator high byte [R/W]" />
+    <register name="bgr004" offset="0x9" size="1" desc="LIN-USART 4 baud rate generator low byte [R/W]" />
+    <register name="bgr105" offset="0xa" size="1" desc="LIN-USART 5 baud rate generator high byte [R/W]" />
+    <register name="bgr005" offset="0xb" size="1" desc="LIN-USART 5 baud rate generator low byte [R/W]" />
+    <register name="bgr106" offset="0xc" size="1" desc="LIN-USART 6 baud rate generator high byte [R/W]" />
+    <register name="bgr006" offset="0xd" size="1" desc="LIN-USART 6 baud rate generator low byte [R/W]" />
+    <register name="bgr107" offset="0xe" size="1" desc="LIN-USART 7 baud rate generator high byte [R/W]" />
+    <register name="bgr007" offset="0xf" size="1" desc="LIN-USART 7 baud rate generator low byte [R/W]" />
+  </peripheralType>
+  <peripheral name="uart_baud" type="uart_baud" base="0x00000080" />
+
+  <peripheralType name="i2c" size="12">
+    <register name="ibcr" offset="0x0" size="1" desc="Bus control [R/W]" />
+    <register name="ibsr" offset="0x1" size="1" desc="Bus status [R]" />
+    <register name="itbah" offset="0x2" size="1" desc="Bus address high [R/W]" />
+    <register name="itbal" offset="0x3" size="1" desc="Bus address low [R/W]" />
+    <register name="itmkh" offset="0x4" size="1" desc="Bus address mask high [R/W]" />
+    <register name="itmkl" offset="0x5" size="1" desc="Bus address mask low [R/W]" />
+    <register name="ismk" offset="0x6" size="1" desc="Slave address mask [R/W]" />
+    <register name="isba" offset="0x7" size="1" desc="Slave address [R/W]" />
+    <register name="idar" offset="0x9" size="1" desc="Data [R/W]" />
+    <register name="iccr" offset="0xa" size="1" desc="Clock control [R/W]" />
+  </peripheralType>
+  <peripheral name="i2c0" type="i2c" base="0x000000d0" />
+  <peripheral name="i2c1" type="i2c" base="0x000000dc" />
+
+  <peripheralType name="ppg_control" size="4">
+    <register name="gcn1" offset="0x0" size="2" desc="PPG group control 1 [R/W]" />
+    <register name="gcn2" offset="0x3" size="1" desc="PPG group control 2 [R/W]" />
+  </peripheralType>
+  <peripheral name="ppg_control0" type="ppg_control" base="0x00000100" />
+  <peripheral name="ppg_control1" type="ppg_control" base="0x00000104" />
+  <peripheral name="ppg_control2" type="ppg_control" base="0x00000108" />
+  <peripheral name="ppg_control3" type="ppg_control" base="0x00000320" />
+
+  <peripheralType name="ppg" size="8">
+    <register name="ptmr" offset="0x0" size="2" desc="PPG timer [R]" />
+    <register name="pcsr" offset="0x2" size="2" desc="PPG cycle set [W]" />
+    <register name="pdut" offset="0x4" size="2" desc="PPG duty set [W]" />
+    <register name="pcnh" offset="0x6" size="1" desc="PPG control high [R/W]" />
+    <register name="pcnl" offset="0x7" size="1" desc="PPG control low [R/W]" />
+  </peripheralType>
+  <peripheral name="ppg0" type="ppg" base="0x00000110" />
+  <peripheral name="ppg1" type="ppg" base="0x00000118" />
+  <peripheral name="ppg2" type="ppg" base="0x00000120" />
+  <peripheral name="ppg3" type="ppg" base="0x00000128" />
+  <peripheral name="ppg4" type="ppg" base="0x00000130" />
+  <peripheral name="ppg5" type="ppg" base="0x00000138" />
+  <peripheral name="ppg6" type="ppg" base="0x00000140" />
+  <peripheral name="ppg7" type="ppg" base="0x00000148" />
+  <peripheral name="ppg8" type="ppg" base="0x00000150" />
+  <peripheral name="ppg9" type="ppg" base="0x00000158" />
+  <peripheral name="ppg10" type="ppg" base="0x00000160" />
+  <peripheral name="ppg11" type="ppg" base="0x00000168" />
+  <peripheral name="ppg12" type="ppg" base="0x00000330" />
+  <peripheral name="ppg13" type="ppg" base="0x00000338" />
+  <peripheral name="ppg14" type="ppg" base="0x00000340" />
+  <peripheral name="ppg15" type="ppg" base="0x00000348" />
+
+  <!-- Datasheet ICS045 at 0x2d1 is a typo: hardware manual sections 3.2 and 36.3 identify ICS45. -->
+  <peripheralType name="input_capture0_3" size="12">
+    <register name="ics01" offset="0x1" size="1" desc="Input capture control/status [R/W]" />
+    <register name="ics23" offset="0x3" size="1" desc="Input capture control/status [R/W]" />
+    <register name="ipcp0" offset="0x4" size="2" desc="Input capture data [R]" />
+    <register name="ipcp1" offset="0x6" size="2" desc="Input capture data [R]" />
+    <register name="ipcp2" offset="0x8" size="2" desc="Input capture data [R]" />
+    <register name="ipcp3" offset="0xa" size="2" desc="Input capture data [R]" />
+  </peripheralType>
+  <peripheral name="input_capture0_3" type="input_capture0_3" base="0x00000180" />
+
+  <peripheralType name="output_compare0_3" size="12">
+    <register name="ocs01" offset="0x0" size="2" desc="Output compare control/status [R/W]" />
+    <register name="ocs23" offset="0x2" size="2" desc="Output compare control/status [R/W]" />
+    <register name="occp0" offset="0x4" size="2" desc="Output compare data [R/W]" />
+    <register name="occp1" offset="0x6" size="2" desc="Output compare data [R/W]" />
+    <register name="occp2" offset="0x8" size="2" desc="Output compare data [R/W]" />
+    <register name="occp3" offset="0xa" size="2" desc="Output compare data [R/W]" />
+  </peripheralType>
+  <peripheral name="output_compare0_3" type="output_compare0_3" base="0x0000018c" />
+
+  <peripheralType name="input_capture4_7" size="12">
+    <register name="ics45" offset="0x1" size="1" desc="Input capture control/status [R/W]" />
+    <register name="ics67" offset="0x3" size="1" desc="Input capture control/status [R/W]" />
+    <register name="ipcp4" offset="0x4" size="2" desc="Input capture data [R]" />
+    <register name="ipcp5" offset="0x6" size="2" desc="Input capture data [R]" />
+    <register name="ipcp6" offset="0x8" size="2" desc="Input capture data [R]" />
+    <register name="ipcp7" offset="0xa" size="2" desc="Input capture data [R]" />
+  </peripheralType>
+  <peripheral name="input_capture4_7" type="input_capture4_7" base="0x000002d0" />
+
+  <peripheralType name="output_compare4_7" size="12">
+    <register name="ocs45" offset="0x0" size="2" desc="Output compare control/status [R/W]" />
+    <register name="ocs67" offset="0x2" size="2" desc="Output compare control/status [R/W]" />
+    <register name="occp4" offset="0x4" size="2" desc="Output compare data [R/W]" />
+    <register name="occp5" offset="0x6" size="2" desc="Output compare data [R/W]" />
+    <register name="occp6" offset="0x8" size="2" desc="Output compare data [R/W]" />
+    <register name="occp7" offset="0xa" size="2" desc="Output compare data [R/W]" />
+  </peripheralType>
+  <peripheral name="output_compare4_7" type="output_compare4_7" base="0x000002dc" />
+
+  <peripheralType name="sound" size="8">
+    <register name="sgcrh" offset="0x0" size="1" desc="Sound generator control high [R/W]" />
+    <register name="sgcrl" offset="0x1" size="1" desc="Sound generator control low [R/W]" />
+    <register name="sgfr" offset="0x2" size="2" desc="Sound generator frequency [R/W,R]" />
+    <register name="sgar" offset="0x4" size="1" desc="Sound generator amplitude [R/W]" />
+    <register name="sgtr" offset="0x6" size="1" desc="Sound generator tone [R/W]" />
+    <register name="sgdr" offset="0x7" size="1" desc="Sound generator data [R/W]" />
+  </peripheralType>
+  <peripheral name="sound" type="sound" base="0x00000198" />
+
+  <peripheralType name="adc" size="12">
+    <register name="aderh" offset="0x0" size="2" desc="Analog input enable high [R/W]" />
+    <register name="aderl" offset="0x2" size="2" desc="Analog input enable low [R/W]" />
+    <register name="adcs1" offset="0x4" size="1" desc="A/D control/status high [R/W]" />
+    <register name="adcs0" offset="0x5" size="1" desc="A/D control/status low [R/W]" />
+    <register name="adcr1" offset="0x6" size="1" desc="A/D conversion result high [R]" />
+    <register name="adcr0" offset="0x7" size="1" desc="A/D conversion result low [R]" />
+    <register name="adct1" offset="0x8" size="1" desc="A/D conversion timing high [R/W]" />
+    <register name="adct0" offset="0x9" size="1" desc="A/D conversion timing low [R/W]" />
+    <register name="adsch" offset="0xa" size="1" desc="A/D start channel [R/W]" />
+    <register name="adech" offset="0xb" size="1" desc="A/D end channel [R/W]" />
+  </peripheralType>
+  <peripheral name="adc" type="adc" base="0x000001a0" />
+
+  <peripheralType name="alarm" size="1">
+    <register name="acsr0" offset="0x0" size="1" desc="Alarm comparator 0-1 control/status [R/W]" />
+  </peripheralType>
+  <peripheral name="alarm" type="alarm" base="0x000001ad" />
+
+  <peripheralType name="reload_timer" size="8">
+    <register name="tmrlr" offset="0x0" size="2" desc="Timer reload [W]" />
+    <register name="tmr" offset="0x2" size="2" desc="Timer counter [R]" />
+    <register name="tmcsrh" offset="0x6" size="1" desc="Timer control/status high [R/W]" />
+    <register name="tmcsrl" offset="0x7" size="1" desc="Timer control/status low [R/W]" />
+  </peripheralType>
+  <peripheral name="reload_timer0" type="reload_timer" base="0x000001b0" />
+  <peripheral name="reload_timer1" type="reload_timer" base="0x000001b8" />
+  <peripheral name="reload_timer2" type="reload_timer" base="0x000001c0" />
+  <peripheral name="reload_timer3" type="reload_timer" base="0x000001c8" />
+  <peripheral name="reload_timer4" type="reload_timer" base="0x000001d0" />
+  <peripheral name="reload_timer5" type="reload_timer" base="0x000001d8" />
+  <peripheral name="reload_timer6" type="reload_timer" base="0x000001e0" />
+  <peripheral name="reload_timer7" type="reload_timer" base="0x000001e8" />
+
+  <peripheralType name="free_running_timer" size="4">
+    <register name="tcdt" offset="0x0" size="2" desc="Free-running timer counter [R/W]" />
+    <register name="tccs" offset="0x3" size="1" desc="Free-running timer control/status [R/W]" />
+  </peripheralType>
+  <peripheral name="free_running_timer0" type="free_running_timer" base="0x000001f0" />
+  <peripheral name="free_running_timer1" type="free_running_timer" base="0x000001f4" />
+  <peripheral name="free_running_timer2" type="free_running_timer" base="0x000001f8" />
+  <peripheral name="free_running_timer3" type="free_running_timer" base="0x000001fc" />
+  <peripheral name="free_running_timer4" type="free_running_timer" base="0x000002f0" />
+  <peripheral name="free_running_timer5" type="free_running_timer" base="0x000002f4" />
+  <peripheral name="free_running_timer6" type="free_running_timer" base="0x000002f8" />
+  <peripheral name="free_running_timer7" type="free_running_timer" base="0x000002fc" />
+
+  <peripheralType name="dma_control" size="8">
+    <register name="dmaca" offset="0x0" size="4" desc="DMA control A [R/W]" />
+    <register name="dmacb" offset="0x4" size="4" desc="DMA control B [R/W]" />
+  </peripheralType>
+
+  <peripheralType name="dma_address" size="8">
+    <register name="dmasa" offset="0x0" size="4" desc="DMA source address [R/W]" />
+    <register name="dmada" offset="0x4" size="4" desc="DMA destination address [R/W]" />
+  </peripheralType>
+  <peripheral name="dma_control0" type="dma_control" base="0x00000200" />
+  <peripheral name="dma_address0" type="dma_address" base="0x00001000" />
+  <peripheral name="dma_control1" type="dma_control" base="0x00000208" />
+  <peripheral name="dma_address1" type="dma_address" base="0x00001008" />
+  <peripheral name="dma_control2" type="dma_control" base="0x00000210" />
+  <peripheral name="dma_address2" type="dma_address" base="0x00001010" />
+  <peripheral name="dma_control3" type="dma_control" base="0x00000218" />
+  <peripheral name="dma_address3" type="dma_address" base="0x00001018" />
+  <peripheral name="dma_control4" type="dma_control" base="0x00000220" />
+  <peripheral name="dma_address4" type="dma_address" base="0x00001020" />
+
+  <peripheralType name="dma_global" size="1">
+    <register name="dmacr" offset="0x0" size="1" desc="DMA global control [R/W]" />
+  </peripheralType>
+  <peripheral name="dma_global" type="dma_global" base="0x00000240" />
+
+  <peripheralType name="up_down" size="12">
+    <register name="udrc1" offset="0x0" size="1" desc="Up/down counter 1 reload [W]" />
+    <register name="udrc0" offset="0x1" size="1" desc="Up/down counter 0 reload [W]" />
+    <register name="udcr1" offset="0x2" size="1" desc="Up/down counter 1 value [R]" />
+    <register name="udcr0" offset="0x3" size="1" desc="Up/down counter 0 value [R]" />
+    <register name="udcch0" offset="0x4" size="1" desc="Up/down counter control high [R/W]" />
+    <register name="udccl0" offset="0x5" size="1" desc="Up/down counter control low [R/W]" />
+    <register name="udcs0" offset="0x7" size="1" desc="Up/down counter status [R/W]" />
+    <register name="udcch1" offset="0x8" size="1" desc="Up/down counter control high [R/W]" />
+    <register name="udccl1" offset="0x9" size="1" desc="Up/down counter control low [R/W]" />
+    <register name="udcs1" offset="0xb" size="1" desc="Up/down counter status [R/W]" />
+  </peripheralType>
+  <peripheral name="up_down" type="up_down" base="0x00000300" />
+
+  <peripheralType name="rom_select" size="2">
+    <register name="roms" offset="0x0" size="2" desc="ROM select; MB91F467BA reset value 0xff00 [R]" />
+  </peripheralType>
+  <peripheral name="rom_select" type="rom_select" base="0x00000390" />
+
+  <peripheralType name="bit_search" size="16">
+    <register name="bsd0" offset="0x0" size="4" desc="Bit search zero data [W]" />
+    <register name="bsd1" offset="0x4" size="4" desc="Bit search one data [R/W]" />
+    <register name="bsdc" offset="0x8" size="4" desc="Bit search change data [W]" />
+    <register name="bsrr" offset="0xc" size="4" desc="Bit search result [R]" />
+  </peripheralType>
+  <peripheral name="bit_search" type="bit_search" base="0x000003f0" />
+
+  <peripheralType name="interrupt_controller" size="64">
+    <register name="icr00" offset="0x0" size="1" desc="Interrupt control 0 [R/W]" />
+    <register name="icr01" offset="0x1" size="1" desc="Interrupt control 1 [R/W]" />
+    <register name="icr02" offset="0x2" size="1" desc="Interrupt control 2 [R/W]" />
+    <register name="icr03" offset="0x3" size="1" desc="Interrupt control 3 [R/W]" />
+    <register name="icr04" offset="0x4" size="1" desc="Interrupt control 4 [R/W]" />
+    <register name="icr05" offset="0x5" size="1" desc="Interrupt control 5 [R/W]" />
+    <register name="icr06" offset="0x6" size="1" desc="Interrupt control 6 [R/W]" />
+    <register name="icr07" offset="0x7" size="1" desc="Interrupt control 7 [R/W]" />
+    <register name="icr08" offset="0x8" size="1" desc="Interrupt control 8 [R/W]" />
+    <register name="icr09" offset="0x9" size="1" desc="Interrupt control 9 [R/W]" />
+    <register name="icr10" offset="0xa" size="1" desc="Interrupt control 10 [R/W]" />
+    <register name="icr11" offset="0xb" size="1" desc="Interrupt control 11 [R/W]" />
+    <register name="icr12" offset="0xc" size="1" desc="Interrupt control 12 [R/W]" />
+    <register name="icr13" offset="0xd" size="1" desc="Interrupt control 13 [R/W]" />
+    <register name="icr14" offset="0xe" size="1" desc="Interrupt control 14 [R/W]" />
+    <register name="icr15" offset="0xf" size="1" desc="Interrupt control 15 [R/W]" />
+    <register name="icr16" offset="0x10" size="1" desc="Interrupt control 16 [R/W]" />
+    <register name="icr17" offset="0x11" size="1" desc="Interrupt control 17 [R/W]" />
+    <register name="icr18" offset="0x12" size="1" desc="Interrupt control 18 [R/W]" />
+    <register name="icr19" offset="0x13" size="1" desc="Interrupt control 19 [R/W]" />
+    <register name="icr20" offset="0x14" size="1" desc="Interrupt control 20 [R/W]" />
+    <register name="icr21" offset="0x15" size="1" desc="Interrupt control 21 [R/W]" />
+    <register name="icr22" offset="0x16" size="1" desc="Interrupt control 22 [R/W]" />
+    <register name="icr23" offset="0x17" size="1" desc="Interrupt control 23 [R/W]" />
+    <register name="icr24" offset="0x18" size="1" desc="Interrupt control 24 [R/W]" />
+    <register name="icr25" offset="0x19" size="1" desc="Interrupt control 25 [R/W]" />
+    <register name="icr26" offset="0x1a" size="1" desc="Interrupt control 26 [R/W]" />
+    <register name="icr27" offset="0x1b" size="1" desc="Interrupt control 27 [R/W]" />
+    <register name="icr28" offset="0x1c" size="1" desc="Interrupt control 28 [R/W]" />
+    <register name="icr29" offset="0x1d" size="1" desc="Interrupt control 29 [R/W]" />
+    <register name="icr30" offset="0x1e" size="1" desc="Interrupt control 30 [R/W]" />
+    <register name="icr31" offset="0x1f" size="1" desc="Interrupt control 31 [R/W]" />
+    <register name="icr32" offset="0x20" size="1" desc="Interrupt control 32 [R/W]" />
+    <register name="icr33" offset="0x21" size="1" desc="Interrupt control 33 [R/W]" />
+    <register name="icr34" offset="0x22" size="1" desc="Interrupt control 34 [R/W]" />
+    <register name="icr35" offset="0x23" size="1" desc="Interrupt control 35 [R/W]" />
+    <register name="icr36" offset="0x24" size="1" desc="Interrupt control 36 [R/W]" />
+    <register name="icr37" offset="0x25" size="1" desc="Interrupt control 37 [R/W]" />
+    <register name="icr38" offset="0x26" size="1" desc="Interrupt control 38 [R/W]" />
+    <register name="icr39" offset="0x27" size="1" desc="Interrupt control 39 [R/W]" />
+    <register name="icr40" offset="0x28" size="1" desc="Interrupt control 40 [R/W]" />
+    <register name="icr41" offset="0x29" size="1" desc="Interrupt control 41 [R/W]" />
+    <register name="icr42" offset="0x2a" size="1" desc="Interrupt control 42 [R/W]" />
+    <register name="icr43" offset="0x2b" size="1" desc="Interrupt control 43 [R/W]" />
+    <register name="icr44" offset="0x2c" size="1" desc="Interrupt control 44 [R/W]" />
+    <register name="icr45" offset="0x2d" size="1" desc="Interrupt control 45 [R/W]" />
+    <register name="icr46" offset="0x2e" size="1" desc="Interrupt control 46 [R/W]" />
+    <register name="icr47" offset="0x2f" size="1" desc="Interrupt control 47 [R/W]" />
+    <register name="icr48" offset="0x30" size="1" desc="Interrupt control 48 [R/W]" />
+    <register name="icr49" offset="0x31" size="1" desc="Interrupt control 49 [R/W]" />
+    <register name="icr50" offset="0x32" size="1" desc="Interrupt control 50 [R/W]" />
+    <register name="icr51" offset="0x33" size="1" desc="Interrupt control 51 [R/W]" />
+    <register name="icr52" offset="0x34" size="1" desc="Interrupt control 52 [R/W]" />
+    <register name="icr53" offset="0x35" size="1" desc="Interrupt control 53 [R/W]" />
+    <register name="icr54" offset="0x36" size="1" desc="Interrupt control 54 [R/W]" />
+    <register name="icr55" offset="0x37" size="1" desc="Interrupt control 55 [R/W]" />
+    <register name="icr56" offset="0x38" size="1" desc="Interrupt control 56 [R/W]" />
+    <register name="icr57" offset="0x39" size="1" desc="Interrupt control 57 [R/W]" />
+    <register name="icr58" offset="0x3a" size="1" desc="Interrupt control 58 [R/W]" />
+    <register name="icr59" offset="0x3b" size="1" desc="Interrupt control 59 [R/W]" />
+    <register name="icr60" offset="0x3c" size="1" desc="Interrupt control 60 [R/W]" />
+    <register name="icr61" offset="0x3d" size="1" desc="Interrupt control 61 [R/W]" />
+    <register name="icr62" offset="0x3e" size="1" desc="Interrupt control 62 [R/W]" />
+    <register name="icr63" offset="0x3f" size="1" desc="Interrupt control 63 [R/W]" />
+  </peripheralType>
+  <peripheral name="interrupt_controller" type="interrupt_controller" base="0x00000440" />
+
+  <peripheralType name="clock" size="8">
+    <register name="rsrr" offset="0x0" size="1" desc="Reset cause [R/W]" />
+    <register name="stcr" offset="0x1" size="1" desc="Standby control [R/W]" />
+    <register name="tbcr" offset="0x2" size="1" desc="Time-base counter control [R/W]" />
+    <register name="ctbr" offset="0x3" size="1" desc="Time-base counter clear [W]" />
+    <register name="clkr" offset="0x4" size="1" desc="Clock selection [R/W]" />
+    <register name="wpr" offset="0x5" size="1" desc="Clock write protection [W]" />
+    <register name="divr0" offset="0x6" size="1" desc="Clock division 0 [R/W]" />
+    <register name="divr1" offset="0x7" size="1" desc="Clock division 1 [R/W]" />
+  </peripheralType>
+  <peripheral name="clock" type="clock" base="0x00000480" />
+
+  <peripheralType name="pll" size="5">
+    <register name="plldivm" offset="0x0" size="1" desc="PLL input divider [R/W]" />
+    <register name="plldivn" offset="0x1" size="1" desc="PLL feedback divider [R/W]" />
+    <register name="plldivg" offset="0x2" size="1" desc="PLL gear divider [R/W]" />
+    <register name="pllmulg" offset="0x3" size="1" desc="PLL gear multiplier [R/W]" />
+    <register name="pllctrl" offset="0x4" size="1" desc="PLL control [R/W]" />
+  </peripheralType>
+  <peripheral name="pll" type="pll" base="0x0000048c" />
+
+  <peripheralType name="oscillator" size="4">
+    <register name="oscc1" offset="0x0" size="1" desc="Main oscillator control [R/W]" />
+    <register name="oscs1" offset="0x1" size="1" desc="Main oscillator status (block marked reserved in datasheet) [R/W]" />
+    <register name="oscc2" offset="0x2" size="1" desc="Sub oscillator control [R/W]" />
+    <register name="oscs2" offset="0x3" size="1" desc="Sub oscillator status (block marked reserved in datasheet) [R/W]" />
+  </peripheralType>
+  <peripheral name="oscillator" type="oscillator" base="0x00000494" />
+
+  <peripheralType name="port_enable" size="1">
+    <register name="porten" offset="0x0" size="1" desc="Port input enable [R/W]" />
+  </peripheralType>
+  <peripheral name="port_enable" type="port_enable" base="0x00000498" />
+
+  <!-- RTC WTBR spans 0x4a5-0x4a7; split into WTBR0/1/2 as defined in hardware manual 49.4.2, preserving reserved byte 0x4a4. -->
+  <peripheralType name="rtc" size="11">
+    <register name="wtcer" offset="0x1" size="1" desc="Watch timer interrupt enable [R/W]" />
+    <register name="wtcr" offset="0x2" size="2" desc="Watch timer control [R/W]" />
+    <register name="wtbr0" offset="0x5" size="1" desc="Sub-second reload bits 20:16 [R/W]" />
+    <register name="wtbr1" offset="0x6" size="1" desc="Sub-second reload bits 15:8 [R/W]" />
+    <register name="wtbr2" offset="0x7" size="1" desc="Sub-second reload bits 7:0 [R/W]" />
+    <register name="wthr" offset="0x8" size="1" desc="Watch timer hours [R/W]" />
+    <register name="wtmr" offset="0x9" size="1" desc="Watch timer minutes [R/W]" />
+    <register name="wtsr" offset="0xa" size="1" desc="Watch timer seconds [R/W]" />
+  </peripheralType>
+  <peripheral name="rtc" type="rtc" base="0x000004a0" />
+
+  <peripheralType name="clock_supervisor" size="4">
+    <register name="csvtr" offset="0x0" size="1" desc="Clock supervisor timing [R/W]" />
+    <register name="csvcr" offset="0x1" size="1" desc="Clock supervisor control [R/W]" />
+    <register name="cscfg" offset="0x2" size="1" desc="Clock selector configuration [R/W]" />
+    <register name="cmcfg" offset="0x3" size="1" desc="Clock monitor configuration [R/W]" />
+  </peripheralType>
+  <peripheral name="clock_supervisor" type="clock_supervisor" base="0x000004ac" />
+
+  <peripheralType name="clock_calibration" size="8">
+    <register name="cucr" offset="0x0" size="2" desc="Calibration control [R/W]" />
+    <register name="cutd" offset="0x2" size="2" desc="Calibration target data [R/W]" />
+    <register name="cutr1" offset="0x4" size="2" desc="Calibration result 1 [R]" />
+    <register name="cutr2" offset="0x6" size="2" desc="Calibration result 2 [R]" />
+  </peripheralType>
+  <peripheral name="clock_calibration" type="clock_calibration" base="0x000004b0" />
+
+  <peripheralType name="clock_modulator" size="8">
+    <register name="cmpr" offset="0x0" size="2" desc="Clock modulator period [R/W]" />
+    <register name="cmcr" offset="0x3" size="1" desc="Clock modulator control [R/W]" />
+    <register name="cmt1" offset="0x4" size="2" desc="Clock modulator timing 1 [R/W]" />
+    <register name="cmt2" offset="0x6" size="2" desc="Clock modulator timing 2 [R/W]" />
+  </peripheralType>
+  <peripheral name="clock_modulator" type="clock_modulator" base="0x000004b8" />
+
+  <peripheralType name="can_clock" size="2">
+    <register name="canpre" offset="0x0" size="1" desc="CAN clock prescaler [R/W]" />
+    <register name="canckd" offset="0x1" size="1" desc="CAN clock divider [R/W]" />
+  </peripheralType>
+  <peripheral name="can_clock" type="can_clock" base="0x000004c0" />
+
+  <peripheralType name="voltage_watchdog" size="4">
+    <register name="lvsel" offset="0x0" size="1" desc="Low voltage detection selection [R/W]" />
+    <register name="lvdet" offset="0x1" size="1" desc="Low voltage detection [R/W]" />
+    <register name="hwwde" offset="0x2" size="1" desc="Hardware watchdog enable [R/W]" />
+    <register name="hwwd" offset="0x3" size="1" desc="Hardware watchdog control [R/W,W]" />
+  </peripheralType>
+  <peripheral name="voltage_watchdog" type="voltage_watchdog" base="0x000004c4" />
+
+  <peripheralType name="oscillator_stabilization" size="4">
+    <register name="oscrh" offset="0x0" size="1" desc="Oscillation stabilization timer high [R/W]" />
+    <register name="oscrl" offset="0x1" size="1" desc="Oscillation stabilization timer low [R/W]" />
+    <register name="wpcrh" offset="0x2" size="1" desc="Watch prescaler control high [R/W]" />
+    <register name="wpcrl" offset="0x3" size="1" desc="Watch prescaler control low [R/W]" />
+  </peripheralType>
+  <peripheral name="oscillator_stabilization" type="oscillator_stabilization" base="0x000004c8" />
+
+  <peripheralType name="regulator" size="4">
+    <register name="osccr" offset="0x0" size="1" desc="Main oscillator standby control [R/W]" />
+    <register name="regsel" offset="0x2" size="1" desc="Main/sub regulator selection [R/W]" />
+    <register name="regctr" offset="0x3" size="1" desc="Main/sub regulator control [R/W]" />
+  </peripheralType>
+  <peripheral name="regulator" type="regulator" base="0x000004cc" />
+
+  <peripheralType name="external_bus" size="70">
+    <register name="asr0" offset="0x0" size="2" desc="Area select [R/W]" />
+    <register name="acr0" offset="0x2" size="2" desc="Area configuration [R/W]" />
+    <register name="asr1" offset="0x4" size="2" desc="Area select [R/W]" />
+    <register name="acr1" offset="0x6" size="2" desc="Area configuration [R/W]" />
+    <register name="asr2" offset="0x8" size="2" desc="Area select [R/W]" />
+    <register name="acr2" offset="0xa" size="2" desc="Area configuration [R/W]" />
+    <register name="asr3" offset="0xc" size="2" desc="Area select [R/W]" />
+    <register name="acr3" offset="0xe" size="2" desc="Area configuration [R/W]" />
+    <register name="asr4" offset="0x10" size="2" desc="Area select [R/W]" />
+    <register name="acr4" offset="0x12" size="2" desc="Area configuration [R/W]" />
+    <register name="asr5" offset="0x14" size="2" desc="Area select [R/W]" />
+    <register name="acr5" offset="0x16" size="2" desc="Area configuration [R/W]" />
+    <register name="asr6" offset="0x18" size="2" desc="Area select [R/W]" />
+    <register name="acr6" offset="0x1a" size="2" desc="Area configuration [R/W]" />
+    <register name="asr7" offset="0x1c" size="2" desc="Area select [R/W]" />
+    <register name="acr7" offset="0x1e" size="2" desc="Area configuration [R/W]" />
+    <register name="awr0" offset="0x20" size="2" desc="Area wait control [R/W]" />
+    <register name="awr1" offset="0x22" size="2" desc="Area wait control [R/W]" />
+    <register name="awr2" offset="0x24" size="2" desc="Area wait control [R/W]" />
+    <register name="awr3" offset="0x26" size="2" desc="Area wait control [R/W]" />
+    <register name="awr4" offset="0x28" size="2" desc="Area wait control [R/W]" />
+    <register name="awr5" offset="0x2a" size="2" desc="Area wait control [R/W]" />
+    <register name="awr6" offset="0x2c" size="2" desc="Area wait control [R/W]" />
+    <register name="awr7" offset="0x2e" size="2" desc="Area wait control [R/W]" />
+    <register name="mcra" offset="0x30" size="1" desc="Memory control A [R/W]" />
+    <register name="mcrb" offset="0x31" size="1" desc="Memory control B [R/W]" />
+    <register name="iowr0" offset="0x38" size="1" desc="I/O wait control [R/W]" />
+    <register name="iowr1" offset="0x39" size="1" desc="I/O wait control [R/W]" />
+    <register name="iowr2" offset="0x3a" size="1" desc="I/O wait control [R/W]" />
+    <register name="iowr3" offset="0x3b" size="1" desc="I/O wait control [R/W]" />
+    <register name="cser" offset="0x40" size="1" desc="Chip select enable [R/W]" />
+    <register name="cher" offset="0x41" size="1" desc="Channel enable [R/W]" />
+    <register name="tcr" offset="0x43" size="1" desc="Timing control [R/W]" />
+    <register name="rcrh" offset="0x44" size="1" desc="Refresh control high [R/W]" />
+    <register name="rcrl" offset="0x45" size="1" desc="Refresh control low [R/W]" />
+  </peripheralType>
+  <peripheral name="external_bus" type="external_bus" base="0x00000640" />
+
+  <peripheralType name="mode" size="1">
+    <register name="modr" offset="0x0" size="1" desc="Mode register [W]" />
+  </peripheralType>
+  <peripheral name="mode" type="mode" base="0x000007fd" />
+
+  <peripheralType name="flash" size="20">
+    <register name="fmcs" offset="0x0" size="1" desc="Flash memory control/status [R/W]" />
+    <register name="fmcr" offset="0x1" size="1" desc="Flash memory control [R/W]" />
+    <register name="fchcr" offset="0x2" size="2" desc="Flash cache control [R/W]" />
+    <register name="fmwt" offset="0x4" size="2" desc="Flash memory wait timing [R/W]" />
+    <register name="fmps" offset="0x7" size="1" desc="Flash memory programming status [R/W]" />
+    <register name="fmac" offset="0x8" size="4" desc="Flash memory access count [R]" />
+    <register name="fcha0" offset="0xc" size="4" desc="I-cache non-cacheable area 0 [R/W]" />
+    <register name="fcha1" offset="0x10" size="4" desc="I-cache non-cacheable area 1 [R/W]" />
+  </peripheralType>
+  <peripheral name="flash" type="flash" base="0x00007000" />
+
+  <!-- CAN IF data at +0x30/+0x34 and +0x60/+0x64 are little-endian byte-swapped views of +0x20/+0x24 and +0x50/+0x54 (hardware manual 34.2.4). _le distinguishes these addresses from the normal views. -->
+  <peripheralType name="can" size="180">
+    <register name="ctrlr" offset="0x0" size="2" desc="CAN control [R/W]" />
+    <register name="statr" offset="0x2" size="2" desc="CAN status [R/W]" />
+    <register name="errcnt" offset="0x4" size="2" desc="CAN error counter [R]" />
+    <register name="btr" offset="0x6" size="2" desc="CAN bit timing [R/W]" />
+    <register name="intr" offset="0x8" size="2" desc="CAN interrupt [R]" />
+    <register name="testr" offset="0xa" size="2" desc="CAN test [R/W]" />
+    <register name="brpe" offset="0xc" size="2" desc="CAN bit rate prescaler extension [R/W]" />
+    <register name="cbsync" offset="0xe" size="2" desc="CAN bus write synchronization; byte or halfword read [R]" />
+    <register name="if1creq" offset="0x10" size="2" desc="CAN interface 1 command request [R/W]" />
+    <register name="if1cmsk" offset="0x12" size="2" desc="CAN interface 1 command mask [R/W]" />
+    <register name="if1msk2" offset="0x14" size="2" desc="CAN interface 1 mask 2 [R/W]" />
+    <register name="if1msk1" offset="0x16" size="2" desc="CAN interface 1 mask 1 [R/W]" />
+    <register name="if1arb2" offset="0x18" size="2" desc="CAN interface 1 arbitration 2 [R/W]" />
+    <register name="if1arb1" offset="0x1a" size="2" desc="CAN interface 1 arbitration 1 [R/W]" />
+    <register name="if1mctr" offset="0x1c" size="2" desc="CAN interface 1 message control [R/W]" />
+    <register name="if1dta1" offset="0x20" size="2" desc="CAN interface 1 data A1 [R/W]" />
+    <register name="if1dta2" offset="0x22" size="2" desc="CAN interface 1 data A2 [R/W]" />
+    <register name="if1dtb1" offset="0x24" size="2" desc="CAN interface 1 data B1 [R/W]" />
+    <register name="if1dtb2" offset="0x26" size="2" desc="CAN interface 1 data B2 [R/W]" />
+    <register name="if1dta2_le" offset="0x30" size="2" desc="CAN interface 1 data A2, byte-swapped view [R/W]" />
+    <register name="if1dta1_le" offset="0x32" size="2" desc="CAN interface 1 data A1, byte-swapped view [R/W]" />
+    <register name="if1dtb2_le" offset="0x34" size="2" desc="CAN interface 1 data B2, byte-swapped view [R/W]" />
+    <register name="if1dtb1_le" offset="0x36" size="2" desc="CAN interface 1 data B1, byte-swapped view [R/W]" />
+    <register name="if2creq" offset="0x40" size="2" desc="CAN interface 2 command request [R/W]" />
+    <register name="if2cmsk" offset="0x42" size="2" desc="CAN interface 2 command mask [R/W]" />
+    <register name="if2msk2" offset="0x44" size="2" desc="CAN interface 2 mask 2 [R/W]" />
+    <register name="if2msk1" offset="0x46" size="2" desc="CAN interface 2 mask 1 [R/W]" />
+    <register name="if2arb2" offset="0x48" size="2" desc="CAN interface 2 arbitration 2 [R/W]" />
+    <register name="if2arb1" offset="0x4a" size="2" desc="CAN interface 2 arbitration 1 [R/W]" />
+    <register name="if2mctr" offset="0x4c" size="2" desc="CAN interface 2 message control [R/W]" />
+    <register name="if2dta1" offset="0x50" size="2" desc="CAN interface 2 data A1 [R/W]" />
+    <register name="if2dta2" offset="0x52" size="2" desc="CAN interface 2 data A2 [R/W]" />
+    <register name="if2dtb1" offset="0x54" size="2" desc="CAN interface 2 data B1 [R/W]" />
+    <register name="if2dtb2" offset="0x56" size="2" desc="CAN interface 2 data B2 [R/W]" />
+    <register name="if2dta2_le" offset="0x60" size="2" desc="CAN interface 2 data A2, byte-swapped view [R/W]" />
+    <register name="if2dta1_le" offset="0x62" size="2" desc="CAN interface 2 data A1, byte-swapped view [R/W]" />
+    <register name="if2dtb2_le" offset="0x64" size="2" desc="CAN interface 2 data B2, byte-swapped view [R/W]" />
+    <register name="if2dtb1_le" offset="0x66" size="2" desc="CAN interface 2 data B1, byte-swapped view [R/W]" />
+    <register name="treqr2" offset="0x80" size="2" desc="Transmission request 2 [R]" />
+    <register name="treqr1" offset="0x82" size="2" desc="Transmission request 1 [R]" />
+    <register name="newdt2" offset="0x90" size="2" desc="New data 2 [R]" />
+    <register name="newdt1" offset="0x92" size="2" desc="New data 1 [R]" />
+    <register name="intpnd2" offset="0xa0" size="2" desc="Interrupt pending 2 [R]" />
+    <register name="intpnd1" offset="0xa2" size="2" desc="Interrupt pending 1 [R]" />
+    <register name="msgval2" offset="0xb0" size="2" desc="Message valid 2 [R]" />
+    <register name="msgval1" offset="0xb2" size="2" desc="Message valid 1 [R]" />
+  </peripheralType>
+  <peripheral name="can0" type="can" base="0x0000c000" />
+  <peripheral name="can1" type="can" base="0x0000c100" />
+  <peripheral name="can2" type="can" base="0x0000c200" />
+  <peripheral name="can3" type="can" base="0x0000c300" />
+  <peripheral name="can4" type="can" base="0x0000c400" />
+  <peripheral name="can5" type="can" base="0x0000c500" />
+
+  <peripheralType name="edsu_mpu" size="192">
+    <register name="bctrl" offset="0x0" size="4" desc="Break control [R/W]" />
+    <register name="bstat" offset="0x4" size="4" desc="Break status [R/W]" />
+    <register name="biac" offset="0x8" size="4" desc="Break instruction address capture [R]" />
+    <register name="boac" offset="0xc" size="4" desc="Break operand address capture [R]" />
+    <register name="birq" offset="0x10" size="4" desc="Break interrupt request [R/W]" />
+    <register name="bcr0" offset="0x20" size="4" desc="Break channel control [R/W]" />
+    <register name="bcr1" offset="0x24" size="4" desc="Break channel control [R/W]" />
+    <register name="bcr2" offset="0x28" size="4" desc="Break channel control [R/W]" />
+    <register name="bcr3" offset="0x2c" size="4" desc="Break channel control [R/W]" />
+    <register name="bad0" offset="0x80" size="4" desc="Break address/data [R/W]" />
+    <register name="bad1" offset="0x84" size="4" desc="Break address/data [R/W]" />
+    <register name="bad2" offset="0x88" size="4" desc="Break address/data [R/W]" />
+    <register name="bad3" offset="0x8c" size="4" desc="Break address/data [R/W]" />
+    <register name="bad4" offset="0x90" size="4" desc="Break address/data [R/W]" />
+    <register name="bad5" offset="0x94" size="4" desc="Break address/data [R/W]" />
+    <register name="bad6" offset="0x98" size="4" desc="Break address/data [R/W]" />
+    <register name="bad7" offset="0x9c" size="4" desc="Break address/data [R/W]" />
+    <register name="bad8" offset="0xa0" size="4" desc="Break address/data [R/W]" />
+    <register name="bad9" offset="0xa4" size="4" desc="Break address/data [R/W]" />
+    <register name="bad10" offset="0xa8" size="4" desc="Break address/data [R/W]" />
+    <register name="bad11" offset="0xac" size="4" desc="Break address/data [R/W]" />
+    <register name="bad12" offset="0xb0" size="4" desc="Break address/data [R/W]" />
+    <register name="bad13" offset="0xb4" size="4" desc="Break address/data [R/W]" />
+    <register name="bad14" offset="0xb8" size="4" desc="Break address/data [R/W]" />
+    <register name="bad15" offset="0xbc" size="4" desc="Break address/data [R/W]" />
+  </peripheralType>
+  <peripheral name="edsu_mpu" type="edsu_mpu" base="0x0000f000" />
 </device>
