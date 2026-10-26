@@ -1,0 +1,3 @@
+[submodule "styx-emulator"]
+	path = styx-emulator
+	url = git@github.com:ryanwurtz/styx-emulator.git
