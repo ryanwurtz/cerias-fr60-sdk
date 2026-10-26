@@ -1,3 +1,5 @@
+#include "uart.h"
+
 int divide(int b, int c)
 {
     return b / c;
@@ -9,6 +11,7 @@ int main () {
     int c = 5;
 
     a = divide(b, c);
+    usart0->dr = 'A';
 
     return 0;
 }

@@ -7,6 +7,7 @@ program=multest
 test=false
 build=false
 clean=false
+analyze_elf=false
 install_ghidra_requested=false
 install_gcc_requested=false
 install_newlib_requested=false
@@ -53,10 +54,15 @@ parse_args() {
                 clean=true
                 shift 1
                 ;;
+            --elf)
+                analyze_elf=true
+                shift
+                ;;
             -h)
-                echo "Usage: $0 [-i <ghidra|gcc|newlib> ...] [-p <binary>] [-b] [-c]"
+                echo "Usage: $0 [-i <ghidra|gcc|newlib> ...] [-p <binary>] [--elf] [-b] [-c]"
                 echo "  -i  Install one or more tools (may be repeated)"
                 echo "  -p  Compile and analyze a test program"
+                echo "  --elf  Analyze the ELF with symbols (DWARF disabled); write results to <program>/elf/"
                 echo "  -b  Rebuild and install the Ghidra extension"
                 echo "  -c  Clean generated builds and test output"
                 exit 0
@@ -189,9 +195,17 @@ run() {
     local program_elf_path="$proj_dir/tests/output/$program/${program}.elf"
     local program_bin_path="$proj_dir/tests/output/$program/${program}.bin"
     local analyze="$ghidra_dir/support/analyzeHeadless"
+    local output_dir="$proj_dir/tests/output/$program/bin"
+    local -a import_args=(-import "$program_bin_path" -overwrite
+        -loader BinaryLoader -loader-baseAddr 0x40000)
+    local -a analysis_args=(-preScript DisableDwarf.java)
+    if $analyze_elf; then
+        output_dir="$proj_dir/tests/output/$program/elf"
+        import_args=(-import "$program_elf_path" -overwrite -loader ElfLoader)
+    fi
 
     #compile
-    mkdir -p "$proj_dir/ghidra_proj" "$proj_dir/tests/output/$program"
+    mkdir -p "$proj_dir/ghidra_proj" "$output_dir"
     cmake -S "$proj_dir/sdk" -B "$proj_dir/build/tests" \
         -DCMAKE_TOOLCHAIN_FILE="$proj_dir/sdk/fr60-toolchain.cmake" \
         -DCROSS_PREFIX="$cross_prefix" \
@@ -202,20 +216,18 @@ run() {
 
     #decompile
     "$analyze" "$proj_dir/ghidra_proj" fr60-test \
-        -import "$program_bin_path" -overwrite \
-        -loader BinaryLoader \
-        -loader-baseAddr 0x40000 \
+        "${import_args[@]}" \
         -processor FR:BE:32:60 \
         -cspec gcc \
         -scriptPath "$proj_dir/fr60/ghidra_scripts" \
-        -preScript DisableDwarf.java \
+        "${analysis_args[@]}" \
         -preScript ImportMmio.java \
         "$proj_dir/fr60/ghidra_scripts/boards/mb91f467ba.xml" \
         -preScript SeedBootEntry.java 0xF4000 \
         -postScript ExportDecompiled.java \
-        "$proj_dir/tests/output/$program/decomp.c" \
-        "$proj_dir/tests/output/$program/disassembly.S" \
-        "$proj_dir/tests/output/$program/p-code.txt"
+        "$output_dir/decomp.c" \
+        "$output_dir/disassembly.S" \
+        "$output_dir/p-code.txt"
 }
 
 build() {

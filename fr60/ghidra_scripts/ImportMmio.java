@@ -11,6 +11,8 @@ import org.w3c.dom.Node;
 
 import ghidra.app.script.GhidraScript;
 import ghidra.program.model.address.Address;
+import ghidra.program.model.address.AddressSet;
+import ghidra.program.model.address.AddressRange;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.ByteDataType;
 import ghidra.program.model.data.UnsignedShortDataType;
@@ -63,12 +65,21 @@ public class ImportMmio extends GhidraScript {
         if (name.isBlank() || size <= 0 || !permissions.matches("[rwx]+")) {
             throw new IllegalArgumentException("Invalid memory region: " + name);
         }
-        base.addNoWrap(size - 1);
-        MemoryBlock block = currentProgram.getMemory().createUninitializedBlock(name, base, size, false);
-        block.setRead(permissions.contains("r"));
-        block.setWrite(permissions.contains("w"));
-        block.setExecute(permissions.contains("x"));
-        block.setVolatile(false);
+        // ELF sections may already occupy part of a board region. Preserve them
+        // and supply only the missing memory around them.
+        AddressSet missing = new AddressSet(base, base.addNoWrap(size - 1));
+        missing = missing.subtract(currentProgram.getMemory());
+        int part = 0;
+        for (AddressRange range : missing.getAddressRanges()) {
+            MemoryBlock block = currentProgram.getMemory().createUninitializedBlock(
+                part == 0 ? name : name + "_" + part,
+                range.getMinAddress(), range.getLength(), false);
+            block.setRead(permissions.contains("r"));
+            block.setWrite(permissions.contains("w"));
+            block.setExecute(permissions.contains("x"));
+            block.setVolatile(false);
+            part++;
+        }
     }
 
     private void createLabel(String name, Address addr, DataType type, String note) throws Exception {
