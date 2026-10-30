@@ -13,5 +13,5 @@ int main () {
     a = divide(b, c);
     usart0->dr = 'A';
 
-    return 0;
+    return a;
 }
