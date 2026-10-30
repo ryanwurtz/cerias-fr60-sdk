@@ -198,7 +198,7 @@ run() {
     local output_dir="$proj_dir/tests/output/$program/bin"
     local -a import_args=(-import "$program_bin_path" -overwrite
         -loader BinaryLoader -loader-baseAddr 0x40000)
-    local -a analysis_args=(-preScript DisableDwarf.java)
+    local -a analysis_args=(-preScript ConfigureAnalysis.java)
     if $analyze_elf; then
         output_dir="$proj_dir/tests/output/$program/elf"
         import_args=(-import "$program_elf_path" -overwrite -loader ElfLoader)
