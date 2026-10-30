@@ -1088,8 +1088,9 @@ condition: "HI" is cc=0xF {
 }
 
 :JMP^":D" "@"^ri is op12=0x9F0 & ri {
+	local target:4 = ri;
 	delayslot(1);
-	goto [ri];	
+	goto [target];
 }
 
 :CALL^":D" label12 is op5=0x1B & label12 {
@@ -1098,15 +1099,17 @@ condition: "HI" is cc=0xF {
 	call label12;
 }
 
-:CALL^":D" "@"^ri is op12=0x9F1 & ri {	
+:CALL^":D" "@"^ri is op12=0x9F1 & ri {
+	local target:4 = ri;
 	RP = inst_next;
 	delayslot(1);
-	call [ri];
+	call [target];
 }
 
-:RET^":D" is op16=0x9F20 {	
+:RET^":D" is op16=0x9F20 {
+	local ret_target:4 = RP;	
 	delayslot(1);
-	return [RP];
+	return [ret_target];
 }
 
 :BRA^":D" label9 is op4=0xF & cc=0x0 & label9 {	

@@ -108,4 +108,22 @@
       		</returnaddress>
     	</prototype>
     </default_proto>
+
+	<callfixup name="fr60_udivsi3">
+  		<target name="__udivsi3"/>
+  		<pcode>
+    		<body><![CDATA[
+      			r4 = r4 / r5;
+    		]]></body>
+  		</pcode>
+	</callfixup>
+	
+	<callfixup name="fr60_divsi3">
+	  <target name="__divsi3"/>
+	  <pcode>
+	    	<body><![CDATA[
+	      		r4 = r4 s/ r5;
+	    	]]></body>
+	  </pcode>
+	</callfixup>
 </compiler_spec>
