@@ -1,4 +1,4 @@
-#instruction token bitfields
+#instruction tokens & bitfields
 define token instr(16)
 	op16 = (0,15)
 	op12 = (4,15)
