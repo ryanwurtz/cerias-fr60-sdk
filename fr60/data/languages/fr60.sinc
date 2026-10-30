@@ -100,17 +100,10 @@ dir9: value is u8 [ value = u8 * 2; ] {
 
 macro write_ps(value) {
     local oldilm:1 = ILM;
-    local ilmvalue:4 = (value >> 16) & 0x1F;
-	local newilm:1 = ilmvalue:1;
-    local data:4 = value;
+    local forcebit:1 = (oldilm >= 16);
+    local mask:4 = zext(forcebit) << 20;
 
-    if (oldilm < 16) goto <load>;
-    if (newilm >= 16) goto <load>;
-
-    data = data | 0x00100000;
-
-	<load>
-    PS = data;
+    PS = value | mask;
 }
 
 macro set_nz(result) {
@@ -149,21 +142,11 @@ macro set_subc_flags(a, b, cin, result) {
 }
 
 macro left_setc(shift, dest) {
-	if (shift == 0) goto <clear>;
-	C = (((dest >> (32-shift)) & 0x1) == 1);
-	goto <done>;
-	<clear>
-	C = 0;
-	<done>
+	C = (shift != 0) && (((dest >> (32-shift)) & 0x1) == 1);
 }
 
 macro right_setc(shift, dest) {
-	if (shift == 0) goto <clear>;
-	C = (((dest >> (shift-1)) & 0x1) == 1);
-	goto <done>;
-	<clear>
-	C = 0;
-	<done>
+	C = (shift != 0) && (((dest >> (shift-1)) & 0x1) == 1);
 }
 
 :ADD rj, ri is op8=0xA6 & rj & ri {	
@@ -241,14 +224,10 @@ macro right_setc(shift, dest) {
 :STILM "#"^u8 is op8=0x87 & u8 {
     local old:1 = ILM;
     local new:1 = u8 & 0x1F;
+    local forcebit:1 = (old >= 16);
+    local mask:1 = forcebit << 4;
 
-    if (old < 16) goto <load>;
-    if (new >= 16) goto <load>;
-
-    new = new + 16;
-
-	<load>
-    ILM = new;
+    ILM = new | mask;
 }
 
 :ADDSP "#"^disp10 is op8=0xA3 & disp10 {
@@ -483,15 +462,14 @@ macro right_setc(shift, dest) {
 }
 
 :DIV3 is op16=0x9F60 {	
-	if (Z != 1) goto <done>;
-	MDL = MDL + 1;
-	<done>
+	local increment:4 = zext(Z);
+	MDL = MDL + increment;
 }
 
 :DIV4S is op16=0x9F70 {	
-	if (D1 != 1) goto <done>;
-	MDL = 0 - MDL;
-	<done>
+	local negate:4 = zext(D1);
+	local mask:4 = 0 - negate;
+	MDL = (MDL ^ mask) + negate;
 }
 
 :LSL rj, ri is op8=0xB6 & rj & ri {	
@@ -1125,9 +1103,7 @@ condition: "HI" is cc=0xF {
 :B^condition^":D" label9 is op4=0xF & condition & label9 {
     build condition;
     delayslot(1);
-    if (condition == 0) goto <done>;
-    goto label9;
-    <done>
+    if (condition != 0) goto label9;
 }
 
 :NOP is op16=0x9FA0 {
