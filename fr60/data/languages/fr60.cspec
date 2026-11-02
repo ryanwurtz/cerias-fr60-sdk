@@ -126,4 +126,21 @@
 	    	]]></body>
 	  </pcode>
 	</callfixup>
+	<callfixup name="fr60_umodsi3">
+		<target name="__umodsi3"/>
+		<pcode>
+			<body><![CDATA[
+				r4 = r4 % r5;
+			]]></body>
+		</pcode>
+	</callfixup>
+
+	<callfixup name="fr60_modsi3">
+		<target name="__modsi3"/>
+		<pcode>
+			<body><![CDATA[
+				r4 = r4 s% r5;
+			]]></body>
+		</pcode>
+	</callfixup>
 </compiler_spec>

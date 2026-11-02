@@ -21,8 +21,15 @@ import ghidra.program.model.data.Array;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataTypeManager;
 import ghidra.program.model.data.DataTypeWriter;
+import ghidra.program.model.data.LongLongDataType;
+import ghidra.program.model.data.SignedByteDataType;
 import ghidra.program.model.data.StringDataType;
 import ghidra.program.model.data.TerminatedStringDataType;
+import ghidra.program.model.data.Undefined1DataType;
+import ghidra.program.model.data.Undefined2DataType;
+import ghidra.program.model.data.Undefined4DataType;
+import ghidra.program.model.data.Undefined8DataType;
+import ghidra.program.model.data.UnsignedLongLongDataType;
 import ghidra.program.model.listing.Data;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Instruction;
@@ -209,6 +216,14 @@ public class ExportDecompiled extends GhidraScript {
         //export types without elf metadata
         DataTypeManager types = currentProgram.getDataTypeManager();
         List<DataType> exportedTypes = new ArrayList<>();
+        //decompiler aliases may be used without being stored in the program's type manager
+        exportedTypes.add(Undefined1DataType.dataType);
+        exportedTypes.add(Undefined2DataType.dataType);
+        exportedTypes.add(Undefined4DataType.dataType);
+        exportedTypes.add(Undefined8DataType.dataType);
+        exportedTypes.add(SignedByteDataType.dataType);
+        exportedTypes.add(LongLongDataType.dataType);
+        exportedTypes.add(UnsignedLongLongDataType.dataType);
         var allTypes = types.getAllDataTypes();
 
         while (allTypes.hasNext()) {

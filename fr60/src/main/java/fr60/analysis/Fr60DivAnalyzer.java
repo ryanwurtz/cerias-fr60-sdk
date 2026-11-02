@@ -26,7 +26,7 @@ import ghidra.util.task.TaskMonitor;
 public class Fr60DivAnalyzer extends AbstractAnalyzer {
 
     public Fr60DivAnalyzer() {
-        super("FR60 Division Helpers", "Recognizes GCC division helpers", AnalyzerType.INSTRUCTION_ANALYZER);
+        super("FR60 Division Helpers", "Recognizes GCC division and remainder helpers", AnalyzerType.INSTRUCTION_ANALYZER);
         setDefaultEnablement(true);
         setPriority(AnalysisPriority.CODE_ANALYSIS.after());
     }
@@ -36,7 +36,7 @@ public class Fr60DivAnalyzer extends AbstractAnalyzer {
         return program.getLanguageID().toString().equals("FR:BE:32:60");
     }
 
-    //divsi3 = 39, udivsi3 = 36
+    //divsi3, modsi3 = 39  udivsi3, umodsi3 = 36
     private static final int MAX_SEQUENCE_LENGTH = 39;
 
     private boolean matches(Instruction ins, String mnemonic, String... registers) {
@@ -86,7 +86,8 @@ public class Fr60DivAnalyzer extends AbstractAnalyzer {
             }
         }
         ins = nextInstruction(ins);
-        if (!matches(ins, "MOV", "MDL", "r4")) {
+        boolean modular = matches(ins, "MOV", "MDH", "r4");
+        if (!modular && !matches(ins, "MOV", "MDL", "r4")) {
             return;
         }
         ins = nextInstruction(ins);
@@ -96,7 +97,7 @@ public class Fr60DivAnalyzer extends AbstractAnalyzer {
 
         Address entry = start.getAddress();
         AddressSet body = new AddressSet(entry, ins.getMaxAddress());
-        String name = signed ? "__divsi3" : "__udivsi3";
+        String name = "__" + (signed ? "" : "u") + (modular ? "mod" : "div") + "si3";
         FunctionManager functions = program.getFunctionManager();
         Function function = functions.getFunctionAt(entry);
         try {
@@ -112,7 +113,7 @@ public class Fr60DivAnalyzer extends AbstractAnalyzer {
                 function.setName(name, SourceType.ANALYSIS);
             }
             if (function != null) {
-                function.setCallFixup(signed ? "fr60_divsi3" : "fr60_udivsi3");
+                function.setCallFixup("fr60_" + name.substring(2));
                 DataType type = signed ? IntegerDataType.dataType : UnsignedIntegerDataType.dataType;
                 function.updateFunction(
                     program.getCompilerSpec().getDefaultCallingConvention().getName(),
