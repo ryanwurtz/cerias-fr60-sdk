@@ -1,13 +1,15 @@
 #include "uart.h"
 
-int divide(int b, int c)
+int a = 0;
+int b = 10;
+
+
+int divide(int x, int y)
 {
-    return b / c;
+    return x / y;
 }
 
 int main () {
-    int a = 0;
-    int b = 10;
     int c = 5;
 
     a = divide(b, c);

@@ -1,14 +1,16 @@
 #include "uart.h"
 
-unsigned int divide(unsigned int b, unsigned int c)
+unsigned int a = 0;
+unsigned int b = 10;
+
+
+unsigned int divide(unsigned int x, unsigned int y)
 {
-    return b / c;
+    return x / y;
 }
 
-int main () {
-    unsigned int a = 0;
-    int b = 10;
-    int c = 5;
+unsigned int main () {
+    unsigned int c = 5;
 
     a = divide(b, c);
     usart0->dr = 'A';
