@@ -17,9 +17,12 @@ import ghidra.app.decompiler.DecompileOptions;
 import ghidra.app.script.GhidraScript;
 import ghidra.program.model.address.AddressSet;
 import ghidra.program.model.address.AddressSetView;
+import ghidra.program.model.data.Array;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataTypeManager;
 import ghidra.program.model.data.DataTypeWriter;
+import ghidra.program.model.data.StringDataType;
+import ghidra.program.model.data.TerminatedStringDataType;
 import ghidra.program.model.listing.Data;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Instruction;
@@ -29,6 +32,51 @@ import ghidra.program.model.pcode.HighSymbol;
 import ghidra.program.model.symbol.SourceType;
 
 public class ExportDecompiled extends GhidraScript {
+
+    private boolean is_byte_string(Data data) {
+        return data != null && (data.getDataType() instanceof StringDataType || data.getDataType() instanceof TerminatedStringDataType);
+    }
+
+    private String emit_string_declaration(HighSymbol symbol) throws Exception {
+        if (!symbol.getStorage().isMemoryStorage()) {return null;}
+
+        Data data = currentProgram.getListing().getDataAt( symbol.getStorage().getFirstVarnode().getAddress());
+        if (!is_byte_string(data)) {return null;}
+
+        //escape raw bytes
+        byte[] bytes = data.getBytes();
+        StringBuilder literal = new StringBuilder();
+        for (byte value : bytes) {
+            int b = value & 0xff;
+            if (b == '"' || b == '\\') {
+                literal.append('\\').append((char) b);
+            }
+            else if (b >= 32 && b < 127 && b != '?') {
+                literal.append((char) b);
+            }
+            else {
+                literal.append(String.format("\\%03o", b));
+            }
+        }
+
+        //an explicit bound excludes the C literal's extra implicit terminator
+        String name = symbol.getName();
+        if (!name.matches("[A-Za-z_][A-Za-z0-9_]*")) {
+            name = name.replaceAll("[^A-Za-z0-9_]", "_");
+        }
+        return "char " + name + "[" + bytes.length + "] = \"" + literal + "\";";
+    }
+
+    private String emit_global_declaration(DataType type, String name) {
+        //place size declaration after name instead of after type
+        StringBuilder declarator = new StringBuilder(name);
+        while (type instanceof Array) {
+            Array array = (Array) type;
+            declarator.append("[").append(array.getNumElements()).append("]");
+            type = array.getDataType();
+        }
+        return type.getDisplayName() + " " + declarator + ";";
+    }
 
     private String emit_mmio_macro(HighSymbol symbol) {
         var storage = symbol.getStorage();
@@ -97,7 +145,7 @@ public class ExportDecompiled extends GhidraScript {
                 }
 
                 bodies.append(result.getDecompiledFunction().getC()).append("\n\n");
-                
+
                 //parse global defs
                 var symbols = result.getHighFunction().getGlobalSymbolMap().getSymbols();
                 while (symbols.hasNext()) {
@@ -112,8 +160,9 @@ public class ExportDecompiled extends GhidraScript {
                         continue;
                     }
 
-                    String type = symbol.getDataType().getDisplayName();
-                    declarations.add(type + " " + name + ";");
+                    String stringDeclaration = emit_string_declaration(symbol);
+                    declarations.add(stringDeclaration != null ? stringDeclaration :
+                        emit_global_declaration(symbol.getDataType(), name));
                 }
             }
         }
@@ -131,6 +180,20 @@ public class ExportDecompiled extends GhidraScript {
         File dcmpFile = new File(args[0]);
         File asmFile = new File(args[1]);
         File pcodeFile = new File(args[2]);
+
+        //rename generated string labels before decomp
+        var definedData = currentProgram.getListing().getDefinedData(true);
+        while (definedData.hasNext()) {
+            monitor.checkCancelled();
+            Data data = definedData.next();
+            if (!is_byte_string(data)) {continue;}
+
+            for (var symbol : currentProgram.getSymbolTable().getSymbols(data.getAddress())) {
+                if (symbol != null && (symbol.getSource() == SourceType.DEFAULT || symbol.getSource() == SourceType.ANALYSIS || !symbol.getName().matches("[A-Za-z_][A-Za-z0-9_]*"))) {
+                    symbol.setName("str_" + Long.toUnsignedString(data.getAddress().getOffset(), 16) + (symbol.isPrimary() ? "" : "_" + symbol.getID()), SourceType.ANALYSIS);
+                }
+            }
+        }
 
         //print functions but skip inline and callfixup functions
         AddressSet cExportAddresses = new AddressSet(currentProgram.getMemory());
