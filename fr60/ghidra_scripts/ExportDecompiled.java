@@ -223,12 +223,16 @@ public class ExportDecompiled extends GhidraScript {
 
         StringWriter declarations = new StringWriter();
         new DataTypeWriter(types, declarations, true).write(exportedTypes, monitor);
+        //stdbool.h supplies bool, true and false; omit Ghidra's conflicting typedef
+        String typeDeclarations = declarations.toString().replaceAll(
+            "(?m)^typedef\\s+unsigned\\s+char\\s+bool\\s*;\\h*\\R?", "");
 
         Map<String, String> mmioMacros = new LinkedHashMap<>();
         String code = emit_c(cExportAddresses, mmioMacros);
 
         String macros = String.join("", mmioMacros.values());
-        Files.writeString(dcmpFile.toPath(), declarations + "\n\n" + macros + "\n" + code, StandardCharsets.UTF_8);
+        Files.writeString(dcmpFile.toPath(), "#include <stdbool.h>\n\n" + typeDeclarations +
+            "\n\n" + macros + "\n" + code, StandardCharsets.UTF_8);
 
         //export all instructions and raw pcode
         try (PrintWriter asm = new PrintWriter(asmFile); PrintWriter pcode = new PrintWriter(pcodeFile)) {
