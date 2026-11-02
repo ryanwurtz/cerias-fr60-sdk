@@ -13,6 +13,7 @@ define token instr(16)
     i16 = (0,15)
     i8 = (4,11)
     s8 = (4,11) signed
+    sp_s8 = (0,7) signed
 
     rel11 = (0,10) signed
     rel8 = (0,7) signed
@@ -42,6 +43,23 @@ define token instr(16)
     listbit6 = (6,6)
     listtail6 = (7,7)
     listbit7 = (7,7)
+
+    #store masks run in the opposite bit order to load masks
+    storebit0 = (7,7)
+    storetail0 = (0,6)
+    storebit1 = (6,6)
+    storetail1 = (0,5)
+    storebit2 = (5,5)
+    storetail2 = (0,4)
+    storebit3 = (4,4)
+    storetail3 = (0,3)
+    storebit4 = (3,3)
+    storetail4 = (0,2)
+    storebit5 = (2,2)
+    storetail5 = (0,1)
+    storebit6 = (1,1)
+    storetail6 = (0,0)
+    storebit7 = (0,0)
 ;
 
 define token imm(32)
@@ -74,6 +92,10 @@ disp10: value is s8 [ value = s8 * 4; ] {
 	export *[const]:4 value;
 }
 
+sp_disp10: value is sp_s8 [ value = sp_s8 * 4; ] {
+    export *[const]:4 value;
+}
+
 disp9: value is s8 [ value = s8 * 2; ] {
 	export *[const]:4 value;
 }
@@ -96,6 +118,10 @@ dir10: value is u8 [ value = u8 * 4; ] {
 
 dir9: value is u8 [ value = u8 * 2; ] {
 	export *[const]:4 value;
+}
+
+dir8: u8 is u8 {
+    export *[const]:4 u8;
 }
 
 macro write_ps(value) {
@@ -230,8 +256,8 @@ macro right_setc(shift, dest) {
     ILM = new | mask;
 }
 
-:ADDSP "#"^disp10 is op8=0xA3 & disp10 {
-	SP = SP + disp10;
+:ADDSP "#"^sp_disp10 is op8=0xA3 & sp_disp10 {
+	SP = SP + sp_disp10;
 }
 
 :AND rj, ri is op8=0x82 & rj & ri {	
@@ -751,21 +777,21 @@ macro right_setc(shift, dest) {
 	AC = AC + 2;
 }
 
-:DMOVB "@"^dir9, "AC" is op8=0x0A & dir9 {
-	AC = zext(*:1 dir9);
+:DMOVB "@"^dir8, "AC" is op8=0x0A & dir8 {
+	AC = zext(*:1 dir8);
 }
 
-:DMOVB "AC", "@"^dir9 is op8=0x1A & dir9 {
-	*:1 dir9 = AC:1;
+:DMOVB "AC", "@"^dir8 is op8=0x1A & dir8 {
+	*:1 dir8 = AC:1;
 }
 
-:DMOVB "@"^dir9, "@AC+" is op8=0x0E & dir9 {	
-	*:1 AC = (*:1 dir9);
+:DMOVB "@"^dir8, "@AC+" is op8=0x0E & dir8 {
+	*:1 AC = (*:1 dir8);
 	AC = AC + 1;
 }
 
-:DMOVB "@AC+", "@"^dir9 is op8=0x1E & dir9 {	
-	*:1 dir9 = (*:1 AC);
+:DMOVB "@AC+", "@"^dir8 is op8=0x1E & dir8 {
+	*:1 dir8 = (*:1 AC);
 	AC = AC + 1;
 }
 
@@ -832,67 +858,67 @@ ldm1_list: r8 is r8 & ldm_r9 & listbit0=1 & listtail0=0 { r8 = *:4 SP; SP = SP +
 ldm1_list: r8,ldm_r9 is r8 & ldm_r9 & listbit0=1 { r8 = *:4 SP; SP = SP + 4; build ldm_r9; }
 ldm1_list: ldm_r9 is ldm_r9 & listbit0=0 { build ldm_r9; }
 
-stm_r7: r7 is r7 & listbit7=1 { SP = SP - 4; *:4 SP = r7; }
-stm_r7: "" is listbit7=0 { }
+stm_r7: r7 is r7 & storebit7=1 { SP = SP - 4; *:4 SP = r7; }
+stm_r7: "" is storebit7=0 { }
 
-stm_r6: r6 is r6 & stm_r7 & listbit6=1 & listtail6=0 { build stm_r7; SP = SP - 4; *:4 SP = r6; }
-stm_r6: r6,stm_r7 is r6 & stm_r7 & listbit6=1 { build stm_r7; SP = SP - 4; *:4 SP = r6; }
-stm_r6: stm_r7 is stm_r7 & listbit6=0 { build stm_r7; }
+stm_r6: r6 is r6 & stm_r7 & storebit6=1 & storetail6=0 { build stm_r7; SP = SP - 4; *:4 SP = r6; }
+stm_r6: r6,stm_r7 is r6 & stm_r7 & storebit6=1 { build stm_r7; SP = SP - 4; *:4 SP = r6; }
+stm_r6: stm_r7 is stm_r7 & storebit6=0 { build stm_r7; }
 
-stm_r5: r5 is r5 & stm_r6 & listbit5=1 & listtail5=0 { build stm_r6; SP = SP - 4; *:4 SP = r5; }
-stm_r5: r5,stm_r6 is r5 & stm_r6 & listbit5=1 { build stm_r6; SP = SP - 4; *:4 SP = r5; }
-stm_r5: stm_r6 is stm_r6 & listbit5=0 { build stm_r6; }
+stm_r5: r5 is r5 & stm_r6 & storebit5=1 & storetail5=0 { build stm_r6; SP = SP - 4; *:4 SP = r5; }
+stm_r5: r5,stm_r6 is r5 & stm_r6 & storebit5=1 { build stm_r6; SP = SP - 4; *:4 SP = r5; }
+stm_r5: stm_r6 is stm_r6 & storebit5=0 { build stm_r6; }
 
-stm_r4: r4 is r4 & stm_r5 & listbit4=1 & listtail4=0 { build stm_r5; SP = SP - 4; *:4 SP = r4; }
-stm_r4: r4,stm_r5 is r4 & stm_r5 & listbit4=1 { build stm_r5; SP = SP - 4; *:4 SP = r4; }
-stm_r4: stm_r5 is stm_r5 & listbit4=0 { build stm_r5; }
+stm_r4: r4 is r4 & stm_r5 & storebit4=1 & storetail4=0 { build stm_r5; SP = SP - 4; *:4 SP = r4; }
+stm_r4: r4,stm_r5 is r4 & stm_r5 & storebit4=1 { build stm_r5; SP = SP - 4; *:4 SP = r4; }
+stm_r4: stm_r5 is stm_r5 & storebit4=0 { build stm_r5; }
 
-stm_r3: r3 is r3 & stm_r4 & listbit3=1 & listtail3=0 { build stm_r4; SP = SP - 4; *:4 SP = r3; }
-stm_r3: r3,stm_r4 is r3 & stm_r4 & listbit3=1 { build stm_r4; SP = SP - 4; *:4 SP = r3; }
-stm_r3: stm_r4 is stm_r4 & listbit3=0 { build stm_r4; }
+stm_r3: r3 is r3 & stm_r4 & storebit3=1 & storetail3=0 { build stm_r4; SP = SP - 4; *:4 SP = r3; }
+stm_r3: r3,stm_r4 is r3 & stm_r4 & storebit3=1 { build stm_r4; SP = SP - 4; *:4 SP = r3; }
+stm_r3: stm_r4 is stm_r4 & storebit3=0 { build stm_r4; }
 
-stm_r2: r2 is r2 & stm_r3 & listbit2=1 & listtail2=0 { build stm_r3; SP = SP - 4; *:4 SP = r2; }
-stm_r2: r2,stm_r3 is r2 & stm_r3 & listbit2=1 { build stm_r3; SP = SP - 4; *:4 SP = r2; }
-stm_r2: stm_r3 is stm_r3 & listbit2=0 { build stm_r3; }
+stm_r2: r2 is r2 & stm_r3 & storebit2=1 & storetail2=0 { build stm_r3; SP = SP - 4; *:4 SP = r2; }
+stm_r2: r2,stm_r3 is r2 & stm_r3 & storebit2=1 { build stm_r3; SP = SP - 4; *:4 SP = r2; }
+stm_r2: stm_r3 is stm_r3 & storebit2=0 { build stm_r3; }
 
-stm_r1: r1 is r1 & stm_r2 & listbit1=1 & listtail1=0 { build stm_r2; SP = SP - 4; *:4 SP = r1; }
-stm_r1: r1,stm_r2 is r1 & stm_r2 & listbit1=1 { build stm_r2; SP = SP - 4; *:4 SP = r1; }
-stm_r1: stm_r2 is stm_r2 & listbit1=0 { build stm_r2; }
+stm_r1: r1 is r1 & stm_r2 & storebit1=1 & storetail1=0 { build stm_r2; SP = SP - 4; *:4 SP = r1; }
+stm_r1: r1,stm_r2 is r1 & stm_r2 & storebit1=1 { build stm_r2; SP = SP - 4; *:4 SP = r1; }
+stm_r1: stm_r2 is stm_r2 & storebit1=0 { build stm_r2; }
 
-stm0_list: r0 is r0 & stm_r1 & listbit0=1 & listtail0=0 { build stm_r1; SP = SP - 4; *:4 SP = r0; }
-stm0_list: r0,stm_r1 is r0 & stm_r1 & listbit0=1 { build stm_r1; SP = SP - 4; *:4 SP = r0; }
-stm0_list: stm_r1 is stm_r1 & listbit0=0 { build stm_r1; }
+stm0_list: r0 is r0 & stm_r1 & storebit0=1 & storetail0=0 { build stm_r1; SP = SP - 4; *:4 SP = r0; }
+stm0_list: r0,stm_r1 is r0 & stm_r1 & storebit0=1 { build stm_r1; SP = SP - 4; *:4 SP = r0; }
+stm0_list: stm_r1 is stm_r1 & storebit0=0 { build stm_r1; }
 
-stm_r15: SP is SP & listbit7=1 { local oldsp:4 = SP; SP = SP - 4; *:4 SP = oldsp; }
-stm_r15: "" is listbit7=0 { }
+stm_r15: SP is SP & storebit7=1 { local oldsp:4 = SP; SP = SP - 4; *:4 SP = oldsp; }
+stm_r15: "" is storebit7=0 { }
 
-stm_r14: FP is FP & stm_r15 & listbit6=1 & listtail6=0 { build stm_r15; SP = SP - 4; *:4 SP = FP; }
-stm_r14: FP,stm_r15 is FP & stm_r15 & listbit6=1 { build stm_r15; SP = SP - 4; *:4 SP = FP; }
-stm_r14: stm_r15 is stm_r15 & listbit6=0 { build stm_r15; }
+stm_r14: FP is FP & stm_r15 & storebit6=1 & storetail6=0 { build stm_r15; SP = SP - 4; *:4 SP = FP; }
+stm_r14: FP,stm_r15 is FP & stm_r15 & storebit6=1 { build stm_r15; SP = SP - 4; *:4 SP = FP; }
+stm_r14: stm_r15 is stm_r15 & storebit6=0 { build stm_r15; }
 
-stm_r13: AC is AC & stm_r14 & listbit5=1 & listtail5=0 { build stm_r14; SP = SP - 4; *:4 SP = AC; }
-stm_r13: AC,stm_r14 is AC & stm_r14 & listbit5=1 { build stm_r14; SP = SP - 4; *:4 SP = AC; }
-stm_r13: stm_r14 is stm_r14 & listbit5=0 { build stm_r14; }
+stm_r13: AC is AC & stm_r14 & storebit5=1 & storetail5=0 { build stm_r14; SP = SP - 4; *:4 SP = AC; }
+stm_r13: AC,stm_r14 is AC & stm_r14 & storebit5=1 { build stm_r14; SP = SP - 4; *:4 SP = AC; }
+stm_r13: stm_r14 is stm_r14 & storebit5=0 { build stm_r14; }
 
-stm_r12: r12 is r12 & stm_r13 & listbit4=1 & listtail4=0 { build stm_r13; SP = SP - 4; *:4 SP = r12; }
-stm_r12: r12,stm_r13 is r12 & stm_r13 & listbit4=1 { build stm_r13; SP = SP - 4; *:4 SP = r12; }
-stm_r12: stm_r13 is stm_r13 & listbit4=0 { build stm_r13; }
+stm_r12: r12 is r12 & stm_r13 & storebit4=1 & storetail4=0 { build stm_r13; SP = SP - 4; *:4 SP = r12; }
+stm_r12: r12,stm_r13 is r12 & stm_r13 & storebit4=1 { build stm_r13; SP = SP - 4; *:4 SP = r12; }
+stm_r12: stm_r13 is stm_r13 & storebit4=0 { build stm_r13; }
 
-stm_r11: r11 is r11 & stm_r12 & listbit3=1 & listtail3=0 { build stm_r12; SP = SP - 4; *:4 SP = r11; }
-stm_r11: r11,stm_r12 is r11 & stm_r12 & listbit3=1 { build stm_r12; SP = SP - 4; *:4 SP = r11; }
-stm_r11: stm_r12 is stm_r12 & listbit3=0 { build stm_r12; }
+stm_r11: r11 is r11 & stm_r12 & storebit3=1 & storetail3=0 { build stm_r12; SP = SP - 4; *:4 SP = r11; }
+stm_r11: r11,stm_r12 is r11 & stm_r12 & storebit3=1 { build stm_r12; SP = SP - 4; *:4 SP = r11; }
+stm_r11: stm_r12 is stm_r12 & storebit3=0 { build stm_r12; }
 
-stm_r10: r10 is r10 & stm_r11 & listbit2=1 & listtail2=0 { build stm_r11; SP = SP - 4; *:4 SP = r10; }
-stm_r10: r10,stm_r11 is r10 & stm_r11 & listbit2=1 { build stm_r11; SP = SP - 4; *:4 SP = r10; }
-stm_r10: stm_r11 is stm_r11 & listbit2=0 { build stm_r11; }
+stm_r10: r10 is r10 & stm_r11 & storebit2=1 & storetail2=0 { build stm_r11; SP = SP - 4; *:4 SP = r10; }
+stm_r10: r10,stm_r11 is r10 & stm_r11 & storebit2=1 { build stm_r11; SP = SP - 4; *:4 SP = r10; }
+stm_r10: stm_r11 is stm_r11 & storebit2=0 { build stm_r11; }
 
-stm_r9: r9 is r9 & stm_r10 & listbit1=1 & listtail1=0 { build stm_r10; SP = SP - 4; *:4 SP = r9; }
-stm_r9: r9,stm_r10 is r9 & stm_r10 & listbit1=1 { build stm_r10; SP = SP - 4; *:4 SP = r9; }
-stm_r9: stm_r10 is stm_r10 & listbit1=0 { build stm_r10; }
+stm_r9: r9 is r9 & stm_r10 & storebit1=1 & storetail1=0 { build stm_r10; SP = SP - 4; *:4 SP = r9; }
+stm_r9: r9,stm_r10 is r9 & stm_r10 & storebit1=1 { build stm_r10; SP = SP - 4; *:4 SP = r9; }
+stm_r9: stm_r10 is stm_r10 & storebit1=0 { build stm_r10; }
 
-stm1_list: r8 is r8 & stm_r9 & listbit0=1 & listtail0=0 { build stm_r9; SP = SP - 4; *:4 SP = r8; }
-stm1_list: r8,stm_r9 is r8 & stm_r9 & listbit0=1 { build stm_r9; SP = SP - 4; *:4 SP = r8; }
-stm1_list: stm_r9 is stm_r9 & listbit0=0 { build stm_r9; }
+stm1_list: r8 is r8 & stm_r9 & storebit0=1 & storetail0=0 { build stm_r9; SP = SP - 4; *:4 SP = r8; }
+stm1_list: r8,stm_r9 is r8 & stm_r9 & storebit0=1 { build stm_r9; SP = SP - 4; *:4 SP = r8; }
+stm1_list: stm_r9 is stm_r9 & storebit0=0 { build stm_r9; }
 
 :LDM0 "("^ldm0_list^")" is op8=0x8C & ldm0_list {
     build ldm0_list;
@@ -954,7 +980,7 @@ stm1_list: stm_r9 is stm_r9 & listbit0=0 { build stm_r9; }
 	*:4 SP = PS;
 	SP = SP - 4;
 	*:4 SP = inst_next;
-	ILM = 0;
+	ILM = 4;
 	S = 0;
 
 	local addr:4 = TBR + 0x3D8;

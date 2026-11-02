@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import ghidra.app.decompiler.DecompInterface;
 import ghidra.app.decompiler.DecompileOptions;
@@ -39,6 +40,39 @@ import ghidra.program.model.pcode.HighSymbol;
 import ghidra.program.model.symbol.SourceType;
 
 public class ExportDecompiled extends GhidraScript {
+
+    private String unsigned_type(int bytes) {
+        if (bytes <= 1) {return "unsigned char";}
+        if (bytes <= 2) {return "unsigned short";}
+        if (bytes <= 4) {return "unsigned int";}
+        return "unsigned long long";
+    }
+
+    private String emit_concat_helpers(String code) {
+        Set<String> emitted = new LinkedHashSet<>();
+        StringBuilder helpers = new StringBuilder();
+        var matches = Pattern.compile("\\bCONCAT([1-8])([1-8])\\s*\\(").matcher(code);
+        while (matches.find()) {
+            String name = "CONCAT" + matches.group(1) + matches.group(2);
+            if (!emitted.add(name)) {continue;}
+            int highBytes = Integer.parseInt(matches.group(1));
+            int lowBytes = Integer.parseInt(matches.group(2));
+            if (highBytes + lowBytes > 8) {
+                throw new IllegalStateException("Unsupported concatenation wider than 64 bits: " + name);
+            }
+            String resultType = unsigned_type(highBytes + lowBytes);
+            String highMask = Long.toUnsignedString(-1L >>> (64 - highBytes * 8), 16);
+            String lowMask = Long.toUnsignedString(-1L >>> (64 - lowBytes * 8), 16);
+            helpers.append("static inline ").append(resultType).append(" ").append(name)
+                .append("(").append(unsigned_type(highBytes)).append(" high, ")
+                .append(unsigned_type(lowBytes)).append(" low)\n{\n")
+                .append("    return (").append(resultType).append(")")
+                .append("((((unsigned long long)high & 0x").append(highMask)
+                .append("ULL) << ").append(lowBytes * 8).append(") | ")
+                .append("((unsigned long long)low & 0x").append(lowMask).append("ULL));\n}\n\n");
+        }
+        return helpers.toString();
+    }
 
     private boolean is_byte_string(Data data) {
         return data != null && (data.getDataType() instanceof StringDataType || data.getDataType() instanceof TerminatedStringDataType);
@@ -128,6 +162,7 @@ public class ExportDecompiled extends GhidraScript {
 
     private String emit_c(AddressSetView addresses, Map<String, String> macros) throws Exception {
         Set<String> declarations = new LinkedHashSet<>();
+        Set<String> prototypes = new LinkedHashSet<>();
         StringBuilder bodies = new StringBuilder();
         DecompileOptions options = new DecompileOptions();
         options.grabFromProgram(currentProgram);
@@ -151,7 +186,10 @@ public class ExportDecompiled extends GhidraScript {
                     throw new IllegalStateException("Cannot decompile " + function.getName() + ": " + result.getErrorMessage());
                 }
 
-                bodies.append(result.getDecompiledFunction().getC()).append("\n\n");
+                var decompiled = result.getDecompiledFunction();
+                //use the recovered signature so prototypes agree with the exported definitions
+                prototypes.add(decompiled.getSignature().strip().replaceFirst(";\\s*$", "") + ";");
+                bodies.append(decompiled.getC()).append("\n\n");
 
                 //parse global defs
                 var symbols = result.getHighFunction().getGlobalSymbolMap().getSymbols();
@@ -159,6 +197,11 @@ public class ExportDecompiled extends GhidraScript {
                     monitor.checkCancelled();
                     var symbol = symbols.next();
                     String name = symbol.getName();
+
+                    //function addresses are declarations above, not byte-sized global objects
+                    var storage = symbol.getStorage();
+                    if (storage.isMemoryStorage() && currentProgram.getFunctionManager().getFunctionAt(
+                        storage.getFirstVarnode().getAddress()) != null) {continue;}
 
                     //emit macro if this is an MMIO symbol
                     String macro = emit_mmio_macro(symbol);
@@ -177,7 +220,8 @@ public class ExportDecompiled extends GhidraScript {
             decompiler.dispose();
         }
 
-        return String.join("\n", declarations) + "\n\n" + bodies;
+        return String.join("\n", prototypes) + "\n\n" +
+            String.join("\n", declarations) + "\n\n" + bodies;
     }
 
     @Override
@@ -244,10 +288,11 @@ public class ExportDecompiled extends GhidraScript {
 
         Map<String, String> mmioMacros = new LinkedHashMap<>();
         String code = emit_c(cExportAddresses, mmioMacros);
+        String concatHelpers = emit_concat_helpers(code);
 
         String macros = String.join("", mmioMacros.values());
         Files.writeString(dcmpFile.toPath(), "#include <stdbool.h>\n\n" + typeDeclarations +
-            "\n\n" + macros + "\n" + code, StandardCharsets.UTF_8);
+            "\n\n" + concatHelpers + macros + "\n" + code, StandardCharsets.UTF_8);
 
         //export all instructions and raw pcode
         try (PrintWriter asm = new PrintWriter(asmFile); PrintWriter pcode = new PrintWriter(pcodeFile)) {
