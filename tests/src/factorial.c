@@ -15,5 +15,5 @@ int main() {
 
     printf("\n%d", factorial(num));
 
-    return 0;
+    return num;
 }

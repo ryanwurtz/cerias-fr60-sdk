@@ -8,6 +8,7 @@ test=false
 build=false
 clean=false
 analyze_elf=false
+include_startup=OFF
 install_ghidra_requested=false
 install_gcc_requested=false
 install_newlib_requested=false
@@ -58,11 +59,16 @@ parse_args() {
                 analyze_elf=true
                 shift
                 ;;
+            --startup)
+                include_startup=ON
+                shift
+                ;;
             -h)
-                echo "Usage: $0 [-i <ghidra|gcc|newlib> ...] [-p <binary>] [--elf] [-b] [-c]"
+                echo "Usage: $0 [-i <ghidra|gcc|newlib> ...] [-p <binary>] [--elf] [--startup] [-b] [-c]"
                 echo "  -i  Install one or more tools (may be repeated)"
                 echo "  -p  Compile and analyze a test program"
                 echo "  --elf  Analyze the ELF with symbols (DWARF disabled); write results to <program>/elf/"
+                echo "  --startup  Include crt0.S runtime initialization (default: omitted, entry point is main)"
                 echo "  -b  Rebuild and install the Ghidra extension"
                 echo "  -c  Clean generated builds and test output"
                 exit 0
@@ -199,6 +205,10 @@ run() {
     local -a import_args=(-import "$program_bin_path" -overwrite
         -loader BinaryLoader -loader-baseAddr 0x40000)
     local -a analysis_args=(-preScript ConfigureAnalysis.java)
+    local -a startup_args=()
+    if [[ "$include_startup" == ON ]]; then
+        startup_args=(-preScript SeedBootEntry.java 0xF4000)
+    fi
     if $analyze_elf; then
         output_dir="$proj_dir/tests/output/$program/elf"
         import_args=(-import "$program_elf_path" -overwrite -loader ElfLoader)
@@ -209,10 +219,23 @@ run() {
     cmake -S "$proj_dir/sdk" -B "$proj_dir/build/tests" \
         -DCMAKE_TOOLCHAIN_FILE="$proj_dir/sdk/fr60-toolchain.cmake" \
         -DCROSS_PREFIX="$cross_prefix" \
-        -DFR60_TEST_PROGRAM="$program"
+        -DFR60_TEST_PROGRAM="$program" \
+        -DFR60_INCLUDE_STARTUP="$include_startup"
     cmake --build "$proj_dir/build/tests" --target "$program"
     "${cross_prefix}objdump" -d "$program_elf_path" > "$proj_dir/tests/output/$program/objdump.S"
     "${cross_prefix}objcopy" -O binary "$program_elf_path" "$program_bin_path"
+
+    # Raw binaries have no entry-point metadata. Seed main from the linked ELF
+    # when crt0.S is omitted; main need not be the first function in .text.
+    if [[ "$include_startup" == OFF ]] && ! $analyze_elf; then
+        local entry_address
+        entry_address=$("${cross_prefix}objdump" -f "$program_elf_path" | awk '/start address/ {print $3}')
+        if [[ ! "$entry_address" =~ ^0x[[:xdigit:]]+$ ]]; then
+            printf 'Cannot determine ELF entry point: %s\n' "$program_elf_path" >&2
+            return 1
+        fi
+        startup_args=(-preScript SeedBootEntry.java "$entry_address")
+    fi
 
     #decompile
     "$analyze" "$proj_dir/ghidra_proj" fr60-test \
@@ -223,7 +246,7 @@ run() {
         "${analysis_args[@]}" \
         -preScript ImportMmio.java \
         "$proj_dir/fr60/ghidra_scripts/boards/mb91f467ba.xml" \
-        -preScript SeedBootEntry.java 0xF4000 \
+        "${startup_args[@]}" \
         -postScript ExportDecompiled.java \
         "$output_dir/decomp.c" \
         "$output_dir/disassembly.S" \

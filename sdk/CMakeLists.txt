@@ -13,13 +13,19 @@ target_compile_options(fr60_sdk PRIVATE -g -ffreestanding -Wall -Wextra
     -ffunction-sections -fdata-sections)
 
 # add program target
+option(FR60_INCLUDE_STARTUP "Include crt0.S runtime initialization" OFF)
 if(NOT DEFINED FR60_TEST_PROGRAM)
     set(FR60_TEST_PROGRAM "multest")
 endif()
 add_executable(${FR60_TEST_PROGRAM}
-    src/crt0.S
     "${CMAKE_CURRENT_SOURCE_DIR}/../tests/src/${FR60_TEST_PROGRAM}.c"
 )
+if(FR60_INCLUDE_STARTUP)
+    target_sources(${FR60_TEST_PROGRAM} PRIVATE src/crt0.S)
+else()
+    # Override ENTRY(_start) and retain main when linking with --gc-sections.
+    target_link_options(${FR60_TEST_PROGRAM} PRIVATE -Wl,-e,main)
+endif()
 
 # compiler/linker options
 target_link_libraries(${FR60_TEST_PROGRAM} PRIVATE
