@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "uart.h"
 
 int32_t signed_quotient;
 int32_t signed_remainder;
@@ -36,5 +37,6 @@ int main(void)
     if (modulo_signed(17, -5) != 2) {return 3;}
     if (modulo_signed(-17, -5) != -2) {return 4;}
     if (modulo_signed(-20, 5) != 0) {return 5;}
+    usart0->dr = 'A';
     return 0;
 }
