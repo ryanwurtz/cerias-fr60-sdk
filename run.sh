@@ -12,6 +12,7 @@ include_startup=OFF
 install_ghidra_requested=false
 install_gcc_requested=false
 install_newlib_requested=false
+install_styx_requested=false
 proj_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 ghidra_dir=${GHIDRA_INSTALL_DIR:-$proj_dir/.tools/ghidra}
 cross_prefix=${CROSS_PREFIX:-$proj_dir/.tools/cross/bin/fr30-elf-}
@@ -31,7 +32,7 @@ parse_args() {
             -i)
                 shift
                 if (($# == 0)) || [[ "$1" == -* ]]; then
-                    printf 'Missing installation name for -i (ghidra, gcc, newlib)\n' >&2
+                    printf 'Missing installation name for -i (ghidra, gcc, newlib, styx)\n' >&2
                     exit 2
                 fi
                 while (($#)) && [[ "$1" != -* ]]; do
@@ -39,8 +40,9 @@ parse_args() {
                         ghidra) install_ghidra_requested=true ;;
                         gcc) install_gcc_requested=true ;;
                         newlib) install_newlib_requested=true ;;
+                        styx) install_styx_requested=true ;;
                         *)
-                            printf 'Unknown installation: %s (expected ghidra, gcc, newlib)\n' "$1" >&2
+                            printf 'Unknown installation: %s (expected ghidra, gcc, newlib, styx)\n' "$1" >&2
                             exit 2
                             ;;
                     esac
@@ -64,7 +66,7 @@ parse_args() {
                 shift
                 ;;
             -h)
-                echo "Usage: $0 [-i <ghidra|gcc|newlib> ...] [-p <binary>] [--elf] [--startup] [-b] [-c]"
+                echo "Usage: $0 [-i <ghidra|gcc|newlib|styx> ...] [-p <binary>] [--elf] [--startup] [-b] [-c]"
                 echo "  -i  Install one or more tools (may be repeated)"
                 echo "  -p  Compile and analyze a test program"
                 echo "  --elf  Analyze the ELF with symbols (DWARF disabled); write results to <program>/elf/"
@@ -80,6 +82,53 @@ parse_args() {
         esac
     done
 }
+
+install_styx() (
+    set -euo pipefail
+    styx_dir="$proj_dir/styx-emulator"
+    if [[ ! -f "$styx_dir/rust-toolchain.toml" || ! -f "$styx_dir/justfile" ]]; then
+        printf 'Styx checkout not found at %s\n' "$styx_dir" >&2
+        return 1
+    fi
+
+    sudo apt-get update
+    sudo apt-get install -y build-essential curl ca-certificates git pkg-config \
+        cmake ninja-build clang libclang-dev protobuf-compiler libprotobuf-dev \
+        device-tree-compiler python3 python3-pip python3-virtualenv \
+        direnv gdb-multiarch valgrind
+
+    # Respect custom rustup/cargo locations and existing installations.
+    export PATH="${CARGO_HOME:-$HOME/.cargo}/bin:$PATH"
+    if ! command -v rustup >/dev/null 2>&1; then
+        mkdir -p "$proj_dir/.tools/downloads"
+        curl --proto '=https' --tlsv1.2 -fL --retry 3 https://sh.rustup.rs \
+            -o "$proj_dir/.tools/downloads/rustup-init.sh"
+        sh "$proj_dir/.tools/downloads/rustup-init.sh" -y --no-modify-path \
+            --default-toolchain none
+    fi
+
+    cd -- "$styx_dir"
+    # A venv copied from another machine/container may point to a missing Python.
+    # Preserve it for recovery; Styx's mk-venv only checks directory existence.
+    if [[ -e venv || -L venv ]]; then
+        if ! venv/bin/python3 -m pip --version >/dev/null 2>&1; then
+            venv_backup=$(mktemp -d "$styx_dir/venv-backup.XXXXXXXX")
+            mv -- venv "$venv_backup/venv"
+            printf 'Moved unusable Python environment to %s/venv\n' "$venv_backup"
+        fi
+    fi
+    if [[ ! -d venv ]]; then
+        /usr/bin/python3 -m virtualenv venv
+    fi
+    # Cargo/rustup read the version and required components from rust-toolchain.toml.
+    rustup show
+    cargo install --locked just --version 1.38.0
+    just setup
+    venv/bin/pre-commit install
+
+    printf '\nStyx development dependencies installed. To activate the Python environment:\n'
+    printf '  source %q/venv/bin/activate\n' "$styx_dir"
+)
 
 install_ghidra() (
     set -euo pipefail
@@ -293,6 +342,9 @@ if $install_gcc_requested; then
 fi
 if $install_newlib_requested; then
     install_newlib
+fi
+if $install_styx_requested; then
+    install_styx
 fi
 if $build; then
     build
