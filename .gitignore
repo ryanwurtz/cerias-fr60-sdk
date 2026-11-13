@@ -7,6 +7,7 @@
 # Project-local tool installations, downloads, and build trees
 /.tools/
 /build/
+/styx-emulator/
 
 # Headless Ghidra projects
 /ghidra_proj/
