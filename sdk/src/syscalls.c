@@ -8,7 +8,7 @@ extern char __heap_start[];
 extern char __heap_limit[];
 
 ssize_t _write(int file, const void *ptr, size_t len) {
-    if (file != 1 || file != 2) {
+    if (file != 1 && file != 2) {
         errno = EBADF;
         return -1;
     } 
