@@ -13,8 +13,8 @@ int main () {
 
     a = multiply(b, c);
 
-    printf("%d\n", a);
+    //printf("%d\n", a);
 
-    if (a > 0) {return 0;}
-    else {return 1;}
+    if (a > 0) {return 1;}
+    else {return 0;}
 }

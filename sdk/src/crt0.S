@@ -34,6 +34,8 @@ _start:
     ldi:8 #0, r5
     ldi:32 #main, r0
     call @r0
+    .global __emulator_exit
+__emulator_exit:
 .Lhalt:
     bra .Lhalt
 
