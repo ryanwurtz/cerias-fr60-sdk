@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.20)
 project(fr60_sdk LANGUAGES C ASM)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # clangd intellisense support
 
+set(FR60_OPT_LEVEL "0" CACHE STRING "GCC optimization level for FR60 C sources")
+if(NOT FR60_OPT_LEVEL MATCHES "^([0123gsz]|fast)$")
+    message(FATAL_ERROR "FR60_OPT_LEVEL must be 0, 1, 2, 3, g, s, z, or fast")
+endif()
+
 # build sdk library
 add_library(fr60_sdk STATIC 
     src/syscalls.c
@@ -9,7 +14,7 @@ add_library(fr60_sdk STATIC
 target_include_directories(fr60_sdk PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
-target_compile_options(fr60_sdk PRIVATE -g -ffreestanding -Wall -Wextra
+target_compile_options(fr60_sdk PRIVATE "-O${FR60_OPT_LEVEL}" -g -ffreestanding -Wall -Wextra
     -ffunction-sections -fdata-sections)
 
 # add program target
@@ -31,7 +36,7 @@ endif()
 target_link_libraries(${FR60_TEST_PROGRAM} PRIVATE
     -Wl,--start-group fr60_sdk m c gcc -Wl,--end-group
 )
-target_compile_options(${FR60_TEST_PROGRAM} PRIVATE -O0 -g -ffreestanding
+target_compile_options(${FR60_TEST_PROGRAM} PRIVATE "$<$<COMPILE_LANGUAGE:C>:-O${FR60_OPT_LEVEL}>" -g -ffreestanding
     -ffunction-sections -fdata-sections)
 target_link_options(${FR60_TEST_PROGRAM} PRIVATE
     -nostdlib

@@ -12,6 +12,7 @@ build=false
 clean=false
 analyze_elf=false
 include_startup=OFF
+optimization=0
 install_ghidra_requested=false
 install_gcc_requested=false
 install_newlib_requested=false
@@ -31,6 +32,15 @@ parse_args() {
                 test=true
                 program=$2
                 shift 2
+                optimization=0
+                if [[ "${1:-}" == -O* ]]; then
+                    optimization=${1#-O}
+                    if [[ ! "$optimization" =~ ^[0123gsz]$ && "$optimization" != fast ]]; then
+                        printf 'Invalid optimization flag: %s (expected -O0, -O1, -O2, -O3, -Og, -Os, -Oz, or -Ofast)\n' "$1" >&2
+                        exit 2
+                    fi
+                    shift
+                fi
                 ;;
             --emulate)
                 if (($# < 2)) || [[ ! "$2" =~ ^[A-Za-z0-9_]+$ ]]; then
@@ -90,9 +100,9 @@ parse_args() {
                 shift
                 ;;
             -h)
-                echo "Usage: $0 [-i <ghidra|gcc|newlib|styx> ...] [-p <binary>] [--elf] [--startup] [-b] [-c] [--emulate PROGRAM] [--trace] [--max-instructions N]"
+                echo "Usage: $0 [-i <ghidra|gcc|newlib|styx> ...] [-p PROGRAM [-OLEVEL]] [--elf] [--startup] [-b] [-c] [--emulate PROGRAM] [--trace] [--max-instructions N]"
                 echo "  -i  Install one or more tools (may be repeated)"
-                echo "  -p  Compile and analyze a test program"
+                echo "  -p PROGRAM [-OLEVEL]  Compile and analyze a test program (levels: 0, 1, 2, 3, g, s, z, fast; default: 0)"
                 echo "  --elf  Analyze the ELF with symbols (DWARF disabled); write results to <program>/elf/"
                 echo "  --startup  Include crt0.S runtime initialization (default: omitted, entry point is main)"
                 echo "  --emulate PROGRAM  Run existing ELF/bin artifacts without building"
@@ -296,6 +306,7 @@ run() {
         -DCMAKE_TOOLCHAIN_FILE="$proj_dir/sdk/fr60-toolchain.cmake" \
         -DCROSS_PREFIX="$cross_prefix" \
         -DFR60_TEST_PROGRAM="$program" \
+        -DFR60_OPT_LEVEL="$optimization" \
         -DFR60_INCLUDE_STARTUP="$include_startup"
     cmake --build "$proj_dir/build/tests" --target "$program"
     "${cross_prefix}objdump" -d "$program_elf_path" > "$proj_dir/tests/output/$program/objdump.S"
