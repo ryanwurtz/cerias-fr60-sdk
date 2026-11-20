@@ -5,9 +5,6 @@ set -e
 #global args
 program=multest
 test=false
-emulate_requested=false
-emulate_program=
-emulate_args=()
 build=false
 clean=false
 analyze_elf=false
@@ -41,27 +38,6 @@ parse_args() {
                     fi
                     shift
                 fi
-                ;;
-            --emulate)
-                if (($# < 2)) || [[ ! "$2" =~ ^[A-Za-z0-9_]+$ ]]; then
-                    printf 'Expected a program name after --emulate (without extension)\n' >&2
-                    exit 2
-                fi
-                emulate_requested=true
-                emulate_program=$2
-                shift 2
-                ;;
-            --trace)
-                emulate_args+=(--trace)
-                shift
-                ;;
-            --max-instructions)
-                if (($# < 2)) || [[ ! "$2" =~ ^[0-9]+$ || ! "$2" =~ [1-9] ]]; then
-                    printf 'Expected a positive instruction budget after --max-instructions\n' >&2
-                    exit 2
-                fi
-                emulate_args+=(--max-instructions "$2")
-                shift 2
                 ;;
             -i)
                 shift
@@ -100,14 +76,11 @@ parse_args() {
                 shift
                 ;;
             -h)
-                echo "Usage: $0 [-i <ghidra|gcc|newlib|styx> ...] [-p PROGRAM [-OLEVEL]] [--elf] [--startup] [-b] [-c] [--emulate PROGRAM] [--trace] [--max-instructions N]"
+                echo "Usage: $0 [-i <ghidra|gcc|newlib|styx> ...] [-p PROGRAM [-OLEVEL]] [--elf] [--startup] [-b] [-c]"
                 echo "  -i  Install one or more tools (may be repeated)"
                 echo "  -p PROGRAM [-OLEVEL]  Compile and analyze a test program (levels: 0, 1, 2, 3, g, s, z, fast; default: 0)"
                 echo "  --elf  Analyze the ELF with symbols (DWARF disabled); write results to <program>/elf/"
                 echo "  --startup  Include crt0.S runtime initialization (default: omitted, entry point is main)"
-                echo "  --emulate PROGRAM  Run existing ELF/bin artifacts without building"
-                echo "  --trace  Print emulation trace"
-                echo "  --max-instructions N  Set emulation budget (default: 100000)"
                 echo "  -b  Rebuild and install the Ghidra extension"
                 echo "  -c  Clean generated builds and test output"
                 exit 0
@@ -267,20 +240,23 @@ install_newlib() (
         -C .tools/build
 
     #configure for fr30 with manually provided stubs
-    mkdir -p .tools/build/newlib-build
-    cd .tools/build/newlib-build
+    # Use a separate build directory to avoid reusing optimized objects.
+    # GCC 14.2's FR30 backend miscompiles newlib stdio at -Os and -O2.
+    mkdir -p .tools/build/newlib-build-o0
+    cd .tools/build/newlib-build-o0
     "../newlib-$newlib_version/configure" \
         --target=fr30-elf \
         --prefix="$proj_dir/.tools/cross" \
         --disable-multilib \
         --disable-libgloss \
-        --disable-newlib-supplied-syscalls
+        --disable-newlib-supplied-syscalls \
+        --disable-target-optspace
 
     #build
     sudo apt-get update
     sudo apt-get install -y cmake
-    make all-target-newlib
-    make install-target-newlib
+    make all-target-newlib CFLAGS_FOR_TARGET="-g -O0"
+    make install-target-newlib CFLAGS_FOR_TARGET="-g -O0"
 )
 
 run() {
@@ -368,33 +344,7 @@ clean() {
     rm -rf "$proj_dir/tests/output/"
 }
 
-emulate() (
-    set -euo pipefail
-    local program="$emulate_program"
-elf="$proj_dir/tests/output/$program/$program.elf"
-bin="$proj_dir/tests/output/$program/$program.bin"
-runner="$proj_dir/styx-emulator/target/debug/fr60-runner"
-for artifact in "$elf" "$bin" "$runner"; do
-    if [[ ! -f "$artifact" ]]; then
-        echo "Missing artifact: $artifact. Build it before using --emulate." >&2
-        exit 1
-    fi
-done
-entry=$("${cross_prefix}objdump" -f "$elf" | awk '/start address/ {print $3}')
-stop=$("${cross_prefix}nm" --defined-only "$elf" | awk '$3 == "__emulator_exit" {print "0x" $1}')
-if [[ ! "$entry" =~ ^0x[[:xdigit:]]+$ || ! "$stop" =~ ^0x[[:xdigit:]]+$ ]]; then
-    echo "Could not resolve ELF entry or __emulator_exit; the SDK program must be built with --startup" >&2
-    exit 1
-fi
-    "$runner" --bin "$bin" --base 0x40000 \
-        --entry "$entry" --sp 0x30000 --stop "$stop" "${emulate_args[@]}"
-)
-
 parse_args "$@"
-if ((${#emulate_args[@]})) && ! $emulate_requested; then
-    printf '%s\n' '--trace and --max-instructions require --emulate' >&2
-    exit 2
-fi
 if $clean; then
     clean
 fi
@@ -415,8 +365,4 @@ if $build; then
 fi
 if $test; then
     run
-fi
-
-if $emulate_requested; then
-    emulate
 fi

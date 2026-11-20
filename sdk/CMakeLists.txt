@@ -47,6 +47,19 @@ target_link_options(${FR60_TEST_PROGRAM} PRIVATE
 set_property(TARGET ${FR60_TEST_PROGRAM} APPEND PROPERTY
     LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld"
 )
+# Libraries passed by name in the link group need explicit file dependencies.
+foreach(archive IN ITEMS libc.a libm.a)
+    execute_process(
+        COMMAND "${CMAKE_C_COMPILER}" "-print-file-name=${archive}"
+        OUTPUT_VARIABLE archive_path
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    if(IS_ABSOLUTE "${archive_path}")
+        set_property(TARGET ${FR60_TEST_PROGRAM} APPEND PROPERTY
+            LINK_DEPENDS "${archive_path}"
+        )
+    endif()
+endforeach()
 set_target_properties(${FR60_TEST_PROGRAM} PROPERTIES
     SUFFIX ".elf"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../tests/output/${FR60_TEST_PROGRAM}"
