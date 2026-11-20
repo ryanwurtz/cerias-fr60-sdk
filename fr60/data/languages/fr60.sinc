@@ -21,7 +21,9 @@ define token instr(16)
     rj = (4,7)
     ri = (0,3)
     rsh = (4,7)
+    rsh_num = (4,7)
     rsl = (0,3)
+    rsl_num = (0,3)
 
     cprj = (4,7)
     cpri = (0,3)
@@ -66,10 +68,17 @@ define token imm(32)
 	i32 = (0,31)
 ;
 
-# attaching token vars to declared registers
-# SSP -> SP for split stack simplification
+# Attach token fields to registers.
 attach variables [ ri rj ] [ r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 AC FP SP ];
+
+
+@ifdef SIMPLE_STACK
+#SSP -> SP for split stack simplification
 attach variables [ rsh rsl ] [ TBR RP SP USP MDH MDL _ _ _ _ _ _ _ _ _ _ ];
+@else
+attach variables [ rsh rsl ] [ TBR RP SSP USP MDH MDL _ _ _ _ _ _ _ _ _ _];
+@endif
+
 
 # pcode OPs for channel resource and coprocessor instructions
 define pcodeop LDRES_OP;
@@ -124,12 +133,59 @@ dir8: u8 is u8 {
     export *[const]:4 u8;
 }
 
+#swaps stack pointer banks on a mode change
+macro swap_sp_bank() {
+	if (S == 0) goto <usp>;
+	USP = SP;
+	SP = SSP;
+	goto <done>;
+
+	<usp>
+	SSP = SP;
+	SP = USP;
+
+	<done>
+}
+
+# The selector is the encoded Rs number. The attached operand is its value.
+macro read_rs(selector, src, dest) {
+	local rs_code:1 = selector;
+	if ((rs_code == 2 && S == 0) || (rs_code == 3 && S == 1)) goto <active>;
+	dest = src;
+	goto <done>;
+
+	<active>
+	dest = SP;
+
+	<done>
+}
+
+macro write_rs(selector, src, dest) {
+	local rs_code:1 = selector;
+	if ((rs_code == 2 && S == 0) || (rs_code == 3 && S == 1)) goto <active>;
+	dest = src;
+	goto <done>;
+
+	<active>
+	SP = src;
+
+	<done>
+}
+
 macro write_ps(value) {
     local oldilm:1 = ILM;
     local forcebit:1 = (oldilm >= 16);
     local mask:4 = zext(forcebit) << 20;
 
+@ifndef SIMPLE_STACK
+    local newps:4 = value;
+	if (((PS ^ newps) & 0x20) == 0) goto <skip>;
+	swap_sp_bank();
+	<skip>
+    PS = newps | mask;
+@else
     PS = value | mask;
+@endif
 }
 
 macro set_nz(result) {
@@ -375,11 +431,21 @@ macro right_setc(shift, dest) {
 }
 
 :ANDCCR "#"^u8 is op8=0x83 & u8 {
+@ifdef SIMPLE_STACK
 	CCR = CCR & u8;
+@else
+	local operand:1 = u8;
+	write_ps(PS & (0xffffff00 | zext(operand)));
+@endif
 }
 
 :ORCCR "#"^u8 is op8=0x93 & u8 {
+@ifdef SIMPLE_STACK
 	CCR = CCR | u8;
+@else
+	local operand:1 = u8;
+	write_ps(PS | zext(operand));
+@endif
 }
 
 :EXTSB ri is op12=0x978 & ri {	
@@ -617,10 +683,14 @@ macro right_setc(shift, dest) {
 	ri = data;
 }
 
-:LD "@SP+", rsl is op12=0x078 & rsl {
+:LD "@SP+", rsl is op12=0x078 & rsl & rsl_num {
 	local data:4 = *:4 SP;
 	SP = SP + 4;
+@ifdef SIMPLE_STACK
 	rsl = data;
+@else
+	write_rs(rsl_num, data, rsl);
+@endif
 }
 
 :LD "@SP+, PS" is op16=0x0790 {
@@ -675,8 +745,13 @@ macro right_setc(shift, dest) {
 	*:4 SP = data;
 }
 
-:ST rsl, "@-SP" is op12=0x178 & rsl {
+:ST rsl, "@-SP" is op12=0x178 & rsl & rsl_num {
+@ifdef SIMPLE_STACK
 	local data:4 = rsl;
+@else
+	local data:4;
+	read_rs(rsl_num, rsl, data);
+@endif
 	SP = SP - 4;
 	*:4 SP = data;
 }
@@ -714,16 +789,24 @@ macro right_setc(shift, dest) {
 	ri = rj;
 }
 
-:MOV rsh, ri is op8=0xB7 & rsh & ri {
+:MOV rsh, ri is op8=0xB7 & rsh & rsh_num & ri {
+@ifdef SIMPLE_STACK
 	ri = rsh;
+@else
+	read_rs(rsh_num, rsh, ri);
+@endif
 }
 
 :MOV "PS", ri is op12=0x171 & ri {
 	ri = PS;
 }
 
-:MOV ri, rsh is op8=0xB3 & rsh & ri {
+:MOV ri, rsh is op8=0xB3 & rsh & rsh_num & ri {
+@ifdef SIMPLE_STACK
 	rsh = ri;
+@else
+	write_rs(rsh_num, ri, rsh);
+@endif
 }
 
 :MOV ri, "PS" is op12=0x071 & ri {
@@ -960,11 +1043,33 @@ stm1_list: stm_r9 is stm_r9 & storebit0=0 { build stm_r9; }
 	return [RP];
 }
 
-:INT "#"^u8 is op8=0x1F & u8 {
+macro push_interrupt_frame() {
+@ifdef SIMPLE_STACK
 	SP = SP - 4;
 	*:4 SP = PS;
 	SP = SP - 4;
 	*:4 SP = inst_next;
+@else
+	# Interrupt frames always go on the supervisor stack.
+	local frame:4 = SP;
+	if (S == 0) goto <push>;
+	frame = SSP;
+
+	<push>
+	frame = frame - 4;
+	*:4 frame = PS;
+	frame = frame - 4;
+	*:4 frame = inst_next;
+
+	if (S == 0) goto <set_sp>;
+	USP = SP;
+	<set_sp>
+	SP = frame;
+@endif
+}
+
+:INT "#"^u8 is op8=0x1F & u8 {
+	push_interrupt_frame();
 	S = 0;
 	I = 0;
 	
@@ -976,10 +1081,7 @@ stm1_list: stm_r9 is stm_r9 & storebit0=0 { build stm_r9; }
 }
 
 :INTE is op16=0x9F30 {
-	SP = SP - 4;
-	*:4 SP = PS;
-	SP = SP - 4;
-	*:4 SP = inst_next;
+	push_interrupt_frame();
 	ILM = 4;
 	S = 0;
 
@@ -1002,6 +1104,7 @@ stm1_list: stm_r9 is stm_r9 & storebit0=0 { build stm_r9; }
     psdata = *:4 addr;
     addr = addr + 4;
 
+    # RETI starts in supervisor mode. Finish popping before restoring S.
     SP = addr;
     write_ps(psdata);
     return [pcdata];
